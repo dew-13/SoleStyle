@@ -19,10 +19,8 @@ export default function Footer() {
             viewport={{ once: true }}
           >
             <div className="flex items-center space-x-2">
-              <Image src="/images/og-vault-logo.png" alt="OG Vault" width={32} height={32} className="object-contain" />
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-                OG VAULT
-              </h3>
+              <Image src="/body-logo.png" alt="OG Vault" width={132} height={1022} className="object-contain" />
+             
             </div>
             <p className="text-gray-400">
               Unlock the Legacy - Sealed for Greatness. Step into the future of footwear fashion with our premium
@@ -30,9 +28,9 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <Facebook className="w-5 h-5 text-gray-400 hover:text-yellow-400 cursor-pointer transition-colors" />
-              <Twitter className="w-5 h-5 text-gray-400 hover:text-yellow-400 cursor-pointer transition-colors" />
+             
               <Instagram className="w-5 h-5 text-gray-400 hover:text-yellow-400 cursor-pointer transition-colors" />
-              <Youtube className="w-5 h-5 text-gray-400 hover:text-yellow-400 cursor-pointer transition-colors" />
+              
             </div>
           </motion.div>
 
@@ -128,7 +126,7 @@ export default function Footer() {
           transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
         >
-          <p className="text-gray-400">© 2024 OG Vault. All rights reserved.</p>
+          <p className="text-gray-400">© 2025 OG Vault. All rights reserved.</p>
         </motion.div>
       </div>
     </footer>

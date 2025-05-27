@@ -5,27 +5,23 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Home, Search, ShoppingCart, User, LogOut, Package, UserCircle, Menu, X, Shield } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-
-type User = {
-  isAdmin?: boolean
-  // Add other user properties as needed
-}
-
-interface HeaderProps {
-  user: User | null
-  setUser: (user: User | null) => void
-}
+import type { HeaderProps, CartItem } from "app/types"
 
 export default function Header({ user, setUser }: HeaderProps) {
-  const [showUserMenu, setShowUserMenu] = useState(false)
-  const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const [cartItems, setCartItems] = useState([])
+  const [showUserMenu, setShowUserMenu] = useState<boolean>(false)
+  const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false)
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
 
   // Load cart items from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem("cart")
     if (savedCart) {
-      setCartItems(JSON.parse(savedCart))
+      try {
+        setCartItems(JSON.parse(savedCart))
+      } catch (error) {
+        console.error("Error parsing cart data:", error)
+        setCartItems([])
+      }
     }
   }, [])
 
@@ -54,9 +50,9 @@ export default function Header({ user, setUser }: HeaderProps) {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <motion.div className="flex items-center space-x-2" whileHover={{ scale: 1.05 }}>
-              <Image src="/images/og-vault-logo.png" alt="OG Vault" width={40} height={40} className="object-contain" />
+              <Image src="/body-logo.png" alt="OG Vault" width={100} height={60} className="object-contain" />
               <div className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-                OG VAULT
+               
               </div>
             </motion.div>
           </Link>

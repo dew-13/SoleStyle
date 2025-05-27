@@ -19,30 +19,7 @@ export default function FeaturedShoes() {
         }
       } catch (error) {
         console.error("Error fetching featured shoes:", error)
-        // Fallback data
-        setFeaturedShoes([
-          {
-            _id: "1",
-            name: "Air Max 270 Premium Edition",
-            brand: "Nike",
-            price: 45000,
-            image: "/placeholder.svg?height=300&width=400",
-          },
-          {
-            _id: "2",
-            name: "Ultra Boost 22 Performance",
-            brand: "Adidas",
-            price: 54000,
-            image: "/placeholder.svg?height=300&width=400",
-          },
-          {
-            _id: "3",
-            name: "Chuck Taylor All Star Classic",
-            brand: "Converse",
-            price: 19500,
-            image: "/placeholder.svg?height=300&width=400",
-          },
-        ])
+     
       } finally {
         setLoading(false)
       }

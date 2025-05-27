@@ -7,11 +7,12 @@ import Image from "next/image"
 import Link from "next/link"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
+import type { User, CartItem } from "app/types"
 
 export default function CartPage() {
-  const [user, setUser] = useState(null)
-  const [cartItems, setCartItems] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null)
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -34,14 +35,19 @@ export default function CartPage() {
     // Load cart items from localStorage
     const savedCart = localStorage.getItem("cart")
     if (savedCart) {
-      setCartItems(JSON.parse(savedCart))
+      try {
+        setCartItems(JSON.parse(savedCart))
+      } catch (error) {
+        console.error("Error parsing cart data:", error)
+        setCartItems([])
+      }
     }
 
     checkAuth()
     setLoading(false)
   }, [])
 
-  const updateQuantity = (itemId, size, newQuantity) => {
+  const updateQuantity = (itemId: string, size: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeItem(itemId, size)
       return
@@ -55,14 +61,14 @@ export default function CartPage() {
     localStorage.setItem("cart", JSON.stringify(updatedCart))
   }
 
-  const removeItem = (itemId, size) => {
+  const removeItem = (itemId: string, size: string) => {
     const updatedCart = cartItems.filter((item) => !(item.id === itemId && item.size === size))
 
     setCartItems(updatedCart)
     localStorage.setItem("cart", JSON.stringify(updatedCart))
   }
 
-  const getTotalPrice = () => {
+  const getTotalPrice = (): number => {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 

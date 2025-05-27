@@ -1,17 +1,19 @@
 export interface User {
-  _id: string
-  name: string
+  id: string
+  _id?: string
+  firstName: string
+  lastName: string
   email: string
   phone?: string
-  isAdmin?: boolean
-  createdAt: string
-  shippingAddress?: {
+  isAdmin: boolean
+  address?: {
     street: string
     city: string
     state: string
     zipCode: string
-    country: string
+    country?: string
   }
+  createdAt: string
 }
 
 export interface Shoe {
@@ -26,7 +28,19 @@ export interface Shoe {
   featured: boolean
   hidden?: boolean
   createdAt: string
-  updatedAt?: string
+  rating?: number
+  reviews?: number
+  features?: string[]
+}
+
+export interface CartItem {
+  id: string
+  name: string
+  brand: string
+  price: number
+  image: string
+  size: string
+  quantity: number
 }
 
 export interface Order {
@@ -34,14 +48,17 @@ export interface Order {
   userId: string
   shoeId: string
   orderId?: string
+  customerName: string
+  customerPhone: string
+  customerEmail: string
   shoe: Shoe
   size: string
   quantity: number
   total: number
-  totalPrice?: number // For backward compatibility
-  customerName: string
-  customerPhone: string
-  customerEmail: string
+  totalPrice?: number
+  status: "pending" | "payment_received" | "installment_received" | "shipped" | "delivered" | "cancelled"
+  paymentMethod: "full" | "installments" | "cash"
+  createdAt: string
   shippingAddress: {
     street: string
     city: string
@@ -49,17 +66,20 @@ export interface Order {
     zipCode: string
     country: string
   }
-  paymentMethod: string
-  status: "pending" | "payment_received" | "installment_received" | "shipped" | "delivered" | "cancelled"
+}
+
+export interface WishlistItem {
+  _id: string
+  userId: string
+  shoeId: string
+  shoe: Shoe
   createdAt: string
-  updatedAt?: string
 }
 
 export interface Brand {
   _id: string
   name: string
-  logo?: string
-  shoeCount: number
+  shoeCount?: number
 }
 
 export interface AdminStats {
@@ -73,20 +93,49 @@ export interface AdminStats {
   topShoes: (Shoe & { orderCount: number })[]
 }
 
-export interface CartItem {
-  _id: string
-  name: string
-  brand: string
-  price: number
-  image: string
+export interface OrderDetails {
+  shoe: Shoe
   size: string
   quantity: number
+  totalPrice: number
 }
 
-export interface WishlistItem {
-  _id: string
-  name: string
-  brand: string
-  price: number
-  image: string
+export interface ShippingAddress {
+  fullName: string
+  address: string
+  city: string
+  state: string
+  zipCode: string
+  phone: string
+}
+
+export interface HeaderProps {
+  user: User | null
+  setUser: (user: User | null) => void
+}
+
+export interface FormData {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  confirmPassword?: string
+}
+
+export interface LoginFormData {
+  email: string
+  password: string
+}
+
+export interface ProfileData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  address: {
+    street: string
+    city: string
+    state: string
+    zipCode: string
+  }
 }

@@ -1,33 +1,36 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import type { FormData } from "app/types"
 
 export default function SignupPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
   })
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string>("")
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     })
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError("")
@@ -97,7 +100,7 @@ export default function SignupPage() {
 
         {/* Signup Form */}
         <motion.div
-          className="bg-gray-900 border border-yellow-400/20 rounded-lg p-8"
+          className="bg-black border border-yellow-400/20 rounded-lg p-8"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}

@@ -7,18 +7,18 @@ import Image from "next/image"
 import Link from "next/link"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
+import type { User, Shoe } from "app/types"
 
 export default function ShopPage() {
-  const [user, setUser] = useState(null)
-  const [shoes, setShoes] = useState([])
-  const [filteredShoes, setFilteredShoes] = useState([])
-  const [brands, setBrands] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedBrand, setSelectedBrand] = useState("")
-  const [selectedSize, setSelectedSize] = useState("")
-  const [showFilters, setShowFilters] = useState(false)
-  const [wishlist, setWishlist] = useState([])
+  const [user, setUser] = useState<User | null>(null)
+  const [shoes, setShoes] = useState<Shoe[]>([])
+  const [filteredShoes, setFilteredShoes] = useState<Shoe[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [searchTerm, setSearchTerm] = useState<string>("")
+  const [selectedBrand, setSelectedBrand] = useState<string>("")
+  const [selectedSize, setSelectedSize] = useState<string>("")
+  const [showFilters, setShowFilters] = useState<boolean>(false)
+  const [wishlist, setWishlist] = useState<string[]>([])
 
   // Famous basketball brands
   const basketballBrands = [
@@ -63,7 +63,7 @@ export default function ShopPage() {
     checkAuth()
   }, [])
 
-  const loadWishlist = async (userId) => {
+  const loadWishlist = async (userId: string) => {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(`/api/wishlist/${userId}`, {
@@ -71,14 +71,14 @@ export default function ShopPage() {
       })
       if (response.ok) {
         const wishlistData = await response.json()
-        setWishlist(wishlistData.map((item) => item.shoeId))
+        setWishlist(wishlistData.map((item: any) => item.shoeId))
       }
     } catch (error) {
       console.error("Error loading wishlist:", error)
     }
   }
 
-  const toggleWishlist = async (shoeId) => {
+  const toggleWishlist = async (shoeId: string) => {
     if (!user) {
       alert("Please login to add items to wishlist")
       return
@@ -120,7 +120,7 @@ export default function ShopPage() {
           setFilteredShoes(shoesData)
         } else {
           // Fallback data for shoes
-          const fallbackShoes = [
+          const fallbackShoes: Shoe[] = [
             {
               _id: "1",
               name: "Air Max 270",
@@ -128,6 +128,9 @@ export default function ShopPage() {
               price: 150,
               image: "/placeholder.svg?height=300&width=400",
               sizes: ["8", "8.5", "9", "9.5", "10", "10.5", "11"],
+              description: "Comfortable running shoe",
+              featured: false,
+              createdAt: new Date().toISOString(),
             },
             {
               _id: "2",
@@ -136,46 +139,14 @@ export default function ShopPage() {
               price: 180,
               image: "/placeholder.svg?height=300&width=400",
               sizes: ["7", "7.5", "8", "8.5", "9", "9.5", "10"],
-            },
-            {
-              _id: "3",
-              name: "Chuck Taylor All Star",
-              brand: "Converse",
-              price: 65,
-              image: "/placeholder.svg?height=300&width=400",
-              sizes: ["6", "6.5", "7", "7.5", "8", "8.5", "9"],
-            },
-            {
-              _id: "4",
-              name: "Air Force 1",
-              brand: "Nike",
-              price: 90,
-              image: "/placeholder.svg?height=300&width=400",
-              sizes: ["8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5"],
-            },
-            {
-              _id: "5",
-              name: "Stan Smith",
-              brand: "Adidas",
-              price: 80,
-              image: "/placeholder.svg?height=300&width=400",
-              sizes: ["7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5"],
-            },
-            {
-              _id: "6",
-              name: "Old Skool",
-              brand: "Vans",
-              price: 60,
-              image: "/placeholder.svg?height=300&width=400",
-              sizes: ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5"],
+              description: "Premium running shoe",
+              featured: false,
+              createdAt: new Date().toISOString(),
             },
           ]
           setShoes(fallbackShoes)
           setFilteredShoes(fallbackShoes)
         }
-
-        // Set basketball brands
-        setBrands(basketballBrands.map((brand) => ({ _id: brand, name: brand })))
       } catch (error) {
         console.error("Error fetching data:", error)
       } finally {
@@ -277,7 +248,7 @@ export default function ShopPage() {
                 placeholder="Search shoes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-white"
+                className="w-full pl-10 pr-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-white"
               />
             </div>
 
@@ -285,7 +256,7 @@ export default function ShopPage() {
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="md:hidden flex items-center space-x-2 bg-gray-900 border border-yellow-400/20 px-4 py-2 rounded-lg"
+                className="md:hidden flex items-center space-x-2 bg-black border border-yellow-400/20 px-4 py-2 rounded-lg"
               >
                 <Filter className="w-4 h-4" />
                 <span>Filters</span>
@@ -309,7 +280,7 @@ export default function ShopPage() {
               <select
                 value={selectedBrand}
                 onChange={(e) => setSelectedBrand(e.target.value)}
-                className="bg-gray-900 border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
+                className="bg-black border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
               >
                 <option value="">All Brands</option>
                 {basketballBrands.map((brand) => (
@@ -323,7 +294,7 @@ export default function ShopPage() {
               <select
                 value={selectedSize}
                 onChange={(e) => setSelectedSize(e.target.value)}
-                className="bg-gray-900 border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
+                className="bg-black border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
               >
                 <option value="">All Sizes</option>
                 {sizes.map((size) => (
@@ -357,7 +328,7 @@ export default function ShopPage() {
             {filteredShoes.map((shoe, index) => (
               <motion.div
                 key={shoe._id}
-                className="bg-gray-900 border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative"
+                className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative"
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -392,7 +363,7 @@ export default function ShopPage() {
                   </h3>
                   <p className="text-gray-400 text-sm mb-2">{shoe.brand}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-yellow-400">${shoe.price}</span>
+                    <span className="text-xl font-bold text-yellow-400">LKR {shoe.price.toLocaleString()}</span>
                     <Link href={`/product/${shoe._id}`}>
                       <motion.button
                         className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"

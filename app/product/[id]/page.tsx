@@ -8,26 +8,17 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import Header from "../../components/Header"
 import Footer from "../../components/Footer"
-
-async function getShoe(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/shoes/${id}`)
-
-  if (!res.ok) {
-    return undefined
-  }
-
-  return res.json()
-}
+import type { User, Shoe, CartItem } from "app/types"
 
 export default function ProductPage() {
   const params = useParams()
   const router = useRouter()
-  const [user, setUser] = useState(null)
-  const [shoe, setShoe] = useState(null)
-  const [selectedSize, setSelectedSize] = useState("")
-  const [loading, setLoading] = useState(true)
-  const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState("")
+  const [user, setUser] = useState<User | null>(null)
+  const [shoe, setShoe] = useState<Shoe | null>(null)
+  const [selectedSize, setSelectedSize] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(true)
+  const [quantity, setQuantity] = useState<number>(1)
+  const [selectedImage, setSelectedImage] = useState<string>("")
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -83,7 +74,12 @@ export default function ProductPage() {
       return
     }
 
-    const cartItem = {
+    if (!shoe) {
+      alert("Product not found")
+      return
+    }
+
+    const cartItem: CartItem = {
       id: shoe._id,
       name: shoe.name,
       brand: shoe.brand,
@@ -97,7 +93,9 @@ export default function ProductPage() {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]")
 
     // Check if item already exists in cart
-    const existingItemIndex = existingCart.findIndex((item) => item.id === cartItem.id && item.size === cartItem.size)
+    const existingItemIndex = existingCart.findIndex(
+      (item: CartItem) => item.id === cartItem.id && item.size === cartItem.size,
+    )
 
     if (existingItemIndex > -1) {
       // Update quantity if item exists
@@ -122,6 +120,11 @@ export default function ProductPage() {
 
     if (!selectedSize) {
       alert("Please select a size")
+      return
+    }
+
+    if (!shoe) {
+      alert("Product not found")
       return
     }
 
@@ -262,7 +265,7 @@ export default function ProductPage() {
                         <Star
                           key={i}
                           className={`w-5 h-5 ${
-                            i < Math.floor(shoe.rating) ? "text-yellow-400 fill-current" : "text-gray-600"
+                            i < Math.floor(shoe.rating!) ? "text-yellow-400 fill-current" : "text-gray-600"
                           }`}
                         />
                       ))}

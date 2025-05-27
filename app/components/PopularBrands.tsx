@@ -1,58 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 
+const hardcodedBrands = [
+  { _id: "1", name: "Nike", logo: "/nike.svg" },
+  { _id: "2", name: "Adidas", logo: "/adidas.svg" },
+  { _id: "3", name: "Converse", logo: "/converse.svg" },
+  { _id: "4", name: "Puma", logo: "/puma.svg" },
+  { _id: "5", name: "Vans", logo: "/vans.svg" },
+  { _id: "6", name: "New Balance", logo: "/nb.svg" },
+]
+
 export default function PopularBrands() {
-  const [brands, setBrands] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchPopularBrands = async () => {
-      try {
-        const response = await fetch("/api/brands/popular")
-        if (response.ok) {
-          const data = await response.json()
-          setBrands(data)
-        }
-      } catch (error) {
-        console.error("Error fetching brands:", error)
-        // Fallback data
-        setBrands([
-          { _id: "1", name: "Nike", logo: "/placeholder.svg?height=100&width=100" },
-          { _id: "2", name: "Adidas", logo: "/placeholder.svg?height=100&width=100" },
-          { _id: "3", name: "Converse", logo: "/placeholder.svg?height=100&width=100" },
-          { _id: "4", name: "Puma", logo: "/placeholder.svg?height=100&width=100" },
-          { _id: "5", name: "Vans", logo: "/placeholder.svg?height=100&width=100" },
-          { _id: "6", name: "New Balance", logo: "/placeholder.svg?height=100&width=100" },
-        ])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchPopularBrands()
-  }, [])
-
-  if (loading) {
-    return (
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <div className="h-8 bg-gray-800 rounded w-64 mx-auto mb-4 animate-pulse"></div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-black rounded-lg p-6 animate-pulse">
-                <div className="h-20 bg-gray-800 rounded"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
+  // Set brands directly, no loading state or useEffect needed
+  const brands = hardcodedBrands
 
   return (
     <section className="py-16 px-4 bg-black">
@@ -73,7 +35,7 @@ export default function PopularBrands() {
           {brands.map((brand, index) => (
             <motion.div
               key={brand._id}
-              className="bg-black border border-yellow-400/20 rounded-lg p-6 hover:border-yellow-400/50 transition-all duration-300 group cursor-pointer"
+              className="bg-white border border-yellow-400/20 rounded-lg p-6 hover:border-yellow-400/50 transition-all duration-300 group cursor-pointer"
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -89,7 +51,7 @@ export default function PopularBrands() {
                   height={80}
                   className="mb-4 group-hover:scale-110 transition-transform duration-300"
                 />
-                <h3 className="text-lg font-semibold text-white group-hover:text-yellow-400 transition-colors">
+                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-yellow-400 transition-colors">
                   {brand.name}
                 </h3>
               </div>

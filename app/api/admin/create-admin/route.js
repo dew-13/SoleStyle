@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
-import { connectToDatabase } from "../../../lib/mongodb"
+import { connectToDatabase } from "/lib/mongodb"
 
 // This is a one-time setup endpoint - remove after creating admin
 export async function POST(request) {

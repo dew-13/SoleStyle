@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { User, Package, Heart, Edit } from "lucide-react"
@@ -7,16 +9,17 @@ import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
+import type { User as UserType, Order, WishlistItem, ProfileData } from "app/types"
 
 export default function ProfilePage() {
   const searchParams = useSearchParams()
-  const [user, setUser] = useState(null)
-  const [orders, setOrders] = useState([])
-  const [wishlist, setWishlist] = useState([])
-  const [activeTab, setActiveTab] = useState("profile")
-  const [loading, setLoading] = useState(true)
-  const [editMode, setEditMode] = useState(false)
-  const [profileData, setProfileData] = useState({
+  const [user, setUser] = useState<UserType | null>(null)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([])
+  const [activeTab, setActiveTab] = useState<string>("profile")
+  const [loading, setLoading] = useState<boolean>(true)
+  const [editMode, setEditMode] = useState<boolean>(false)
+  const [profileData, setProfileData] = useState<ProfileData>({
     firstName: "",
     lastName: "",
     email: "",
@@ -83,7 +86,7 @@ export default function ProfilePage() {
     checkAuth()
   }, [])
 
-  const fetchUserOrders = async (userId) => {
+  const fetchUserOrders = async (userId: string) => {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(`/api/orders/user/${userId}`, {
@@ -99,31 +102,75 @@ export default function ProfilePage() {
       setOrders([
         {
           _id: "1",
+          userId: "user1",
+          shoeId: "shoe1",
           orderId: "OG001234",
-          shoe: { name: "Air Jordan 1 Retro High Premium", brand: "Nike" },
+          customerName: "John Doe",
+          customerPhone: "+94771234567",
+          customerEmail: "john@example.com",
+          shoe: {
+            _id: "shoe1",
+            name: "Air Jordan 1 Retro High Premium",
+            brand: "Nike",
+            price: 51000,
+            description: "Classic basketball shoe",
+            image: "/placeholder.svg",
+            sizes: ["9", "10", "11"],
+            featured: true,
+            createdAt: new Date().toISOString(),
+          },
           size: "10",
           quantity: 1,
-          totalPrice: 51000,
+          total: 51000,
           status: "pending",
           paymentMethod: "full",
           createdAt: new Date().toISOString(),
+          shippingAddress: {
+            street: "123 Main St",
+            city: "Colombo",
+            state: "Western",
+            zipCode: "00100",
+            country: "Sri Lanka",
+          },
         },
         {
           _id: "2",
+          userId: "user1",
+          shoeId: "shoe2",
           orderId: "OG001235",
-          shoe: { name: "Yeezy Boost 350 V2 Static", brand: "Adidas" },
+          customerName: "John Doe",
+          customerPhone: "+94771234567",
+          customerEmail: "john@example.com",
+          shoe: {
+            _id: "shoe2",
+            name: "Yeezy Boost 350 V2 Static",
+            brand: "Adidas",
+            price: 66000,
+            description: "Modern lifestyle sneaker",
+            image: "/placeholder.svg",
+            sizes: ["9", "9.5", "10"],
+            featured: true,
+            createdAt: new Date().toISOString(),
+          },
           size: "9.5",
           quantity: 1,
-          totalPrice: 66000,
+          total: 66000,
           status: "payment_received",
           paymentMethod: "installments",
           createdAt: new Date(Date.now() - 86400000).toISOString(),
+          shippingAddress: {
+            street: "123 Main St",
+            city: "Colombo",
+            state: "Western",
+            zipCode: "00100",
+            country: "Sri Lanka",
+          },
         },
       ])
     }
   }
 
-  const fetchUserWishlist = async (userId) => {
+  const fetchUserWishlist = async (userId: string) => {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(`/api/wishlist/${userId}`, {
@@ -139,23 +186,37 @@ export default function ProfilePage() {
       setWishlist([
         {
           _id: "1",
+          userId: "user1",
+          shoeId: "shoe1",
           shoe: {
             _id: "shoe1",
             name: "Air Max 270 Premium Edition",
             brand: "Nike",
             price: 45000,
+            description: "Comfortable running shoe",
             image: "/placeholder.svg?height=200&width=300",
+            sizes: ["8", "9", "10"],
+            featured: false,
+            createdAt: new Date().toISOString(),
           },
+          createdAt: new Date().toISOString(),
         },
         {
           _id: "2",
+          userId: "user1",
+          shoeId: "shoe2",
           shoe: {
             _id: "shoe2",
             name: "Ultra Boost 22 Performance",
             brand: "Adidas",
             price: 54000,
+            description: "Premium running shoe",
             image: "/placeholder.svg?height=200&width=300",
+            sizes: ["8", "9", "10"],
+            featured: false,
+            createdAt: new Date().toISOString(),
           },
+          createdAt: new Date().toISOString(),
         },
       ])
     }
@@ -185,7 +246,7 @@ export default function ProfilePage() {
     }
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case "pending":
         return "bg-yellow-400/20 text-yellow-400"
@@ -202,7 +263,7 @@ export default function ProfilePage() {
     }
   }
 
-  const getStatusLabel = (status) => {
+  const getStatusLabel = (status: string): string => {
     switch (status) {
       case "pending":
         return "Order received and pending payment"
@@ -216,6 +277,25 @@ export default function ProfilePage() {
         return "Delivered"
       default:
         return status
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    if (name.startsWith("address.")) {
+      const addressField = name.split(".")[1]
+      setProfileData({
+        ...profileData,
+        address: {
+          ...profileData.address,
+          [addressField]: value,
+        },
+      })
+    } else {
+      setProfileData({
+        ...profileData,
+        [name]: value,
+      })
     }
   }
 
@@ -303,8 +383,9 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium mb-2">First Name</label>
                     <input
                       type="text"
+                      name="firstName"
                       value={profileData.firstName}
-                      onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                      onChange={handleInputChange}
                       disabled={!editMode}
                       className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none disabled:opacity-50"
                     />
@@ -314,8 +395,9 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium mb-2">Last Name</label>
                     <input
                       type="text"
+                      name="lastName"
                       value={profileData.lastName}
-                      onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                      onChange={handleInputChange}
                       disabled={!editMode}
                       className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none disabled:opacity-50"
                     />
@@ -325,6 +407,7 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium mb-2">Email</label>
                     <input
                       type="email"
+                      name="email"
                       value={profileData.email}
                       disabled={true}
                       className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg opacity-50"
@@ -335,8 +418,9 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium mb-2">Phone</label>
                     <input
                       type="tel"
+                      name="phone"
                       value={profileData.phone}
-                      onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                      onChange={handleInputChange}
                       disabled={!editMode}
                       className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none disabled:opacity-50"
                     />
@@ -347,53 +431,37 @@ export default function ProfilePage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <input
                         type="text"
+                        name="address.street"
                         placeholder="Street Address"
                         value={profileData.address.street}
-                        onChange={(e) =>
-                          setProfileData({
-                            ...profileData,
-                            address: { ...profileData.address, street: e.target.value },
-                          })
-                        }
+                        onChange={handleInputChange}
                         disabled={!editMode}
                         className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none disabled:opacity-50"
                       />
                       <input
                         type="text"
+                        name="address.city"
                         placeholder="City"
                         value={profileData.address.city}
-                        onChange={(e) =>
-                          setProfileData({
-                            ...profileData,
-                            address: { ...profileData.address, city: e.target.value },
-                          })
-                        }
+                        onChange={handleInputChange}
                         disabled={!editMode}
                         className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none disabled:opacity-50"
                       />
                       <input
                         type="text"
+                        name="address.state"
                         placeholder="State"
                         value={profileData.address.state}
-                        onChange={(e) =>
-                          setProfileData({
-                            ...profileData,
-                            address: { ...profileData.address, state: e.target.value },
-                          })
-                        }
+                        onChange={handleInputChange}
                         disabled={!editMode}
                         className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none disabled:opacity-50"
                       />
                       <input
                         type="text"
+                        name="address.zipCode"
                         placeholder="ZIP Code"
                         value={profileData.address.zipCode}
-                        onChange={(e) =>
-                          setProfileData({
-                            ...profileData,
-                            address: { ...profileData.address, zipCode: e.target.value },
-                          })
-                        }
+                        onChange={handleInputChange}
                         disabled={!editMode}
                         className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none disabled:opacity-50"
                       />
@@ -417,7 +485,7 @@ export default function ProfilePage() {
                             <p className="text-sm text-gray-500">Order ID: {order.orderId}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-yellow-400 font-bold text-xl">LKR {order.totalPrice.toLocaleString()}</p>
+                            <p className="text-yellow-400 font-bold text-xl">LKR {order.total.toLocaleString()}</p>
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
                             >

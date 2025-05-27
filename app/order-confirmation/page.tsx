@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, MapPin, CreditCard, MessageCircle } from "lucide-react"
@@ -7,12 +9,13 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import Header from "../components/Header"
+import type { User, OrderDetails, ShippingAddress } from "app/types"
 
 export default function OrderConfirmationPage() {
   const router = useRouter()
-  const [user, setUser] = useState(null)
-  const [orderDetails, setOrderDetails] = useState(null)
-  const [shippingAddress, setShippingAddress] = useState({
+  const [user, setUser] = useState<User | null>(null)
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null)
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     fullName: "",
     address: "",
     city: "",
@@ -20,9 +23,9 @@ export default function OrderConfirmationPage() {
     zipCode: "",
     phone: "",
   })
-  const [paymentMethod, setPaymentMethod] = useState("full")
-  const [loading, setLoading] = useState(false)
-  const [orderPlaced, setOrderPlaced] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<string>("full")
+  const [loading, setLoading] = useState<boolean>(false)
+  const [orderPlaced, setOrderPlaced] = useState<boolean>(false)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -62,7 +65,12 @@ export default function OrderConfirmationPage() {
     // Get order details from localStorage
     const storedOrderDetails = localStorage.getItem("orderDetails")
     if (storedOrderDetails) {
-      setOrderDetails(JSON.parse(storedOrderDetails))
+      try {
+        setOrderDetails(JSON.parse(storedOrderDetails))
+      } catch (error) {
+        console.error("Error parsing order details:", error)
+        router.push("/shop")
+      }
     } else {
       router.push("/shop")
     }
@@ -70,7 +78,7 @@ export default function OrderConfirmationPage() {
     checkAuth()
   }, [router])
 
-  const handleAddressChange = (e) => {
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShippingAddress({
       ...shippingAddress,
       [e.target.name]: e.target.value,
@@ -78,6 +86,8 @@ export default function OrderConfirmationPage() {
   }
 
   const handleConfirmOrder = async () => {
+    if (!orderDetails) return
+
     setLoading(true)
 
     try {
@@ -134,6 +144,8 @@ export default function OrderConfirmationPage() {
   }
 
   const handleWhatsAppContact = () => {
+    if (!orderDetails) return
+
     const message = `Hi! I've placed an order for ${orderDetails.shoe.name} (Size: ${orderDetails.size}). Order total: LKR ${orderDetails.totalPrice.toLocaleString()}. Please let me know the next steps for payment.`
     const phoneNumber = "+94771234567" // Replace with actual contact number
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
