@@ -34,6 +34,7 @@ export async function GET(request) {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      phone: user.phone,
       address: user.address,
       isAdmin: user.isAdmin || false, // Include admin status
     })

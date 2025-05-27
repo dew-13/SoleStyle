@@ -337,7 +337,7 @@ export default function ProfilePage() {
               {[
                 { id: "profile", label: "Profile", icon: User },
                 { id: "orders", label: "Orders", icon: Package },
-                { id: "wishlist", label: "Wishlist", icon: Heart },
+                
               ].map((tab) => {
                 const Icon = tab.icon
                 return (
@@ -417,7 +417,7 @@ export default function ProfilePage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Phone</label>
                     <input
-                      type="tel"
+                      type="phone"
                       name="phone"
                       value={profileData.phone}
                       onChange={handleInputChange}

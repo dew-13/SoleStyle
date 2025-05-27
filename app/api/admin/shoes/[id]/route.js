@@ -33,10 +33,10 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ message: "No token provided" }, { status: 401 })
     }
 
-    // Verify admin token
+    // Verify token (do NOT check isAdmin here)
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    if (!decoded.isAdmin) {
-      return NextResponse.json({ message: "Admin access required" }, { status: 403 })
+    if (!decoded || !decoded.userId) {
+      return NextResponse.json({ message: "Access denied" }, { status: 403 })
     }
 
     const updateData = await request.json()
@@ -73,10 +73,10 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ message: "No token provided" }, { status: 401 })
     }
 
-    // Verify admin token
+    // Verify token (do NOT check isAdmin here)
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    if (!decoded.isAdmin) {
-      return NextResponse.json({ message: "Admin access required" }, { status: 403 })
+    if (!decoded || !decoded.userId) {
+      return NextResponse.json({ message: "Access denied" }, { status: 403 })
     }
 
     // Connect to database

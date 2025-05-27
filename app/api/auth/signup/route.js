@@ -5,10 +5,10 @@ import { connectToDatabase } from "../../../lib/mongodb"
 
 export async function POST(request) {
   try {
-    const { firstName, lastName, email, password } = await request.json()
+    const { firstName, lastName, email, phone, password } = await request.json()
 
     // Validate input
-    if (!firstName || !lastName || !email || !password) {
+    if (!firstName || !lastName || !email || !phone || !password) {
       return NextResponse.json({ message: "All fields are required" }, { status: 400 })
     }
 
@@ -29,6 +29,7 @@ export async function POST(request) {
       firstName,
       lastName,
       email,
+      phone,
       password: hashedPassword,
       isAdmin: false, // Add this line
       createdAt: new Date(),
@@ -46,6 +47,7 @@ export async function POST(request) {
         firstName,
         lastName,
         email,
+        phone,
       },
     })
   } catch (error) {

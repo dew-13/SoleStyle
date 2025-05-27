@@ -6,9 +6,10 @@ import Header from "./components/Header"
 import FeaturedShoes from "./components/FeaturedShoes"
 import PopularBrands from "./components/PopularBrands"
 import Footer from "./components/Footer"
+import { User } from "./types"
 
 export default function HomePage() {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<User | null>(null);
 
   // Check if user is logged in
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <motion.section
-        className="relative h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-800 to-black overflow-hidden"
+        className="relative h-screen flex items-center justify-center bg-black overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -67,7 +68,7 @@ export default function HomePage() {
             transition={{ delay: 0.7, duration: 0.8 }}
             onClick={() => (window.location.href = "/shop")}
           >
-            Shop Now
+            Enter the Vault
           </motion.button>
         </div>
 

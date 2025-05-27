@@ -238,7 +238,7 @@ export default function ShoesTable() {
                 <th className="text-left py-3 px-4 font-semibold">Brand</th>
                 <th className="text-left py-3 px-4 font-semibold">Price</th>
                 <th className="text-left py-3 px-4 font-semibold">Sizes</th>
-                <th className="text-left py-3 px-4 font-semibold">Status</th>
+                <th className="text-left py-3 px-4 font-semibold">Featured</th>
                 <th className="text-left py-3 px-4 font-semibold">Actions</th>
               </tr>
             </thead>
@@ -297,15 +297,7 @@ export default function ShoesTable() {
                         >
                           <Star className={`w-4 h-4 ${shoe.featured ? "fill-current" : ""}`} />
                         </button>
-                        <button
-                          onClick={() => toggleVisibility(shoe._id, !shoe.hidden)}
-                          className={`p-1 rounded transition-colors ${
-                            !shoe.hidden ? "text-green-400 hover:bg-green-400/20" : "text-red-400 hover:bg-red-400/20"
-                          }`}
-                          title={!shoe.hidden ? "Hide from website" : "Show on website"}
-                        >
-                          {!shoe.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                        </button>
+                        
                       </div>
                     </td>
                     <td className="py-4 px-4">
@@ -352,10 +344,7 @@ export default function ShoesTable() {
                 <Star className="w-4 h-4 text-yellow-400" />
                 <span>Featured: {shoes.filter((shoe: Shoe) => shoe.featured).length}</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <Eye className="w-4 h-4 text-green-400" />
-                <span>Visible: {shoes.filter((shoe: Shoe) => !shoe.hidden).length}</span>
-              </div>
+
             </div>
           </div>
         )}

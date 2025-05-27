@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
+import type { Shoe } from "app/types"
 
 export default function FeaturedShoes() {
-  const [featuredShoes, setFeaturedShoes] = useState([])
+  const [featuredShoes, setFeaturedShoes] = useState<Shoe[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -64,11 +65,12 @@ export default function FeaturedShoes() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
             Featured Shoes
           </h2>
-          <p className="text-gray-400 text-lg">Discover our handpicked selection of premium footwear</p>
+          <p className="text-gray-400 text-lg">Discover our handpicked selection original footwear</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuredShoes.map((shoe, index) => (
+          <Link href={`/product/${shoe._id}`} key={shoe._id} className="block group">
             <motion.div
               key={shoe._id}
               className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group"
@@ -98,19 +100,20 @@ export default function FeaturedShoes() {
                 </div>
                 <p className="text-gray-400 mb-3">{shoe.brand}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-yellow-400">LKR {shoe.price?.toLocaleString()}</span>
-                  <Link href={`/product/${shoe._id}`}>
+                  <span className="font-bold text-yellow-400">LKR {shoe.price?.toLocaleString()}</span>
+                 
                     <motion.button
-                      className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-4 py-2 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                      className=" text-gray-400 px-4 py-2 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
                       View Details
                     </motion.button>
-                  </Link>
+                  
                 </div>
               </div>
             </motion.div>
+          </Link>
           ))}
         </div>
       </div>

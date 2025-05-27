@@ -23,7 +23,7 @@ export default function Footer() {
              
             </div>
             <p className="text-gray-400">
-              Unlock the Legacy - Sealed for Greatness. Step into the future of footwear fashion with our premium
+              Unlock the Legacy - Sealed for Greatness. Step into the future of footwear fashion with our original
               collection.
             </p>
             <div className="flex space-x-4">
@@ -112,8 +112,8 @@ export default function Footer() {
             <div className="space-y-2 text-gray-400">
               <p>123 Fashion Street</p>
               <p>New York, NY 10001</p>
-              <p>Phone: (555) 123-4567</p>
-              <p>Email: info@ogvault.com</p>
+              <p>Phone: +1 (437) 661-1999</p>
+              <p>Email: ogvaultinfinity@gmail.com</p>
             </div>
           </motion.div>
         </div>

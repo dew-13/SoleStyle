@@ -215,8 +215,8 @@ export default function ProductPage() {
                 <Image
                   src={selectedImage || shoe.image || "/placeholder.svg"}
                   alt={shoe.name}
-                  width={600}
-                  height={500}
+                  width={400}
+                  height={300}
                   className="w-full h-96 object-cover"
                 />
               </div>
@@ -254,8 +254,8 @@ export default function ProductPage() {
             >
               {/* Title and Brand */}
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2 text-white">{shoe.name}</h1>
-                <p className="text-xl text-gray-400 mb-4">{shoe.brand}</p>
+                <h1 className="text-xl md:text-4xl font-bold mb-2 text-white">{shoe.name}</h1>
+                <p className="text-l text-gray-400 mb-4">{shoe.brand}</p>
 
                 {/* Rating */}
                 {shoe.rating && (
@@ -278,7 +278,9 @@ export default function ProductPage() {
               </div>
 
               {/* Price */}
-              <div className="text-4xl font-bold text-yellow-400">LKR {shoe.price?.toLocaleString()}</div>
+              <div className="text-base font-bold text-yellow-400">LKR {shoe.price?.toLocaleString()}
+                <p className="text-sm text-gray-600 leading-relaxed">(Including Shipping + Clearance Tax)</p>
+              </div>
 
               {/* Description */}
               <div>
@@ -366,10 +368,36 @@ export default function ProductPage() {
                 <div className="flex justify-between items-center text-xl">
                   <span>Total:</span>
                   <span className="font-bold text-yellow-400">LKR {(shoe.price * quantity).toLocaleString()}</span>
+                  
                 </div>
+                <p className="text-sm text-gray-600 leading-relaxed">(Including Shipping + Clearance Tax to Sri Lanka)</p>
               </div>
             </motion.div>
           </div>
+
+          <div className="container mx-auto mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-black border border-yellow-400/30 rounded-lg p-6 flex items-center space-x-4 shadow-lg">
+                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 11V7m0 8h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+                </svg>
+                <div>
+                  <h4 className="text-lg font-semibold mb-1 text-white">100% Authenticity Guarantee</h4>
+                  <p className="text-gray-300 text-sm">All products are verified and guaranteed delivery.</p>
+                </div>
+              </div>
+              <div className="bg-black border border-yellow-400/30 rounded-lg p-6 flex items-center space-x-4 shadow-lg">
+                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3zm0 2c-2.67 0-8 1.337-8 4v3h16v-3c0-2.663-5.33-4-8-4z" />
+                </svg>
+                <div>
+                  <h4 className="text-lg font-semibold mb-1 text-white">Easy Payments Plans</h4>
+                  <p className="text-gray-300 text-sm">Make the full payment or installments to secure your purchase.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 

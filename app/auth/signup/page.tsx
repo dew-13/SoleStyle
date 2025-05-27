@@ -15,6 +15,7 @@ export default function SignupPage() {
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   })
@@ -52,6 +53,7 @@ export default function SignupPage() {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
+          phone: formData.phone,
           password: formData.password,
         }),
       })
@@ -108,7 +110,7 @@ export default function SignupPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-              Join Sole Style
+              Unlock OG VAULT
             </h1>
             <p className="text-gray-400">Create your account</p>
           </div>
@@ -130,7 +132,7 @@ export default function SignupPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium mb-2">
-                  First Name
+                  
                 </label>
                 <input
                   type="text"
@@ -145,7 +147,7 @@ export default function SignupPage() {
               </div>
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium mb-2">
-                  Last Name
+                 
                 </label>
                 <input
                   type="text"
@@ -163,7 +165,7 @@ export default function SignupPage() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email Address
+              
               </label>
               <input
                 type="email"
@@ -177,10 +179,27 @@ export default function SignupPage() {
               />
             </div>
 
+            {/* Phone Number */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium mb-2">
+                
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none transition-colors"
+                placeholder="Enter your phone number: +94712345678"
+              />
+            </div>
+
             {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium mb-2">
-                Password
+             
               </label>
               <div className="relative">
                 <input
@@ -206,7 +225,7 @@ export default function SignupPage() {
             {/* Confirm Password */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
-                Confirm Password
+               
               </label>
               <div className="relative">
                 <input

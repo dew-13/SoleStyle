@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+/* import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { connectToDatabase } from "/lib/mongodb"
 
@@ -64,3 +64,4 @@ export async function POST(request) {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 })
   }
 }
+ */

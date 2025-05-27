@@ -227,7 +227,7 @@ export default function ShopPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-white from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
               Shop Shoes
             </h1>
             <p className="text-gray-400">Discover our complete collection of premium basketball footwear</p>
@@ -280,7 +280,7 @@ export default function ShopPage() {
               <select
                 value={selectedBrand}
                 onChange={(e) => setSelectedBrand(e.target.value)}
-                className="bg-black border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
+                className="bg-black border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-gray-400"
               >
                 <option value="">All Brands</option>
                 {basketballBrands.map((brand) => (
@@ -294,7 +294,7 @@ export default function ShopPage() {
               <select
                 value={selectedSize}
                 onChange={(e) => setSelectedSize(e.target.value)}
-                className="bg-black border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
+                className="bg-black border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-gray-400"
               >
                 <option value="">All Sizes</option>
                 {sizes.map((size) => (
@@ -326,26 +326,15 @@ export default function ShopPage() {
             transition={{ duration: 0.6, delay: 0.6 }}
           >
             {filteredShoes.map((shoe, index) => (
+            <Link href={`/product/${shoe._id}`} key={shoe._id} className="block group">
               <motion.div
-                key={shoe._id}
-                className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative"
+                className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative cursor-pointer"
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ y: -5 }}
               >
-                {/* Wishlist Button */}
-                <button
-                  onClick={() => toggleWishlist(shoe._id)}
-                  className="absolute top-3 right-3 z-10 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-all"
-                >
-                  <Heart
-                    className={`w-5 h-5 ${
-                      wishlist.includes(shoe._id) ? "text-red-500 fill-current" : "text-white hover:text-red-500"
-                    }`}
-                  />
-                </button>
-
+                {/* ...existing card content... */}
                 <div className="relative overflow-hidden">
                   <Image
                     src={shoe.image || "/placeholder.svg"}
@@ -356,28 +345,30 @@ export default function ShopPage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-1 text-white group-hover:text-yellow-400 transition-colors">
+                  <h3 className="text-lg h-14 font-semibold mb-1 text-white group-hover:text-yellow-400 transition-colors">
                     {shoe.name}
                   </h3>
                   <p className="text-gray-400 text-sm mb-2">{shoe.brand}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-yellow-400">LKR {shoe.price.toLocaleString()}</span>
-                    <Link href={`/product/${shoe._id}`}>
-                      <motion.button
-                        className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                    <span className="font-bold text-yellow-400">LKR {shoe.price.toLocaleString()}</span>
+                    {/* Optional: keep the View button for style, but it's not needed for navigation */}
+                    <motion.button
+                        className=" text-gray-600 px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         View
-                      </motion.button>
-                    </Link>
+                    </motion.button>
                   </div>
                 </div>
               </motion.div>
+            </Link>
             ))}
-          </motion.div>
+                    
+                      
+          </motion.div>          
+            
 
           {/* No Results */}
           {filteredShoes.length === 0 && (

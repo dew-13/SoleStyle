@@ -40,7 +40,7 @@ export default function Header({ user, setUser }: HeaderProps) {
 
   return (
     <motion.header
-      className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-yellow-400/20"
+      className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-yellow-400/20"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
@@ -168,7 +168,7 @@ export default function Header({ user, setUser }: HeaderProps) {
               <div className="flex items-center space-x-2">
                 <Link href="/auth/login">
                   <motion.button
-                    className="px-4 py-2 text-yellow-400 hover:bg-yellow-400/10 rounded-lg transition-colors"
+                    className="px-4 py-2 text-yellow-400 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -177,7 +177,7 @@ export default function Header({ user, setUser }: HeaderProps) {
                 </Link>
                 <Link href="/auth/signup">
                   <motion.button
-                    className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                    className="px-4 py-2  text-yellow-400 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >

@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "OG Vault - Unlock the Legacy",
   description:
-    "Unlock the Legacy - Sealed for Greatness. Step into the future of footwear fashion with our premium collection of shoes from top brands.",
+    "Unlock the Legacy - Sealed for Greatness. Step into the future of footwear fashion with our original collection of shoes from top brands.",
   keywords: "shoes, sneakers, footwear, Nike, Adidas, Converse, Vans, fashion, style, premium, online store, OG Vault",
   authors: [{ name: "OG Vault Team" }],
   creator: "OG Vault",
@@ -71,7 +71,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <head>
         <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
