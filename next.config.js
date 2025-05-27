@@ -1,17 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable experimental features
-  experimental: {
-    // Enable server components
-    serverComponentsExternalPackages: ["mongodb"],
-  },
+  // Corrected: moved serverComponentsExternalPackages to top-level
+  serverExternalPackages: ["mongodb"],
 
   // Image optimization settings
   images: {
-    domains: ["localhost", "placeholder.svg", "via.placeholder.com", "images.unsplash.com", "cdn.shopify.com"],
-    // Enable image optimization
+    domains: [
+      "localhost",
+      "placeholder.svg",
+      "via.placeholder.com",
+      "images.unsplash.com",
+      "cdn.shopify.com",
+    ],
     unoptimized: true,
-    // Image formats
     formats: ["image/webp", "image/avif"],
   },
 
@@ -24,7 +25,7 @@ const nextConfig = {
   // Webpack configuration
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Add custom webpack configurations if needed
-    return config
+    return config;
   },
 
   // Headers for security
@@ -33,21 +34,12 @@ const nextConfig = {
       {
         source: "/(.*)",
         headers: [
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "origin-when-cross-origin",
-          },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "origin-when-cross-origin" },
         ],
       },
-    ]
+    ];
   },
 
   // Redirects
@@ -58,7 +50,7 @@ const nextConfig = {
         destination: "/",
         permanent: true,
       },
-    ]
+    ];
   },
 
   // ESLint configuration
@@ -70,6 +62,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
