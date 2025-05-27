@@ -8,10 +8,11 @@ import AdminStats from "./components/AdminStats"
 import AddShoeModal from "./components/AddShoeModal"
 import OrdersTable from "./components/OrdersTable"
 import ShoesTable from "./components/ShoesTable"
+import type { User } from "app/types"
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState(null)
-  const [activeTab, setActiveTab] = useState("dashboard")
+  const [user, setUser] = useState<User | null>(null)
+  const [activeTab, setActiveTab] = useState("dashboard") // Default to dashboard
   const [loading, setLoading] = useState(true)
   const [showAddShoeModal, setShowAddShoeModal] = useState(false)
 
@@ -94,7 +95,7 @@ export default function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="flex flex-wrap gap-2 bg-gray-900 p-2 rounded-lg">
+            <div className="flex flex-wrap gap-2 bg-black p-2 rounded-lg border border-yellow-400/20">
               {tabs.map((tab) => {
                 const Icon = tab.icon
                 return (
@@ -142,7 +143,7 @@ export default function AdminDashboard() {
             )}
             {activeTab === "orders" && <OrdersTable />}
             {activeTab === "settings" && (
-              <div className="bg-gray-900 border border-yellow-400/20 rounded-lg p-6">
+              <div className="bg-black border border-yellow-400/20 rounded-lg p-6">
                 <h2 className="text-2xl font-semibold mb-4">Settings</h2>
                 <p className="text-gray-400">Settings panel coming soon...</p>
               </div>

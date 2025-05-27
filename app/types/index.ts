@@ -38,6 +38,7 @@ export interface Order {
   size: string
   quantity: number
   total: number
+  totalPrice?: number // For backward compatibility
   customerName: string
   customerPhone: string
   customerEmail: string

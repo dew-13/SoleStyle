@@ -6,7 +6,17 @@ import { Home, Search, ShoppingCart, User, LogOut, Package, UserCircle, Menu, X,
 import Link from "next/link"
 import Image from "next/image"
 
-export default function Header({ user, setUser }) {
+type User = {
+  isAdmin?: boolean
+  // Add other user properties as needed
+}
+
+interface HeaderProps {
+  user: User | null
+  setUser: (user: User | null) => void
+}
+
+export default function Header({ user, setUser }: HeaderProps) {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [cartItems, setCartItems] = useState([])

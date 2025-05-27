@@ -23,20 +23,6 @@ interface OrderStatus {
   label: string
 }
 
-interface OrdersTableState {
-  orders: Order[]
-  filteredOrders: Order[]
-  loading: boolean
-  searchTerm: string
-  statusFilter: string
-  dateFilter: string
-  refreshing: boolean
-  editingOrder: Order | null
-  showEditModal: boolean
-  showOrderDetails: boolean
-  selectedOrder: Order | null
-}
-
 export default function OrdersTable() {
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
@@ -59,6 +45,12 @@ export default function OrdersTable() {
     { value: "cancelled", label: "Cancelled" },
   ]
 
+  // Helper function to get order total with fallback
+  const getOrderTotal = (order: Order): number => {
+    // Try multiple fields to get the total amount
+    return order.total || order.totalPrice || order.shoe?.price * order.quantity || 0
+  }
+
   const fetchOrders = async (): Promise<void> => {
     try {
       const token = localStorage.getItem("token")
@@ -68,10 +60,15 @@ export default function OrdersTable() {
 
       if (response.ok) {
         const data: Order[] = await response.json()
-        setOrders(data)
-        setFilteredOrders(data)
+        // Ensure each order has a proper total
+        const ordersWithTotals = data.map((order) => ({
+          ...order,
+          total: getOrderTotal(order),
+        }))
+        setOrders(ordersWithTotals || [])
+        setFilteredOrders(ordersWithTotals || [])
       } else {
-        // Fallback data if API fails
+        // Fallback data with proper totals
         const fallbackOrders: Order[] = [
           {
             _id: "1",
@@ -95,6 +92,7 @@ export default function OrdersTable() {
             size: "10",
             quantity: 1,
             total: 28500,
+            totalPrice: 28500,
             status: "pending",
             paymentMethod: "full",
             createdAt: new Date().toISOString(),
@@ -128,6 +126,7 @@ export default function OrdersTable() {
             size: "8.5",
             quantity: 1,
             total: 36800,
+            totalPrice: 36800,
             status: "payment_received",
             paymentMethod: "full",
             createdAt: new Date(Date.now() - 86400000).toISOString(),
@@ -161,6 +160,7 @@ export default function OrdersTable() {
             size: "9",
             quantity: 2,
             total: 45000,
+            totalPrice: 45000,
             status: "shipped",
             paymentMethod: "full",
             createdAt: new Date(Date.now() - 172800000).toISOString(),
@@ -255,15 +255,15 @@ export default function OrdersTable() {
       ["Order ID", "Customer Name", "Phone", "Shoe", "Brand", "Size", "Quantity", "Amount", "Status", "Date"].join(","),
       ...filteredOrders.map((order: Order) =>
         [
-          order.orderId,
-          order.customerName,
-          order.customerPhone,
-          `"${order.shoe.name}"`,
-          order.shoe.brand,
-          order.size,
-          order.quantity,
-          order.total,
-          order.status,
+          order.orderId || "",
+          order.customerName || "",
+          order.customerPhone || "",
+          `"${order.shoe?.name || ""}"`,
+          order.shoe?.brand || "",
+          order.size || "",
+          order.quantity || 0,
+          getOrderTotal(order),
+          order.status || "",
           new Date(order.createdAt).toLocaleDateString(),
         ].join(","),
       ),
@@ -300,6 +300,16 @@ export default function OrdersTable() {
   const getStatusLabel = (status: string): string => {
     const statusObj = orderStatuses.find((s: OrderStatus) => s.value === status)
     return statusObj ? statusObj.label : status
+  }
+
+  // Safe calculation functions
+  const calculateTotalValue = (): number => {
+    return filteredOrders.reduce((sum: number, order: Order) => sum + getOrderTotal(order), 0)
+  }
+
+  const calculateAverageOrder = (): number => {
+    if (filteredOrders.length === 0) return 0
+    return Math.round(calculateTotalValue() / filteredOrders.length)
   }
 
   if (loading) {
@@ -423,9 +433,7 @@ export default function OrdersTable() {
               <DollarSign className="w-4 h-4 text-green-400" />
               <span className="text-sm text-gray-400">Total Value</span>
             </div>
-            <p className="text-xl font-bold text-green-400">
-              LKR {filteredOrders.reduce((sum: number, order: Order) => sum + order.total, 0).toLocaleString()}
-            </p>
+            <p className="text-xl font-bold text-green-400">LKR {calculateTotalValue().toLocaleString()}</p>
           </div>
           <div className="bg-black/50 rounded-lg p-4">
             <div className="flex items-center space-x-2">
@@ -441,14 +449,7 @@ export default function OrdersTable() {
               <Calendar className="w-4 h-4 text-yellow-400" />
               <span className="text-sm text-gray-400">Avg. Order</span>
             </div>
-            <p className="text-xl font-bold text-yellow-400">
-              LKR{" "}
-              {filteredOrders.length > 0
-                ? Math.round(
-                    filteredOrders.reduce((sum: number, order: Order) => sum + order.total, 0) / filteredOrders.length,
-                  ).toLocaleString()
-                : 0}
-            </p>
+            <p className="text-xl font-bold text-yellow-400">LKR {calculateAverageOrder().toLocaleString()}</p>
           </div>
         </div>
 
@@ -469,91 +470,101 @@ export default function OrdersTable() {
             </thead>
             <tbody>
               {filteredOrders.length > 0 ? (
-                filteredOrders.map((order: Order, index: number) => (
-                  <motion.tr
-                    key={order._id}
-                    className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                  >
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-2">
-                        <Package className="w-4 h-4 text-yellow-400" />
-                        <button
-                          onClick={() => {
-                            setSelectedOrder(order)
-                            setShowOrderDetails(true)
-                          }}
-                          className="font-mono text-sm font-medium text-yellow-400 hover:text-yellow-300 transition-colors underline"
-                        >
-                          {order.orderId}
-                        </button>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div>
+                filteredOrders.map((order: Order, index: number) => {
+                  const orderTotal = getOrderTotal(order)
+                  return (
+                    <motion.tr
+                      key={order._id}
+                      className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                    >
+                      <td className="py-4 px-4">
                         <div className="flex items-center space-x-2">
-                          <User className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium">{order.customerName}</span>
+                          <Package className="w-4 h-4 text-yellow-400" />
+                          <button
+                            onClick={() => {
+                              setSelectedOrder(order)
+                              setShowOrderDetails(true)
+                            }}
+                            className="font-mono text-sm font-medium text-yellow-400 hover:text-yellow-300 transition-colors underline"
+                          >
+                            {order.orderId || order._id}
+                          </button>
                         </div>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Phone className="w-3 h-3 text-gray-500" />
-                          <p className="text-sm text-gray-400">{order.customerPhone}</p>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <User className="w-4 h-4 text-gray-400" />
+                            <span className="font-medium">{order.customerName || "N/A"}</span>
+                          </div>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Phone className="w-3 h-3 text-gray-500" />
+                            <p className="text-sm text-gray-400">{order.customerPhone || "N/A"}</p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div>
-                        <p className="font-medium">{order.shoe.name}</p>
-                        <p className="text-sm text-gray-400">{order.shoe.brand}</p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="text-sm">
-                        <p>
-                          Size: <span className="font-medium">{order.size}</span>
-                        </p>
-                        <p>
-                          Qty: <span className="font-medium">{order.quantity}</span>
-                        </p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-1">
-                        <span className="text-sm text-gray-400">LKR</span>
-                        <span className="font-semibold text-yellow-400">{order.total.toLocaleString()}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                        {getStatusLabel(order.status)}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-1 text-sm text-gray-400">
-                        <Calendar className="w-4 h-4" />
-                        <span>{new Date(order.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => {
-                            setEditingOrder(order)
-                            setShowEditModal(true)
-                          }}
-                          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-                        >
-                          <Edit className="w-4 h-4 text-gray-400 hover:text-white" />
-                        </button>
-                        <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
-                          <Eye className="w-4 h-4 text-gray-400 hover:text-white" />
-                        </button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="font-medium">{order.shoe?.name || "N/A"}</p>
+                          <p className="text-sm text-gray-400">{order.shoe?.brand || "N/A"}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="text-sm">
+                          <p>
+                            Size: <span className="font-medium">{order.size || "N/A"}</span>
+                          </p>
+                          <p>
+                            Qty: <span className="font-medium">{order.quantity || 0}</span>
+                          </p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-1">
+                          <span className="text-sm text-gray-400">LKR</span>
+                          <span className="font-semibold text-yellow-400">{orderTotal.toLocaleString()}</span>
+                        </div>
+                        {orderTotal === 0 && <p className="text-xs text-red-400 mt-1">Amount missing</p>}
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                          {getStatusLabel(order.status)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-1 text-sm text-gray-400">
+                          <Calendar className="w-4 h-4" />
+                          <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => {
+                              setEditingOrder(order)
+                              setShowEditModal(true)
+                            }}
+                            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                          >
+                            <Edit className="w-4 h-4 text-gray-400 hover:text-white" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedOrder(order)
+                              setShowOrderDetails(true)
+                            }}
+                            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                          >
+                            <Eye className="w-4 h-4 text-gray-400 hover:text-white" />
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  )
+                })
               ) : (
                 <tr>
                   <td colSpan={8} className="py-12 text-center">
@@ -573,15 +584,6 @@ export default function OrdersTable() {
             <p className="text-sm text-gray-400">
               Showing {filteredOrders.length} of {orders.length} orders
             </p>
-            <div className="flex space-x-2">
-              <button className="px-3 py-1 border border-gray-600 rounded hover:bg-gray-800 transition-colors text-sm">
-                Previous
-              </button>
-              <button className="px-3 py-1 bg-yellow-400 text-black rounded font-medium text-sm">1</button>
-              <button className="px-3 py-1 border border-gray-600 rounded hover:bg-gray-800 transition-colors text-sm">
-                Next
-              </button>
-            </div>
           </div>
         )}
       </motion.div>
@@ -618,7 +620,7 @@ export default function OrdersTable() {
                     <h3 className="font-semibold mb-3 text-yellow-400">Order Information</h3>
                     <div className="space-y-2 text-sm">
                       <p>
-                        <span className="text-gray-400">Order ID:</span> {selectedOrder.orderId}
+                        <span className="text-gray-400">Order ID:</span> {selectedOrder.orderId || selectedOrder._id}
                       </p>
                       <p>
                         <span className="text-gray-400">Date:</span>{" "}
@@ -641,13 +643,13 @@ export default function OrdersTable() {
                     <h3 className="font-semibold mb-3 text-yellow-400">Customer Information</h3>
                     <div className="space-y-2 text-sm">
                       <p>
-                        <span className="text-gray-400">Name:</span> {selectedOrder.customerName}
+                        <span className="text-gray-400">Name:</span> {selectedOrder.customerName || "N/A"}
                       </p>
                       <p>
-                        <span className="text-gray-400">Phone:</span> {selectedOrder.customerPhone}
+                        <span className="text-gray-400">Phone:</span> {selectedOrder.customerPhone || "N/A"}
                       </p>
                       <p>
-                        <span className="text-gray-400">Email:</span> {selectedOrder.customerEmail}
+                        <span className="text-gray-400">Email:</span> {selectedOrder.customerEmail || "N/A"}
                       </p>
                     </div>
                   </div>
@@ -656,37 +658,45 @@ export default function OrdersTable() {
                     <h3 className="font-semibold mb-3 text-yellow-400">Product Details</h3>
                     <div className="space-y-2 text-sm">
                       <p>
-                        <span className="text-gray-400">Product:</span> {selectedOrder.shoe.name}
+                        <span className="text-gray-400">Product:</span> {selectedOrder.shoe?.name || "N/A"}
                       </p>
                       <p>
-                        <span className="text-gray-400">Brand:</span> {selectedOrder.shoe.brand}
+                        <span className="text-gray-400">Brand:</span> {selectedOrder.shoe?.brand || "N/A"}
                       </p>
                       <p>
-                        <span className="text-gray-400">Size:</span> {selectedOrder.size}
+                        <span className="text-gray-400">Size:</span> {selectedOrder.size || "N/A"}
                       </p>
                       <p>
-                        <span className="text-gray-400">Quantity:</span> {selectedOrder.quantity}
+                        <span className="text-gray-400">Quantity:</span> {selectedOrder.quantity || 0}
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Unit Price:</span>{" "}
+                        <span className="text-white">LKR {(selectedOrder.shoe?.price || 0).toLocaleString()}</span>
                       </p>
                       <p>
                         <span className="text-gray-400">Total:</span>{" "}
-                        <span className="text-yellow-400 font-bold">LKR {selectedOrder.total.toLocaleString()}</span>
+                        <span className="text-yellow-400 font-bold text-lg">
+                          LKR {getOrderTotal(selectedOrder).toLocaleString()}
+                        </span>
                       </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Shipping Address */}
-                <div className="bg-black/50 rounded-lg p-4">
-                  <h3 className="font-semibold mb-3 text-yellow-400">Shipping Address</h3>
-                  <div className="text-sm">
-                    <p>{selectedOrder.shippingAddress.street}</p>
-                    <p>
-                      {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{" "}
-                      {selectedOrder.shippingAddress.zipCode}
-                    </p>
-                    <p>{selectedOrder.shippingAddress.country}</p>
+                {selectedOrder.shippingAddress && (
+                  <div className="bg-black/50 rounded-lg p-4">
+                    <h3 className="font-semibold mb-3 text-yellow-400">Shipping Address</h3>
+                    <div className="text-sm">
+                      <p>{selectedOrder.shippingAddress.street}</p>
+                      <p>
+                        {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{" "}
+                        {selectedOrder.shippingAddress.zipCode}
+                      </p>
+                      <p>{selectedOrder.shippingAddress.country}</p>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="flex justify-end">
                   <button
@@ -729,9 +739,12 @@ export default function OrdersTable() {
 
               <div className="p-6 space-y-4">
                 <div>
-                  <p className="text-sm text-gray-400 mb-2">Order: {editingOrder.orderId}</p>
-                  <p className="font-medium">{editingOrder.shoe.name}</p>
-                  <p className="text-sm text-gray-400">{editingOrder.customerName}</p>
+                  <p className="text-sm text-gray-400 mb-2">Order: {editingOrder.orderId || editingOrder._id}</p>
+                  <p className="font-medium">{editingOrder.shoe?.name || "N/A"}</p>
+                  <p className="text-sm text-gray-400">{editingOrder.customerName || "N/A"}</p>
+                  <p className="text-sm text-yellow-400 font-semibold">
+                    Amount: LKR {getOrderTotal(editingOrder).toLocaleString()}
+                  </p>
                 </div>
 
                 <div>

@@ -44,7 +44,7 @@ export default function PopularBrands() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-900 rounded-lg p-6 animate-pulse">
+              <div key={i} className="bg-black rounded-lg p-6 animate-pulse">
                 <div className="h-20 bg-gray-800 rounded"></div>
               </div>
             ))}
@@ -73,7 +73,7 @@ export default function PopularBrands() {
           {brands.map((brand, index) => (
             <motion.div
               key={brand._id}
-              className="bg-gray-900 border border-yellow-400/20 rounded-lg p-6 hover:border-yellow-400/50 transition-all duration-300 group cursor-pointer"
+              className="bg-black border border-yellow-400/20 rounded-lg p-6 hover:border-yellow-400/50 transition-all duration-300 group cursor-pointer"
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}

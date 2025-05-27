@@ -4,15 +4,16 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Eye, Edit, Trash2, Search, Star, Package, EyeOff, X } from "lucide-react"
 import Image from "next/image"
+import type { Shoe } from "app/types"
 
 export default function ShoesTable() {
-  const [shoes, setShoes] = useState([])
-  const [filteredShoes, setFilteredShoes] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [brandFilter, setBrandFilter] = useState("")
-  const [editingShoe, setEditingShoe] = useState(null)
-  const [showEditModal, setShowEditModal] = useState(false)
+  const [shoes, setShoes] = useState<Shoe[]>([])
+  const [filteredShoes, setFilteredShoes] = useState<Shoe[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [searchTerm, setSearchTerm] = useState<string>("")
+  const [brandFilter, setBrandFilter] = useState<string>("")
+  const [editingShoe, setEditingShoe] = useState<Shoe | null>(null)
+  const [showEditModal, setShowEditModal] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchShoes = async () => {
@@ -23,9 +24,9 @@ export default function ShoesTable() {
         })
 
         if (response.ok) {
-          const data = await response.json()
-          setShoes(data)
-          setFilteredShoes(data)
+          const data: Shoe[] = await response.json()
+          setShoes(data || [])
+          setFilteredShoes(data || [])
         }
       } catch (error) {
         console.error("Error fetching shoes:", error)
@@ -39,24 +40,24 @@ export default function ShoesTable() {
 
   // Filter shoes based on search term and brand
   useEffect(() => {
-    let filtered = shoes
+    let filtered = [...shoes]
 
     if (searchTerm) {
       filtered = filtered.filter(
-        (shoe) =>
-          shoe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          shoe.brand.toLowerCase().includes(searchTerm.toLowerCase()),
+        (shoe: Shoe) =>
+          shoe.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          shoe.brand?.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     }
 
     if (brandFilter) {
-      filtered = filtered.filter((shoe) => shoe.brand === brandFilter)
+      filtered = filtered.filter((shoe: Shoe) => shoe.brand === brandFilter)
     }
 
     setFilteredShoes(filtered)
   }, [searchTerm, brandFilter, shoes])
 
-  const toggleFeatured = async (shoeId, currentFeatured) => {
+  const toggleFeatured = async (shoeId: string, currentFeatured: boolean): Promise<void> => {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(`/api/admin/shoes/${shoeId}`, {
@@ -69,14 +70,16 @@ export default function ShoesTable() {
       })
 
       if (response.ok) {
-        setShoes((prev) => prev.map((shoe) => (shoe._id === shoeId ? { ...shoe, featured: !currentFeatured } : shoe)))
+        setShoes((prev: Shoe[]) =>
+          prev.map((shoe: Shoe) => (shoe._id === shoeId ? { ...shoe, featured: !currentFeatured } : shoe)),
+        )
       }
     } catch (error) {
       console.error("Error updating shoe:", error)
     }
   }
 
-  const toggleVisibility = async (shoeId, currentVisible) => {
+  const toggleVisibility = async (shoeId: string, currentVisible: boolean): Promise<void> => {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(`/api/admin/shoes/${shoeId}`, {
@@ -85,18 +88,20 @@ export default function ShoesTable() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ visible: !currentVisible }),
+        body: JSON.stringify({ hidden: currentVisible }), // Toggle hidden property
       })
 
       if (response.ok) {
-        setShoes((prev) => prev.map((shoe) => (shoe._id === shoeId ? { ...shoe, visible: !currentVisible } : shoe)))
+        setShoes((prev: Shoe[]) =>
+          prev.map((shoe: Shoe) => (shoe._id === shoeId ? { ...shoe, hidden: currentVisible } : shoe)),
+        )
       }
     } catch (error) {
       console.error("Error updating shoe visibility:", error)
     }
   }
 
-  const deleteShoe = async (shoeId) => {
+  const deleteShoe = async (shoeId: string): Promise<void> => {
     if (!confirm("Are you sure you want to delete this shoe?")) return
 
     try {
@@ -107,14 +112,14 @@ export default function ShoesTable() {
       })
 
       if (response.ok) {
-        setShoes((prev) => prev.filter((shoe) => shoe._id !== shoeId))
+        setShoes((prev: Shoe[]) => prev.filter((shoe: Shoe) => shoe._id !== shoeId))
       }
     } catch (error) {
       console.error("Error deleting shoe:", error)
     }
   }
 
-  const openEditModal = (shoe) => {
+  const openEditModal = (shoe: Shoe): void => {
     setEditingShoe({
       ...shoe,
       images: shoe.images || [shoe.image || ""],
@@ -122,7 +127,9 @@ export default function ShoesTable() {
     setShowEditModal(true)
   }
 
-  const updateShoe = async () => {
+  const updateShoe = async (): Promise<void> => {
+    if (!editingShoe) return
+
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(`/api/admin/shoes/${editingShoe._id}`, {
@@ -140,13 +147,13 @@ export default function ShoesTable() {
           images: editingShoe.images,
           sizes: editingShoe.sizes,
           featured: editingShoe.featured,
-          visible: editingShoe.visible,
+          hidden: editingShoe.hidden,
         }),
       })
 
       if (response.ok) {
-        const updatedShoe = await response.json()
-        setShoes((prev) => prev.map((shoe) => (shoe._id === editingShoe._id ? updatedShoe : shoe)))
+        const updatedShoe: Shoe = await response.json()
+        setShoes((prev: Shoe[]) => prev.map((shoe: Shoe) => (shoe._id === editingShoe._id ? updatedShoe : shoe)))
         setShowEditModal(false)
         setEditingShoe(null)
         alert("Shoe updated successfully!")
@@ -160,11 +167,11 @@ export default function ShoesTable() {
     }
   }
 
-  const uniqueBrands = [...new Set(shoes.map((shoe) => shoe.brand))]
+  const uniqueBrands = [...new Set(shoes.map((shoe: Shoe) => shoe.brand).filter(Boolean))]
 
   if (loading) {
     return (
-      <div className="bg-gray-900 border border-yellow-400/20 rounded-lg p-6">
+      <div className="bg-black border border-yellow-400/20 rounded-lg p-6">
         <div className="animate-pulse space-y-4">
           <div className="h-6 bg-gray-800 rounded w-1/4"></div>
           <div className="space-y-3">
@@ -180,7 +187,7 @@ export default function ShoesTable() {
   return (
     <>
       <motion.div
-        className="bg-gray-900 border border-yellow-400/20 rounded-lg p-6"
+        className="bg-black border border-yellow-400/20 rounded-lg p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -204,7 +211,7 @@ export default function ShoesTable() {
             className="px-4 py-2 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-sm"
           >
             <option value="">All Brands</option>
-            {uniqueBrands.map((brand) => (
+            {uniqueBrands.map((brand: string) => (
               <option key={brand} value={brand}>
                 {brand}
               </option>
@@ -237,7 +244,7 @@ export default function ShoesTable() {
             </thead>
             <tbody>
               {filteredShoes.length > 0 ? (
-                filteredShoes.map((shoe, index) => (
+                filteredShoes.map((shoe: Shoe, index: number) => (
                   <motion.tr
                     key={shoe._id}
                     className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors"
@@ -249,22 +256,22 @@ export default function ShoesTable() {
                       <div className="flex items-center space-x-3">
                         <Image
                           src={shoe.image || "/placeholder.svg"}
-                          alt={shoe.name}
+                          alt={shoe.name || "Shoe"}
                           width={50}
                           height={50}
                           className="rounded-lg object-cover"
                         />
                         <div>
-                          <p className="font-medium">{shoe.name}</p>
-                          <p className="text-sm text-gray-400 truncate max-w-xs">{shoe.description}</p>
+                          <p className="font-medium">{shoe.name || "N/A"}</p>
+                          <p className="text-sm text-gray-400 truncate max-w-xs">{shoe.description || "N/A"}</p>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="font-medium">{shoe.brand}</span>
+                      <span className="font-medium">{shoe.brand || "N/A"}</span>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="font-semibold text-yellow-400">${shoe.price}</span>
+                      <span className="font-semibold text-yellow-400">LKR {(shoe.price || 0).toLocaleString()}</span>
                     </td>
                     <td className="py-4 px-4">
                       <select
@@ -272,7 +279,7 @@ export default function ShoesTable() {
                         disabled
                       >
                         <option>{(shoe.sizes || []).length} sizes</option>
-                        {(shoe.sizes || []).map((size) => (
+                        {(shoe.sizes || []).map((size: string) => (
                           <option key={size} value={size}>
                             {size}
                           </option>
@@ -282,7 +289,7 @@ export default function ShoesTable() {
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => toggleFeatured(shoe._id, shoe.featured)}
+                          onClick={() => toggleFeatured(shoe._id, shoe.featured || false)}
                           className={`p-1 rounded transition-colors ${
                             shoe.featured ? "text-yellow-400 hover:bg-yellow-400/20" : "text-gray-400 hover:bg-gray-700"
                           }`}
@@ -291,15 +298,13 @@ export default function ShoesTable() {
                           <Star className={`w-4 h-4 ${shoe.featured ? "fill-current" : ""}`} />
                         </button>
                         <button
-                          onClick={() => toggleVisibility(shoe._id, shoe.visible !== false)}
+                          onClick={() => toggleVisibility(shoe._id, !shoe.hidden)}
                           className={`p-1 rounded transition-colors ${
-                            shoe.visible !== false
-                              ? "text-green-400 hover:bg-green-400/20"
-                              : "text-red-400 hover:bg-red-400/20"
+                            !shoe.hidden ? "text-green-400 hover:bg-green-400/20" : "text-red-400 hover:bg-red-400/20"
                           }`}
-                          title={shoe.visible !== false ? "Hide from website" : "Show on website"}
+                          title={!shoe.hidden ? "Hide from website" : "Show on website"}
                         >
-                          {shoe.visible !== false ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                          {!shoe.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                         </button>
                       </div>
                     </td>
@@ -345,11 +350,11 @@ export default function ShoesTable() {
               </div>
               <div className="flex items-center space-x-1">
                 <Star className="w-4 h-4 text-yellow-400" />
-                <span>Featured: {shoes.filter((shoe) => shoe.featured).length}</span>
+                <span>Featured: {shoes.filter((shoe: Shoe) => shoe.featured).length}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Eye className="w-4 h-4 text-green-400" />
-                <span>Visible: {shoes.filter((shoe) => shoe.visible !== false).length}</span>
+                <span>Visible: {shoes.filter((shoe: Shoe) => !shoe.hidden).length}</span>
               </div>
             </div>
           </div>
@@ -366,7 +371,7 @@ export default function ShoesTable() {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-gray-900 border border-yellow-400/20 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+              className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -387,7 +392,7 @@ export default function ShoesTable() {
                     <label className="block text-sm font-medium mb-2">Name</label>
                     <input
                       type="text"
-                      value={editingShoe.name}
+                      value={editingShoe.name || ""}
                       onChange={(e) => setEditingShoe({ ...editingShoe, name: e.target.value })}
                       className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
                     />
@@ -397,18 +402,20 @@ export default function ShoesTable() {
                     <label className="block text-sm font-medium mb-2">Brand</label>
                     <input
                       type="text"
-                      value={editingShoe.brand}
+                      value={editingShoe.brand || ""}
                       onChange={(e) => setEditingShoe({ ...editingShoe, brand: e.target.value })}
                       className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Price ($)</label>
+                    <label className="block text-sm font-medium mb-2">Price (LKR)</label>
                     <input
                       type="number"
-                      value={editingShoe.price}
-                      onChange={(e) => setEditingShoe({ ...editingShoe, price: Number.parseFloat(e.target.value) })}
+                      value={editingShoe.price || 0}
+                      onChange={(e) =>
+                        setEditingShoe({ ...editingShoe, price: Number.parseFloat(e.target.value) || 0 })
+                      }
                       className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
                     />
                   </div>
@@ -417,7 +424,7 @@ export default function ShoesTable() {
                     <label className="block text-sm font-medium mb-2">Available Sizes</label>
                     <div className="grid grid-cols-4 gap-2">
                       {["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"].map(
-                        (size) => (
+                        (size: string) => (
                           <button
                             key={size}
                             type="button"
@@ -463,7 +470,7 @@ export default function ShoesTable() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Additional Images</label>
                   <div className="space-y-2">
-                    {(editingShoe.images || []).map((img, index) => (
+                    {(editingShoe.images || []).map((img: string, index: number) => (
                       <input
                         key={index}
                         type="url"
@@ -504,8 +511,8 @@ export default function ShoesTable() {
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={editingShoe.visible !== false}
-                      onChange={(e) => setEditingShoe({ ...editingShoe, visible: e.target.checked })}
+                      checked={!editingShoe.hidden}
+                      onChange={(e) => setEditingShoe({ ...editingShoe, hidden: !e.target.checked })}
                       className="rounded border-yellow-400/20 text-yellow-400 focus:ring-yellow-400"
                     />
                     <span>Visible on website</span>

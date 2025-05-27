@@ -44,6 +44,9 @@ export async function POST(request) {
     const orderCount = await db.collection("orders").countDocuments()
     const orderId = `OG${String(orderCount + 1).padStart(6, "0")}`
 
+    // Calculate total (ensure it's a number)
+    const calculatedTotal = Number(totalPrice) || Number(shoe.price) * Number(quantity)
+
     // Create order
     const order = {
       orderId,
@@ -57,9 +60,11 @@ export async function POST(request) {
       },
       size,
       quantity: Number(quantity),
-      totalPrice: Number(totalPrice),
+      total: calculatedTotal,
+      totalPrice: calculatedTotal, // Store both for compatibility
       customerName,
       customerContact,
+      customerPhone: customerContact, // Store phone in both fields
       customerEmail,
       shippingAddress,
       paymentMethod,
@@ -74,6 +79,7 @@ export async function POST(request) {
       message: "Order created successfully",
       orderId: order.orderId,
       _id: result.insertedId,
+      total: calculatedTotal,
     })
   } catch (error) {
     console.error("Error creating order:", error)
