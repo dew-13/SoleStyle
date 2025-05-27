@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, CreditCard, Truck, MapPin, Phone, User, Mail } from 'lucide-react'
+import { ArrowLeft, CreditCard, MapPin, User } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import Header from "../components/Header"

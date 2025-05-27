@@ -4,14 +4,8 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 
-type Brand = {
-  _id: string
-  name: string
-  logo: string
-}
-
 export default function PopularBrands() {
-  const [brands, setBrands] = useState<Brand[]>([])
+  const [brands, setBrands] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -26,12 +20,12 @@ export default function PopularBrands() {
         console.error("Error fetching brands:", error)
         // Fallback data
         setBrands([
-          { _id: "1", name: "Nike", logo: "/nike.svg?height=100&width=100" },
-          { _id: "2", name: "Adidas", logo: "/adidas.svg?height=100&width=100" },
-          { _id: "3", name: "Converse", logo: "/converse.svg?height=100&width=100" },
-          { _id: "4", name: "Puma", logo: "/puma.svg?height=100&width=100" },
-          { _id: "5", name: "Vans", logo: "/vans.svg?height=100&width=100" },
-          { _id: "6", name: "New Balance", logo: "/nb.svg?height=100&width=100" },
+          { _id: "1", name: "Nike", logo: "/placeholder.svg?height=100&width=100" },
+          { _id: "2", name: "Adidas", logo: "/placeholder.svg?height=100&width=100" },
+          { _id: "3", name: "Converse", logo: "/placeholder.svg?height=100&width=100" },
+          { _id: "4", name: "Puma", logo: "/placeholder.svg?height=100&width=100" },
+          { _id: "5", name: "Vans", logo: "/placeholder.svg?height=100&width=100" },
+          { _id: "6", name: "New Balance", logo: "/placeholder.svg?height=100&width=100" },
         ])
       } finally {
         setLoading(false)

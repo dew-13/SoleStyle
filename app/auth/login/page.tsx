@@ -81,7 +81,7 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <motion.div
-          className="bg-black border border-yellow-400/20 rounded-lg p-8"
+          className="bg-gray-900 border border-yellow-400/20 rounded-lg p-8"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}

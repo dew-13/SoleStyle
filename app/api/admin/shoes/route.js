@@ -5,62 +5,77 @@ import { ObjectId } from "mongodb"
 
 export async function GET(request) {
   try {
-    const token = request.headers.get("authorization")?.replace("Bearer ", "")
-
-    if (!token) {
+    // Get token from Authorization header
+    const authHeader = request.headers.get("authorization")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "No token provided" }, { status: 401 })
     }
 
-    // Verify token and get user info
+    const token = authHeader.substring(7)
+
+    // Verify token and check admin status
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const { db } = await connectToDatabase()
 
-    // Check if user exists and is admin
     const user = await db.collection("users").findOne({ _id: new ObjectId(decoded.userId) })
     if (!user || !user.isAdmin) {
-      return NextResponse.json({ message: "Admin access required" }, { status: 403 })
+      return NextResponse.json({ message: "Access denied" }, { status: 403 })
     }
 
-    // Fetch all shoes for admin
-    const shoes = await db.collection("shoes").find({}).toArray()
+    // Get all shoes
+    const shoes = await db.collection("shoes").find({}).sort({ createdAt: -1 }).toArray()
 
     return NextResponse.json(shoes)
   } catch (error) {
     console.error("Error fetching shoes:", error)
-    return NextResponse.json({ message: "Error fetching shoes" }, { status: 500 })
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 })
   }
 }
 
 export async function POST(request) {
   try {
-    const token = request.headers.get("authorization")?.replace("Bearer ", "")
-
-    if (!token) {
+    // Get token from Authorization header
+    const authHeader = request.headers.get("authorization")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "No token provided" }, { status: 401 })
     }
 
-    // Verify token and get user info
+    const token = authHeader.substring(7)
+
+    // Verify token and check admin status
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const { db } = await connectToDatabase()
 
-    // Check if user exists and is admin
     const user = await db.collection("users").findOne({ _id: new ObjectId(decoded.userId) })
     if (!user || !user.isAdmin) {
-      return NextResponse.json({ message: "Admin access required" }, { status: 403 })
+      return NextResponse.json({ message: "Access denied" }, { status: 403 })
     }
 
+    // Get shoe data from request body
     const shoeData = await request.json()
 
-    // Add shoe to database
-    const result = await db.collection("shoes").insertOne({
+    // Validate required fields
+    if (!shoeData.name || !shoeData.brand || !shoeData.price) {
+      return NextResponse.json({ message: "Name, brand, and price are required" }, { status: 400 })
+    }
+
+    // Create shoe object
+    const shoe = {
       ...shoeData,
+      price: Number.parseFloat(shoeData.price),
       createdAt: new Date(),
       updatedAt: new Date(),
-    })
+    }
 
-    return NextResponse.json({ message: "Shoe added successfully", id: result.insertedId })
+    // Insert shoe into database
+    const result = await db.collection("shoes").insertOne(shoe)
+
+    return NextResponse.json({
+      message: "Shoe added successfully",
+      shoe: { ...shoe, _id: result.insertedId },
+    })
   } catch (error) {
     console.error("Error adding shoe:", error)
-    return NextResponse.json({ message: "Error adding shoe" }, { status: 500 })
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 })
   }
 }

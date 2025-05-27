@@ -94,7 +94,7 @@ export default function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="flex flex-wrap gap-2 bg-black p-2 rounded-lg">
+            <div className="flex flex-wrap gap-2 bg-gray-900 p-2 rounded-lg">
               {tabs.map((tab) => {
                 const Icon = tab.icon
                 return (
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
             )}
             {activeTab === "orders" && <OrdersTable />}
             {activeTab === "settings" && (
-              <div className="bg-black border border-yellow-400/20 rounded-lg p-6">
+              <div className="bg-gray-900 border border-yellow-400/20 rounded-lg p-6">
                 <h2 className="text-2xl font-semibold mb-4">Settings</h2>
                 <p className="text-gray-400">Settings panel coming soon...</p>
               </div>

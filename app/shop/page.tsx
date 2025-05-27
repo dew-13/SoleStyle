@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Search, Filter, X } from 'lucide-react'
+import { Search, Filter, X, Heart } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import Header from "../components/Header"
@@ -18,14 +18,12 @@ export default function ShopPage() {
   const [selectedBrand, setSelectedBrand] = useState("")
   const [selectedSize, setSelectedSize] = useState("")
   const [showFilters, setShowFilters] = useState(false)
-
-  // Available shoe sizes
-  const sizes = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"]
+  const [wishlist, setWishlist] = useState([])
 
   // Famous basketball brands
   const basketballBrands = [
     "Nike",
-    "Adidas", 
+    "Adidas",
     "Puma",
     "Anta",
     "Under Armour",
@@ -35,8 +33,13 @@ export default function ShopPage() {
     "Jordan",
     "Converse",
     "New Balance",
-    "Vans"
+    "Vans",
+    "FILA",
+    "Champion",
   ]
+
+  // Available shoe sizes
+  const sizes = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"]
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -49,6 +52,8 @@ export default function ShopPage() {
           if (response.ok) {
             const userData = await response.json()
             setUser(userData)
+            // Load user's wishlist
+            loadWishlist(userData.id)
           }
         }
       } catch (error) {
@@ -58,17 +63,61 @@ export default function ShopPage() {
     checkAuth()
   }, [])
 
+  const loadWishlist = async (userId) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch(`/api/wishlist/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (response.ok) {
+        const wishlistData = await response.json()
+        setWishlist(wishlistData.map((item) => item.shoeId))
+      }
+    } catch (error) {
+      console.error("Error loading wishlist:", error)
+    }
+  }
+
+  const toggleWishlist = async (shoeId) => {
+    if (!user) {
+      alert("Please login to add items to wishlist")
+      return
+    }
+
+    try {
+      const token = localStorage.getItem("token")
+      const isInWishlist = wishlist.includes(shoeId)
+
+      const response = await fetch("/api/wishlist", {
+        method: isInWishlist ? "DELETE" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ shoeId }),
+      })
+
+      if (response.ok) {
+        if (isInWishlist) {
+          setWishlist((prev) => prev.filter((id) => id !== shoeId))
+        } else {
+          setWishlist((prev) => [...prev, shoeId])
+        }
+      }
+    } catch (error) {
+      console.error("Error updating wishlist:", error)
+    }
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch shoes - only visible ones
+        // Fetch shoes
         const shoesResponse = await fetch("/api/shoes")
         if (shoesResponse.ok) {
           const shoesData = await shoesResponse.json()
-          // Filter out hidden shoes
-          const visibleShoes = shoesData.filter(shoe => !shoe.hidden)
-          setShoes(visibleShoes)
-          setFilteredShoes(visibleShoes)
+          setShoes(shoesData)
+          setFilteredShoes(shoesData)
         } else {
           // Fallback data for shoes
           const fallbackShoes = [
@@ -77,7 +126,7 @@ export default function ShopPage() {
               name: "Air Max 270",
               brand: "Nike",
               price: 150,
-              images: ["/placeholder.svg?height=300&width=400"],
+              image: "/placeholder.svg?height=300&width=400",
               sizes: ["8", "8.5", "9", "9.5", "10", "10.5", "11"],
             },
             {
@@ -85,7 +134,7 @@ export default function ShopPage() {
               name: "Ultra Boost 22",
               brand: "Adidas",
               price: 180,
-              images: ["/placeholder.svg?height=300&width=400"],
+              image: "/placeholder.svg?height=300&width=400",
               sizes: ["7", "7.5", "8", "8.5", "9", "9.5", "10"],
             },
             {
@@ -93,8 +142,32 @@ export default function ShopPage() {
               name: "Chuck Taylor All Star",
               brand: "Converse",
               price: 65,
-              images: ["/placeholder.svg?height=300&width=400"],
+              image: "/placeholder.svg?height=300&width=400",
               sizes: ["6", "6.5", "7", "7.5", "8", "8.5", "9"],
+            },
+            {
+              _id: "4",
+              name: "Air Force 1",
+              brand: "Nike",
+              price: 90,
+              image: "/placeholder.svg?height=300&width=400",
+              sizes: ["8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5"],
+            },
+            {
+              _id: "5",
+              name: "Stan Smith",
+              brand: "Adidas",
+              price: 80,
+              image: "/placeholder.svg?height=300&width=400",
+              sizes: ["7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5"],
+            },
+            {
+              _id: "6",
+              name: "Old Skool",
+              brand: "Vans",
+              price: 60,
+              image: "/placeholder.svg?height=300&width=400",
+              sizes: ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5"],
             },
           ]
           setShoes(fallbackShoes)
@@ -102,7 +175,7 @@ export default function ShopPage() {
         }
 
         // Set basketball brands
-        setBrands(basketballBrands.map(brand => ({ _id: brand, name: brand })))
+        setBrands(basketballBrands.map((brand) => ({ _id: brand, name: brand })))
       } catch (error) {
         console.error("Error fetching data:", error)
       } finally {
@@ -186,7 +259,7 @@ export default function ShopPage() {
             <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
               Shop Shoes
             </h1>
-            <p className="text-gray-400">Discover our complete collection of original footwear</p>
+            <p className="text-gray-400">Discover our complete collection of premium basketball footwear</p>
           </motion.div>
 
           {/* Search and Filter Bar */}
@@ -204,7 +277,7 @@ export default function ShopPage() {
                 placeholder="Search shoes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-white"
+                className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-white"
               />
             </div>
 
@@ -212,7 +285,7 @@ export default function ShopPage() {
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="md:hidden flex items-center space-x-2 bg-black border border-yellow-400/20 px-4 py-2 rounded-lg"
+                className="md:hidden flex items-center space-x-2 bg-gray-900 border border-yellow-400/20 px-4 py-2 rounded-lg"
               >
                 <Filter className="w-4 h-4" />
                 <span>Filters</span>
@@ -236,7 +309,7 @@ export default function ShopPage() {
               <select
                 value={selectedBrand}
                 onChange={(e) => setSelectedBrand(e.target.value)}
-                className="bg-black border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
+                className="bg-gray-900 border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
               >
                 <option value="">All Brands</option>
                 {basketballBrands.map((brand) => (
@@ -250,7 +323,7 @@ export default function ShopPage() {
               <select
                 value={selectedSize}
                 onChange={(e) => setSelectedSize(e.target.value)}
-                className="bg-black border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
+                className="bg-gray-900 border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-white"
               >
                 <option value="">All Sizes</option>
                 {sizes.map((size) => (
@@ -284,15 +357,27 @@ export default function ShopPage() {
             {filteredShoes.map((shoe, index) => (
               <motion.div
                 key={shoe._id}
-                className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group"
+                className="bg-gray-900 border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative"
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ y: -5 }}
               >
+                {/* Wishlist Button */}
+                <button
+                  onClick={() => toggleWishlist(shoe._id)}
+                  className="absolute top-3 right-3 z-10 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-all"
+                >
+                  <Heart
+                    className={`w-5 h-5 ${
+                      wishlist.includes(shoe._id) ? "text-red-500 fill-current" : "text-white hover:text-red-500"
+                    }`}
+                  />
+                </button>
+
                 <div className="relative overflow-hidden">
                   <Image
-                    src={(shoe.images && shoe.images[0]) || shoe.image || "/placeholder.svg"}
+                    src={shoe.image || "/placeholder.svg"}
                     alt={shoe.name}
                     width={400}
                     height={300}

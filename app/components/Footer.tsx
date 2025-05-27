@@ -7,7 +7,7 @@ import Image from "next/image"
 
 export default function Footer() {
   return (
-    <footer className="bg-black border-t border-yellow-400/20 py-12 px-4">
+    <footer className="bg-gray-900 border-t border-yellow-400/20 py-12 px-4">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
@@ -19,7 +19,7 @@ export default function Footer() {
             viewport={{ once: true }}
           >
             <div className="flex items-center space-x-2">
-              <Image src="/og-vault-logo.png" alt="OG Vault" width={32} height={32} className="object-contain" />
+              <Image src="/images/og-vault-logo.png" alt="OG Vault" width={32} height={32} className="object-contain" />
               <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
                 OG VAULT
               </h3>
@@ -115,7 +115,7 @@ export default function Footer() {
               <p>123 Fashion Street</p>
               <p>New York, NY 10001</p>
               <p>Phone: (555) 123-4567</p>
-              <p>Email: ogvaultinfinity@gmail.com</p>
+              <p>Email: info@ogvault.com</p>
             </div>
           </motion.div>
         </div>
@@ -128,7 +128,7 @@ export default function Footer() {
           transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
         >
-          <p className="text-gray-400">© 2025 OG Vault. All rights reserved.</p>
+          <p className="text-gray-400">© 2024 OG Vault. All rights reserved.</p>
         </motion.div>
       </div>
     </footer>

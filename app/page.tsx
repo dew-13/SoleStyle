@@ -37,7 +37,7 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <motion.section
-        className="relative h-screen flex items-center justify-center bg-gradient-to-br from-black via-black to-black overflow-hidden"
+        className="relative h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-800 to-black overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -50,28 +50,18 @@ export default function HomePage() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
-            
-          
-          <motion.img
-            src="/body-logo.png"
-            alt="OG Vault Logo"
-            className="mx-auto mb-4 w-24 h-24 md:w-32 md:h-32 object-contain"
-            initial={{ scale: 1.8, opacity: 0 }}
-            animate={{ scale: 3, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          /> 
-           
+            OG VAULT
           </motion.h1>
           <motion.p
             className="text-lg md:text-xl mb-8 text-gray-300"
-            initial={{ y: 40, opacity: 0 }}
+            initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            
+            Unlock the Legacy - Sealed for Greatness
           </motion.p>
           <motion.button
-            className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-8 py-4 rounded-full font-semibold text-lg hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105"
+            className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-8 py-4 rounded-full font-semibold text-lg hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 mb-16"
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.8 }}
@@ -88,8 +78,8 @@ export default function HomePage() {
               key={i}
               className="absolute w-2 h-2 bg-yellow-400 rounded-full opacity-20"
               style={{
-                left: `LKR {Math.random() * 100}%`,
-                top: `LKR {Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
               }}
               animate={{
                 y: [0, -100, 0],
@@ -105,8 +95,10 @@ export default function HomePage() {
         </div>
       </motion.section>
 
-      {/* Featured Shoes Section */}
-      <FeaturedShoes />
+      {/* Featured Shoes Section - Reduced top padding */}
+      <div className="-mt-16 relative z-30">
+        <FeaturedShoes />
+      </div>
 
       {/* Popular Brands Section */}
       <PopularBrands />

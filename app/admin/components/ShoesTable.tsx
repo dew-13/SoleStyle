@@ -131,16 +131,32 @@ export default function ShoesTable() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(editingShoe),
+        body: JSON.stringify({
+          name: editingShoe.name,
+          brand: editingShoe.brand,
+          price: editingShoe.price,
+          description: editingShoe.description,
+          image: editingShoe.image,
+          images: editingShoe.images,
+          sizes: editingShoe.sizes,
+          featured: editingShoe.featured,
+          visible: editingShoe.visible,
+        }),
       })
 
       if (response.ok) {
-        setShoes((prev) => prev.map((shoe) => (shoe._id === editingShoe._id ? editingShoe : shoe)))
+        const updatedShoe = await response.json()
+        setShoes((prev) => prev.map((shoe) => (shoe._id === editingShoe._id ? updatedShoe : shoe)))
         setShowEditModal(false)
         setEditingShoe(null)
+        alert("Shoe updated successfully!")
+      } else {
+        const error = await response.json()
+        alert(`Error updating shoe: ${error.message}`)
       }
     } catch (error) {
       console.error("Error updating shoe:", error)
+      alert("Error updating shoe. Please try again.")
     }
   }
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, Search, ShoppingCart, User, LogOut, Package, UserCircle, Menu, X, Shield } from 'lucide-react'
+import { Home, Search, ShoppingCart, User, LogOut, Package, UserCircle, Menu, X, Shield } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -44,7 +44,7 @@ export default function Header({ user, setUser }) {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <motion.div className="flex items-center space-x-2" whileHover={{ scale: 1.05 }}>
-              
+              <Image src="/images/og-vault-logo.png" alt="OG Vault" width={40} height={40} className="object-contain" />
               <div className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
                 OG VAULT
               </div>

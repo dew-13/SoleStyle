@@ -1,17 +1,49 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Search, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
 
-export default function AddShoeModal({ isOpen, onClose }) {
-  const [step, setStep] = useState(1) // 1: Search, 2: Details, 3: Confirmation
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState([])
-  const [selectedShoe, setSelectedShoe] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [shoeDetails, setShoeDetails] = useState({
+interface AddShoeModalProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+interface SearchResult {
+  id: number
+  name: string
+  brand: string
+  image: string
+  price: number
+  description: string
+  store: string
+}
+
+interface ShoeDetails {
+  name: string
+  brand: string
+  price: string
+  description: string
+  sizes: string[]
+  featured: boolean
+  images: string[]
+}
+
+interface CanadianStore {
+  name: string
+  url: string
+}
+
+export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
+  const [step, setStep] = useState<number>(1) // 1: Search, 2: Details, 3: Confirmation
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [selectedShoe, setSelectedShoe] = useState<SearchResult | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [shoeDetails, setShoeDetails] = useState<ShoeDetails>({
     name: "",
     brand: "",
     price: "",
@@ -21,10 +53,10 @@ export default function AddShoeModal({ isOpen, onClose }) {
     images: ["", "", "", ""], // Support up to 4 images
   })
 
-  const availableSizes = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"]
+  const availableSizes: string[] = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"]
 
   // Canadian basketball shoe stores
-  const canadianStores = [
+  const canadianStores: CanadianStore[] = [
     { name: "Nike Canada", url: "https://www.nike.com/ca/" },
     { name: "Adidas Canada", url: "https://www.adidas.ca/" },
     { name: "Puma Canada", url: "https://ca.puma.com/" },
@@ -35,19 +67,19 @@ export default function AddShoeModal({ isOpen, onClose }) {
   ]
 
   // Mock shoe search API for Canadian stores
-  const searchShoes = async () => {
+  const searchShoes = async (): Promise<void> => {
     if (!searchQuery.trim()) return
 
     setLoading(true)
     try {
       // Simulate API call - replace with real Canadian store APIs
-      const mockResults = [
+      const mockResults: SearchResult[] = [
         {
           id: 1,
           name: "Air Jordan 1 Retro High OG",
           brand: "Nike",
           image: "/placeholder.svg?height=200&width=200",
-          price: 230,
+          price: 23000,
           description:
             "The Air Jordan 1 Retro High OG remakes the classic sneaker, giving you a fresh take on what you know best.",
           store: "Nike Canada",
@@ -57,7 +89,7 @@ export default function AddShoeModal({ isOpen, onClose }) {
           name: "Yeezy Boost 350 V2",
           brand: "Adidas",
           image: "/placeholder.svg?height=200&width=200",
-          price: 280,
+          price: 28000,
           description: "The Yeezy Boost 350 V2 features an upper composed of re-engineered Primeknit.",
           store: "Adidas Canada",
         },
@@ -66,7 +98,7 @@ export default function AddShoeModal({ isOpen, onClose }) {
           name: "Puma Clyde All-Pro",
           brand: "Puma",
           image: "/placeholder.svg?height=200&width=200",
-          price: 140,
+          price: 14000,
           description: "Built for the modern game, the Clyde All-Pro delivers performance and style.",
           store: "Puma Canada",
         },
@@ -75,7 +107,7 @@ export default function AddShoeModal({ isOpen, onClose }) {
           name: "Reebok Question Mid",
           brand: "Reebok",
           image: "/placeholder.svg?height=200&width=200",
-          price: 160,
+          price: 16000,
           description: "The iconic Question Mid returns with classic basketball heritage.",
           store: "Reebok Canada",
         },
@@ -93,7 +125,7 @@ export default function AddShoeModal({ isOpen, onClose }) {
     }
   }
 
-  const selectShoe = (shoe) => {
+  const selectShoe = (shoe: SearchResult): void => {
     setSelectedShoe(shoe)
     setShoeDetails({
       name: shoe.name,
@@ -107,28 +139,28 @@ export default function AddShoeModal({ isOpen, onClose }) {
     setStep(2)
   }
 
-  const handleSizeToggle = (size) => {
+  const handleSizeToggle = (size: string): void => {
     setShoeDetails((prev) => ({
       ...prev,
       sizes: prev.sizes.includes(size) ? prev.sizes.filter((s) => s !== size) : [...prev.sizes, size],
     }))
   }
 
-  const handleImageChange = (index, value) => {
+  const handleImageChange = (index: number, value: string): void => {
     setShoeDetails((prev) => ({
       ...prev,
       images: prev.images.map((img, i) => (i === index ? value : img)),
     }))
   }
 
-  const removeImage = (index) => {
+  const removeImage = (index: number): void => {
     setShoeDetails((prev) => ({
       ...prev,
       images: prev.images.map((img, i) => (i === index ? "" : img)),
     }))
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     setLoading(true)
     try {
       const token = localStorage.getItem("token")
@@ -166,7 +198,7 @@ export default function AddShoeModal({ isOpen, onClose }) {
     }
   }
 
-  const resetModal = () => {
+  const resetModal = (): void => {
     setStep(1)
     setSearchQuery("")
     setSearchResults([])
@@ -182,6 +214,12 @@ export default function AddShoeModal({ isOpen, onClose }) {
     })
   }
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === "Enter") {
+      searchShoes()
+    }
+  }
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -192,7 +230,7 @@ export default function AddShoeModal({ isOpen, onClose }) {
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-gray-900 border border-yellow-400/20 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto"
+            className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
@@ -226,7 +264,7 @@ export default function AddShoeModal({ isOpen, onClose }) {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="flex-1 px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                        onKeyPress={(e) => e.key === "Enter" && searchShoes()}
+                        onKeyPress={handleKeyPress}
                       />
                       <button
                         onClick={searchShoes}
@@ -277,7 +315,7 @@ export default function AddShoeModal({ isOpen, onClose }) {
                           <h4 className="font-semibold mb-1">{shoe.name}</h4>
                           <p className="text-gray-400 text-sm mb-2">{shoe.brand}</p>
                           <div className="flex justify-between items-center">
-                            <p className="text-yellow-400 font-bold">${shoe.price} CAD</p>
+                            <p className="text-yellow-400 font-bold">LKR {shoe.price.toLocaleString()}</p>
                             <p className="text-xs text-gray-500">{shoe.store}</p>
                           </div>
                         </motion.div>
@@ -336,7 +374,7 @@ export default function AddShoeModal({ isOpen, onClose }) {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">Price (CAD $)</label>
+                        <label className="block text-sm font-medium mb-2">Price (LKR)</label>
                         <input
                           type="number"
                           value={shoeDetails.price}

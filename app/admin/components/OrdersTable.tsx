@@ -16,21 +16,41 @@ import {
   Edit,
   X,
 } from "lucide-react"
+import type { Order } from "app/types"
+
+interface OrderStatus {
+  value: string
+  label: string
+}
+
+interface OrdersTableState {
+  orders: Order[]
+  filteredOrders: Order[]
+  loading: boolean
+  searchTerm: string
+  statusFilter: string
+  dateFilter: string
+  refreshing: boolean
+  editingOrder: Order | null
+  showEditModal: boolean
+  showOrderDetails: boolean
+  selectedOrder: Order | null
+}
 
 export default function OrdersTable() {
-  const [orders, setOrders] = useState([])
-  const [filteredOrders, setFilteredOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("")
-  const [dateFilter, setDateFilter] = useState("")
-  const [refreshing, setRefreshing] = useState(false)
-  const [editingOrder, setEditingOrder] = useState(null)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showOrderDetails, setShowOrderDetails] = useState(false)
-  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [searchTerm, setSearchTerm] = useState<string>("")
+  const [statusFilter, setStatusFilter] = useState<string>("")
+  const [dateFilter, setDateFilter] = useState<string>("")
+  const [refreshing, setRefreshing] = useState<boolean>(false)
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null)
+  const [showEditModal, setShowEditModal] = useState<boolean>(false)
+  const [showOrderDetails, setShowOrderDetails] = useState<boolean>(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
-  const orderStatuses = [
+  const orderStatuses: OrderStatus[] = [
     { value: "pending", label: "Order received and pending payment" },
     { value: "payment_received", label: "Full Payment received" },
     { value: "installment_received", label: "Installment received and pending installments" },
@@ -39,7 +59,7 @@ export default function OrdersTable() {
     { value: "cancelled", label: "Cancelled" },
   ]
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (): Promise<void> => {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch("/api/admin/orders", {
@@ -47,71 +67,110 @@ export default function OrdersTable() {
       })
 
       if (response.ok) {
-        const data = await response.json()
+        const data: Order[] = await response.json()
         setOrders(data)
         setFilteredOrders(data)
       } else {
         // Fallback data if API fails
-        const fallbackOrders = [
+        const fallbackOrders: Order[] = [
           {
             _id: "1",
+            userId: "user1",
+            shoeId: "shoe1",
             orderId: "OG001234",
             customerName: "John Doe",
-            customerContact: "+1-416-555-0123",
+            customerPhone: "+94-77-123-4567",
             customerEmail: "john.doe@example.com",
-            shoe: { name: "Air Jordan 1 Retro High", brand: "Nike" },
+            shoe: {
+              _id: "shoe1",
+              name: "Air Jordan 1 Retro High",
+              brand: "Nike",
+              price: 28500,
+              description: "Classic basketball shoe",
+              image: "/placeholder.svg?height=400&width=400",
+              sizes: ["8", "9", "10", "11"],
+              featured: true,
+              createdAt: new Date().toISOString(),
+            },
             size: "10",
             quantity: 1,
-            totalPrice: 170,
+            total: 28500,
             status: "pending",
+            paymentMethod: "full",
             createdAt: new Date().toISOString(),
             shippingAddress: {
               street: "123 Main St",
-              city: "Toronto",
-              state: "ON",
-              zipCode: "M5V 2K7",
+              city: "Colombo",
+              state: "Western",
+              zipCode: "00100",
+              country: "Sri Lanka",
             },
-            paymentMethod: "full",
           },
           {
             _id: "2",
+            userId: "user2",
+            shoeId: "shoe2",
             orderId: "OG001235",
             customerName: "Jane Smith",
-            customerContact: "+1-647-555-0456",
+            customerPhone: "+94-77-234-5678",
             customerEmail: "jane.smith@example.com",
-            shoe: { name: "Yeezy Boost 350 V2", brand: "Adidas" },
+            shoe: {
+              _id: "shoe2",
+              name: "Yeezy Boost 350 V2",
+              brand: "Adidas",
+              price: 36800,
+              description: "Modern lifestyle sneaker",
+              image: "/placeholder.svg?height=400&width=400",
+              sizes: ["7", "8", "8.5", "9"],
+              featured: true,
+              createdAt: new Date().toISOString(),
+            },
             size: "8.5",
             quantity: 1,
-            totalPrice: 220,
+            total: 36800,
             status: "payment_received",
+            paymentMethod: "full",
             createdAt: new Date(Date.now() - 86400000).toISOString(),
             shippingAddress: {
               street: "456 Elm St",
-              city: "Toronto",
-              state: "ON",
-              zipCode: "M6G 1H5",
+              city: "Kandy",
+              state: "Central",
+              zipCode: "20000",
+              country: "Sri Lanka",
             },
-            paymentMethod: "full",
           },
           {
             _id: "3",
+            userId: "user3",
+            shoeId: "shoe3",
             orderId: "OG001236",
             customerName: "Mike Johnson",
-            customerContact: "+1-905-555-0789",
+            customerPhone: "+94-77-345-6789",
             customerEmail: "mike.johnson@example.com",
-            shoe: { name: "Chuck 70 High Top", brand: "Converse" },
+            shoe: {
+              _id: "shoe3",
+              name: "Chuck 70 High Top",
+              brand: "Converse",
+              price: 22500,
+              description: "Classic canvas sneaker",
+              image: "/placeholder.svg?height=400&width=400",
+              sizes: ["8", "9", "10", "11"],
+              featured: false,
+              createdAt: new Date().toISOString(),
+            },
             size: "9",
             quantity: 2,
-            totalPrice: 170,
+            total: 45000,
             status: "shipped",
+            paymentMethod: "full",
             createdAt: new Date(Date.now() - 172800000).toISOString(),
             shippingAddress: {
               street: "789 Oak St",
-              city: "Toronto",
-              state: "ON",
-              zipCode: "M4W 2S8",
+              city: "Galle",
+              state: "Southern",
+              zipCode: "80000",
+              country: "Sri Lanka",
             },
-            paymentMethod: "full",
           },
         ]
         setOrders(fallbackOrders)
@@ -119,6 +178,8 @@ export default function OrdersTable() {
       }
     } catch (error) {
       console.error("Error fetching orders:", error)
+      setOrders([])
+      setFilteredOrders([])
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -131,25 +192,25 @@ export default function OrdersTable() {
 
   // Filter orders based on search term, status, and date
   useEffect(() => {
-    let filtered = orders
+    let filtered = [...orders]
 
     if (searchTerm) {
       filtered = filtered.filter(
-        (order) =>
+        (order: Order) =>
           order.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           order.shoe?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.customerContact?.toLowerCase().includes(searchTerm.toLowerCase()),
+          order.customerPhone?.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     }
 
     if (statusFilter) {
-      filtered = filtered.filter((order) => order.status === statusFilter)
+      filtered = filtered.filter((order: Order) => order.status === statusFilter)
     }
 
     if (dateFilter) {
       const filterDate = new Date(dateFilter)
-      filtered = filtered.filter((order) => {
+      filtered = filtered.filter((order: Order) => {
         const orderDate = new Date(order.createdAt)
         return orderDate.toDateString() === filterDate.toDateString()
       })
@@ -158,12 +219,12 @@ export default function OrdersTable() {
     setFilteredOrders(filtered)
   }, [searchTerm, statusFilter, dateFilter, orders])
 
-  const refreshOrders = async () => {
+  const refreshOrders = async (): Promise<void> => {
     setRefreshing(true)
     await fetchOrders()
   }
 
-  const updateOrderStatus = async (orderId, newStatus) => {
+  const updateOrderStatus = async (orderId: string, newStatus: string): Promise<void> => {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(`/api/admin/orders/${orderId}`, {
@@ -176,7 +237,11 @@ export default function OrdersTable() {
       })
 
       if (response.ok) {
-        setOrders((prev) => prev.map((order) => (order._id === orderId ? { ...order, status: newStatus } : order)))
+        setOrders((prev: Order[]) =>
+          prev.map((order: Order) =>
+            order._id === orderId ? { ...order, status: newStatus as Order["status"] } : order,
+          ),
+        )
         setShowEditModal(false)
         setEditingOrder(null)
       }
@@ -185,19 +250,19 @@ export default function OrdersTable() {
     }
   }
 
-  const exportOrders = () => {
+  const exportOrders = (): void => {
     const csvContent = [
       ["Order ID", "Customer Name", "Phone", "Shoe", "Brand", "Size", "Quantity", "Amount", "Status", "Date"].join(","),
-      ...filteredOrders.map((order) =>
+      ...filteredOrders.map((order: Order) =>
         [
           order.orderId,
           order.customerName,
-          order.customerContact,
+          order.customerPhone,
           `"${order.shoe.name}"`,
           order.shoe.brand,
           order.size,
           order.quantity,
-          order.totalPrice,
+          order.total,
           order.status,
           new Date(order.createdAt).toLocaleDateString(),
         ].join(","),
@@ -213,7 +278,7 @@ export default function OrdersTable() {
     window.URL.revokeObjectURL(url)
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case "pending":
         return "bg-yellow-400/20 text-yellow-400"
@@ -232,14 +297,14 @@ export default function OrdersTable() {
     }
   }
 
-  const getStatusLabel = (status) => {
-    const statusObj = orderStatuses.find((s) => s.value === status)
+  const getStatusLabel = (status: string): string => {
+    const statusObj = orderStatuses.find((s: OrderStatus) => s.value === status)
     return statusObj ? statusObj.label : status
   }
 
   if (loading) {
     return (
-      <div className="bg-gray-900 border border-yellow-400/20 rounded-lg p-6">
+      <div className="bg-black border border-yellow-400/20 rounded-lg p-6">
         <div className="animate-pulse space-y-4">
           <div className="flex justify-between items-center">
             <div className="h-6 bg-gray-800 rounded w-1/4"></div>
@@ -263,7 +328,7 @@ export default function OrdersTable() {
   return (
     <>
       <motion.div
-        className="bg-gray-900 border border-yellow-400/20 rounded-lg p-6"
+        className="bg-black border border-yellow-400/20 rounded-lg p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -314,7 +379,7 @@ export default function OrdersTable() {
               className="w-full pl-10 pr-4 py-2 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-sm appearance-none"
             >
               <option value="">All Status</option>
-              {orderStatuses.map((status) => (
+              {orderStatuses.map((status: OrderStatus) => (
                 <option key={status.value} value={status.value}>
                   {status.label}
                 </option>
@@ -359,7 +424,7 @@ export default function OrdersTable() {
               <span className="text-sm text-gray-400">Total Value</span>
             </div>
             <p className="text-xl font-bold text-green-400">
-              LKR  {filteredOrders.reduce((sum, order) => sum + order.totalPrice, 0).toLocaleString()}
+              LKR {filteredOrders.reduce((sum: number, order: Order) => sum + order.total, 0).toLocaleString()}
             </p>
           </div>
           <div className="bg-black/50 rounded-lg p-4">
@@ -368,7 +433,7 @@ export default function OrdersTable() {
               <span className="text-sm text-gray-400">Customers</span>
             </div>
             <p className="text-xl font-bold text-purple-400">
-              {new Set(filteredOrders.map((order) => order.customerName)).size}
+              {new Set(filteredOrders.map((order: Order) => order.customerName)).size}
             </p>
           </div>
           <div className="bg-black/50 rounded-lg p-4">
@@ -377,8 +442,11 @@ export default function OrdersTable() {
               <span className="text-sm text-gray-400">Avg. Order</span>
             </div>
             <p className="text-xl font-bold text-yellow-400">
-              LKR  {filteredOrders.length > 0
-                ? Math.round( filteredOrders.reduce(( sum, order) => sum + order.totalPrice, 0) / filteredOrders.length)
+              LKR{" "}
+              {filteredOrders.length > 0
+                ? Math.round(
+                    filteredOrders.reduce((sum: number, order: Order) => sum + order.total, 0) / filteredOrders.length,
+                  ).toLocaleString()
                 : 0}
             </p>
           </div>
@@ -401,7 +469,7 @@ export default function OrdersTable() {
             </thead>
             <tbody>
               {filteredOrders.length > 0 ? (
-                filteredOrders.map((order, index) => (
+                filteredOrders.map((order: Order, index: number) => (
                   <motion.tr
                     key={order._id}
                     className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors"
@@ -431,7 +499,7 @@ export default function OrdersTable() {
                         </div>
                         <div className="flex items-center space-x-2 mt-1">
                           <Phone className="w-3 h-3 text-gray-500" />
-                          <p className="text-sm text-gray-400">{order.customerContact}</p>
+                          <p className="text-sm text-gray-400">{order.customerPhone}</p>
                         </div>
                       </div>
                     </td>
@@ -453,8 +521,8 @@ export default function OrdersTable() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-1">
-                       
-                        <span className="font-semibold text-yellow-400">LK {order.totalPrice}</span>
+                        <span className="text-sm text-gray-400">LKR</span>
+                        <span className="font-semibold text-yellow-400">{order.total.toLocaleString()}</span>
                       </div>
                     </td>
                     <td className="py-4 px-4">
@@ -576,7 +644,7 @@ export default function OrdersTable() {
                         <span className="text-gray-400">Name:</span> {selectedOrder.customerName}
                       </p>
                       <p>
-                        <span className="text-gray-400">Phone:</span> {selectedOrder.customerContact}
+                        <span className="text-gray-400">Phone:</span> {selectedOrder.customerPhone}
                       </p>
                       <p>
                         <span className="text-gray-400">Email:</span> {selectedOrder.customerEmail}
@@ -601,27 +669,24 @@ export default function OrdersTable() {
                       </p>
                       <p>
                         <span className="text-gray-400">Total:</span>{" "}
-                        <span className="text-yellow-400 font-bold">
-                          LKR {selectedOrder.totalPrice.toLocaleString()}
-                        </span>
+                        <span className="text-yellow-400 font-bold">LKR {selectedOrder.total.toLocaleString()}</span>
                       </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Shipping Address */}
-                {selectedOrder.shippingAddress && (
-                  <div className="bg-black/50 rounded-lg p-4">
-                    <h3 className="font-semibold mb-3 text-yellow-400">Shipping Address</h3>
-                    <div className="text-sm">
-                      <p>{selectedOrder.shippingAddress.street}</p>
-                      <p>
-                        {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{" "}
-                        {selectedOrder.shippingAddress.zipCode}
-                      </p>
-                    </div>
+                <div className="bg-black/50 rounded-lg p-4">
+                  <h3 className="font-semibold mb-3 text-yellow-400">Shipping Address</h3>
+                  <div className="text-sm">
+                    <p>{selectedOrder.shippingAddress.street}</p>
+                    <p>
+                      {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{" "}
+                      {selectedOrder.shippingAddress.zipCode}
+                    </p>
+                    <p>{selectedOrder.shippingAddress.country}</p>
                   </div>
-                )}
+                </div>
 
                 <div className="flex justify-end">
                   <button
@@ -647,7 +712,7 @@ export default function OrdersTable() {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-gray-900 border border-yellow-400/20 rounded-lg w-full max-w-md"
+              className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-md"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -673,10 +738,10 @@ export default function OrdersTable() {
                   <label className="block text-sm font-medium mb-2">Order Status</label>
                   <select
                     value={editingOrder.status}
-                    onChange={(e) => setEditingOrder({ ...editingOrder, status: e.target.value })}
+                    onChange={(e) => setEditingOrder({ ...editingOrder, status: e.target.value as Order["status"] })}
                     className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
                   >
-                    {orderStatuses.map((status) => (
+                    {orderStatuses.map((status: OrderStatus) => (
                       <option key={status.value} value={status.value}>
                         {status.label}
                       </option>

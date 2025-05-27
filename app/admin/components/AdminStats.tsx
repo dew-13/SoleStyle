@@ -1,11 +1,23 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Package, ShoppingCart, Users, DollarSign, TrendingUp, Calendar, Star } from "lucide-react"
+import type { AdminStats as AdminStatsType, Order, Shoe } from "app/types"
+
+interface StatCard {
+  title: string
+  value: string | number
+  icon: React.ComponentType<{ className?: string }>
+  color: string
+  bgColor: string
+  change: string
+}
 
 export default function AdminStats() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<AdminStatsType>({
     totalShoes: 0,
     totalOrders: 0,
     totalUsers: 0,
@@ -15,8 +27,8 @@ export default function AdminStats() {
     monthlyRevenue: 0,
     featuredShoes: 0,
   })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -36,7 +48,7 @@ export default function AdminStats() {
         })
 
         if (response.ok) {
-          const data = await response.json()
+          const data: AdminStatsType = await response.json()
           // Ensure all arrays have default values
           setStats({
             totalShoes: data.totalShoes || 0,
@@ -62,16 +74,34 @@ export default function AdminStats() {
             recentOrders: [
               {
                 _id: "1",
-                shoe: { name: "Air Jordan 1", brand: "Nike" },
+                userId: "user1",
+                shoeId: "shoe1",
+                shoe: {
+                  _id: "shoe1",
+                  name: "Air Jordan 1",
+                  brand: "Nike",
+                  price: 17000,
+                  description: "Classic basketball shoe",
+                  image: "/placeholder.svg",
+                  sizes: ["9", "10", "11"],
+                  featured: true,
+                  createdAt: new Date().toISOString(),
+                },
                 customerName: "John Doe",
+                customerPhone: "+94771234567",
+                customerEmail: "john@example.com",
+                size: "10",
+                quantity: 1,
                 total: 17000,
-                createdAt: new Date().toISOString(),
-              },
-              {
-                _id: "2",
-                shoe: { name: "Yeezy Boost 350", brand: "Adidas" },
-                customerName: "Jane Smith",
-                total: 22000,
+                shippingAddress: {
+                  street: "123 Main St",
+                  city: "Colombo",
+                  state: "Western",
+                  zipCode: "00100",
+                  country: "Sri Lanka",
+                },
+                paymentMethod: "cash",
+                status: "pending" as const,
                 createdAt: new Date().toISOString(),
               },
             ],
@@ -81,14 +111,12 @@ export default function AdminStats() {
                 name: "Air Jordan 1 Retro",
                 brand: "Nike",
                 price: 17000,
+                description: "Classic basketball shoe",
+                image: "/placeholder.svg",
+                sizes: ["9", "10", "11"],
+                featured: true,
+                createdAt: new Date().toISOString(),
                 orderCount: 45,
-              },
-              {
-                _id: "2",
-                name: "Yeezy Boost 350 V2",
-                brand: "Adidas",
-                price: 22000,
-                orderCount: 38,
               },
             ],
           })
@@ -159,7 +187,7 @@ export default function AdminStats() {
     )
   }
 
-  const statCards = [
+  const statCards: StatCard[] = [
     {
       title: "Total Shoes",
       value: stats.totalShoes,
@@ -291,7 +319,7 @@ export default function AdminStats() {
           </h3>
           <div className="space-y-3">
             {stats.recentOrders && stats.recentOrders.length > 0 ? (
-              stats.recentOrders.slice(0, 5).map((order, index) => (
+              stats.recentOrders.slice(0, 5).map((order: Order, index: number) => (
                 <motion.div
                   key={order._id}
                   className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors"
@@ -333,7 +361,7 @@ export default function AdminStats() {
           </h3>
           <div className="space-y-3">
             {stats.topShoes && stats.topShoes.length > 0 ? (
-              stats.topShoes.slice(0, 5).map((shoe, index) => (
+              stats.topShoes.slice(0, 5).map((shoe: Shoe & { orderCount: number }, index: number) => (
                 <motion.div
                   key={shoe._id}
                   className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors"

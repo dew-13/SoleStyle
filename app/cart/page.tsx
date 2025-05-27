@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react'
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import Header from "../components/Header"
@@ -36,7 +36,7 @@ export default function CartPage() {
     if (savedCart) {
       setCartItems(JSON.parse(savedCart))
     }
-    
+
     checkAuth()
     setLoading(false)
   }, [])
@@ -47,27 +47,23 @@ export default function CartPage() {
       return
     }
 
-    const updatedCart = cartItems.map(item => 
-      item.id === itemId && item.size === size 
-        ? { ...item, quantity: newQuantity }
-        : item
+    const updatedCart = cartItems.map((item) =>
+      item.id === itemId && item.size === size ? { ...item, quantity: newQuantity } : item,
     )
-    
+
     setCartItems(updatedCart)
     localStorage.setItem("cart", JSON.stringify(updatedCart))
   }
 
   const removeItem = (itemId, size) => {
-    const updatedCart = cartItems.filter(item => 
-      !(item.id === itemId && item.size === size)
-    )
-    
+    const updatedCart = cartItems.filter((item) => !(item.id === itemId && item.size === size))
+
     setCartItems(updatedCart)
     localStorage.setItem("cart", JSON.stringify(updatedCart))
   }
 
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0)
+    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 
   const proceedToCheckout = () => {
@@ -140,7 +136,7 @@ export default function CartPage() {
                         height={120}
                         className="rounded-lg object-cover"
                       />
-                      
+
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold mb-1">{item.name}</h3>
                         <p className="text-gray-400 mb-2">{item.brand}</p>
@@ -185,7 +181,7 @@ export default function CartPage() {
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
                 <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
-                
+
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span>Subtotal ({cartItems.length} items):</span>
