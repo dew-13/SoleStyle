@@ -8,6 +8,7 @@ import Link from "next/link"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import type { User, CartItem } from "app/types"
+import toast, { Toaster } from "react-hot-toast"
 
 export default function CartPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -59,6 +60,7 @@ export default function CartPage() {
 
     setCartItems(updatedCart)
     localStorage.setItem("cart", JSON.stringify(updatedCart))
+    toast.success("Cart updated!")
   }
 
   const removeItem = (itemId: string, size: string) => {
@@ -66,6 +68,7 @@ export default function CartPage() {
 
     setCartItems(updatedCart)
     localStorage.setItem("cart", JSON.stringify(updatedCart))
+    toast.success("Item removed from cart!")
   }
 
   const getTotalPrice = (): number => {
@@ -74,19 +77,24 @@ export default function CartPage() {
 
   const proceedToCheckout = () => {
     if (!user) {
-      alert("Please login to proceed with checkout")
-      window.location.href = "/auth/login"
+      toast.error("Please login to proceed with checkout")
+      setTimeout(() => {
+        window.location.href = "/auth/login"
+      }, 1200)
       return
     }
 
     if (cartItems.length === 0) {
-      alert("Your cart is empty")
+      toast.error("Your cart is empty")
       return
     }
 
     // Store cart details and redirect to checkout
     localStorage.setItem("checkoutItems", JSON.stringify(cartItems))
-    window.location.href = "/checkout"
+    toast.success("Proceeding to checkout...")
+    setTimeout(() => {
+      window.location.href = "/checkout"
+    }, 1200)
   }
 
   if (loading) {
@@ -99,6 +107,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <Toaster position="top-right" />
       <Header user={user} setUser={setUser} />
 
       <div className="pt-20 px-4">

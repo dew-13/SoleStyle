@@ -9,6 +9,8 @@ import { useParams, useRouter } from "next/navigation"
 import Header from "../../components/Header"
 import Footer from "../../components/Footer"
 import type { User, Shoe, CartItem } from "app/types"
+import toast, { Toaster } from "react-hot-toast"
+import { useCart } from "app/context/CartContext" // <-- FIXED: correct import path
 
 export default function ProductPage() {
   const params = useParams()
@@ -19,6 +21,7 @@ export default function ProductPage() {
   const [loading, setLoading] = useState<boolean>(true)
   const [quantity, setQuantity] = useState<number>(1)
   const [selectedImage, setSelectedImage] = useState<string>("")
+  const { addToCart } = useCart()
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -68,14 +71,15 @@ export default function ProductPage() {
     }
   }, [params.id])
 
-  const addToCart = () => {
+  // FIXED: Use context-based addToCart
+  const handleAddToCart = () => {
     if (!selectedSize) {
-      alert("Please select a size")
+      toast.error("Please select a size")
       return
     }
 
     if (!shoe) {
-      alert("Product not found")
+      toast.error("Product not found")
       return
     }
 
@@ -89,26 +93,8 @@ export default function ProductPage() {
       quantity: quantity,
     }
 
-    // Get existing cart items
-    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]")
-
-    // Check if item already exists in cart
-    const existingItemIndex = existingCart.findIndex(
-      (item: CartItem) => item.id === cartItem.id && item.size === cartItem.size,
-    )
-
-    if (existingItemIndex > -1) {
-      // Update quantity if item exists
-      existingCart[existingItemIndex].quantity += quantity
-    } else {
-      // Add new item to cart
-      existingCart.push(cartItem)
-    }
-
-    // Save to localStorage
-    localStorage.setItem("cart", JSON.stringify(existingCart))
-
-    alert("Item added to cart!")
+    addToCart(cartItem)
+    toast.success("Item added to cart!")
   }
 
   const handlePreOrder = () => {
@@ -119,12 +105,12 @@ export default function ProductPage() {
     }
 
     if (!selectedSize) {
-      alert("Please select a size")
+      toast.error("Please select a size")
       return
     }
 
     if (!shoe) {
-      alert("Product not found")
+      toast.error("Product not found")
       return
     }
 
@@ -182,6 +168,7 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <Toaster position="top-right" />
       <Header user={user} setUser={setUser} />
 
       <div className="pt-20 px-4">
@@ -355,7 +342,7 @@ export default function ProductPage() {
                 </motion.button>
 
                 <button
-                  onClick={addToCart}
+                  onClick={handleAddToCart}
                   className="w-full border border-yellow-400 text-yellow-400 py-4 rounded-lg font-semibold hover:bg-yellow-400/10 transition-all flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
@@ -368,7 +355,6 @@ export default function ProductPage() {
                 <div className="flex justify-between items-center text-xl">
                   <span>Total:</span>
                   <span className="font-bold text-yellow-400">LKR {(shoe.price * quantity).toLocaleString()}</span>
-                  
                 </div>
                 <p className="text-sm text-gray-600 leading-relaxed">(Including Shipping + Clearance Tax to Sri Lanka)</p>
               </div>

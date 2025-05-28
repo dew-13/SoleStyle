@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import toast, { Toaster } from "react-hot-toast"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { User, Package, Heart, Edit } from "lucide-react"
@@ -139,7 +139,7 @@ export default function ProfilePage() {
           shoeId: "shoe2",
           orderId: "OG001235",
           customerName: "John Doe",
-          customerPhone: "+94771234567",
+          customerPhone: "+14376611999",
           customerEmail: "john@example.com",
           shoe: {
             _id: "shoe2",
@@ -236,13 +236,13 @@ export default function ProfilePage() {
 
       if (response.ok) {
         setEditMode(false)
-        alert("Profile updated successfully!")
+        toast.success("Profile updated successfully!")
       } else {
-        alert("Failed to update profile")
+        toast.error("Failed to update profile")
       }
     } catch (error) {
       console.error("Error updating profile:", error)
-      alert("Error updating profile")
+      toast.error("Error updating profile")
     }
   }
 
@@ -309,6 +309,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <Toaster position="top-right" />
       <Header user={user} setUser={setUser} />
 
       <div className="pt-20 px-4">

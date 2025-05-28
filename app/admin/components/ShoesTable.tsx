@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Eye, Edit, Trash2, Search, Star, Package, EyeOff, X } from "lucide-react"
 import Image from "next/image"
 import type { Shoe } from "app/types"
+import toast, { Toaster } from "react-hot-toast"
 
 export default function ShoesTable() {
   const [shoes, setShoes] = useState<Shoe[]>([])
@@ -156,14 +157,14 @@ export default function ShoesTable() {
         setShoes((prev: Shoe[]) => prev.map((shoe: Shoe) => (shoe._id === editingShoe._id ? updatedShoe : shoe)))
         setShowEditModal(false)
         setEditingShoe(null)
-        alert("Shoe updated successfully!")
+        toast.success("Shoe updated successfully!")
       } else {
         const error = await response.json()
-        alert(`Error updating shoe: ${error.message}`)
+      toast.error(`Error updating shoe: ${error.message}`)
       }
     } catch (error) {
       console.error("Error updating shoe:", error)
-      alert("Error updating shoe. Please try again.")
+      toast.error("Error updating shoe. Please try again.")
     }
   }
 
@@ -194,6 +195,7 @@ export default function ShoesTable() {
       >
         {/* Filters */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Toaster position="top-right" />
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input

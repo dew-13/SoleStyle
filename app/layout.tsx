@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { CartProvider } from "./context/CartContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -75,9 +76,9 @@ export default function RootLayout({
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${inter.className} antialiased`}> <CartProvider>
         <div className="min-h-screen bg-black text-white">{children}</div>
-      </body>
+       </CartProvider></body>
     </html>
   )
 }

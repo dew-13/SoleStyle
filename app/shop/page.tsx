@@ -1,5 +1,4 @@
-"use client"
-
+"use client";
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Search, Filter, X, Heart } from "lucide-react"
@@ -8,6 +7,7 @@ import Link from "next/link"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import type { User, Shoe } from "app/types"
+import toast, { Toaster } from "react-hot-toast"
 
 export default function ShopPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -80,7 +80,7 @@ export default function ShopPage() {
 
   const toggleWishlist = async (shoeId: string) => {
     if (!user) {
-      alert("Please login to add items to wishlist")
+      toast.error("Please login to add items to wishlist")
       return
     }
 
@@ -216,6 +216,7 @@ export default function ShopPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <Toaster position="top-right" />
       <Header user={user} setUser={setUser} />
 
       <div className="pt-20 px-4">

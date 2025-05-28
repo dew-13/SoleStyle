@@ -6,24 +6,14 @@ import { Home, Search, ShoppingCart, User, LogOut, Package, UserCircle, Menu, X,
 import Link from "next/link"
 import Image from "next/image"
 import type { HeaderProps, CartItem } from "app/types"
+import { useCart } from "../context/CartContext"
 
 export default function Header({ user, setUser }: HeaderProps) {
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false)
   const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false)
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const { cartItems } = useCart()
 
-  // Load cart items from localStorage
-  useEffect(() => {
-    const savedCart = localStorage.getItem("cart")
-    if (savedCart) {
-      try {
-        setCartItems(JSON.parse(savedCart))
-      } catch (error) {
-        console.error("Error parsing cart data:", error)
-        setCartItems([])
-      }
-    }
-  }, [])
+ 
 
   // Handle logout
   const handleLogout = () => {

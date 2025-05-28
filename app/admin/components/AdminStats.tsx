@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Package, Users, DollarSign, TrendingUp, ShoppingBag, Calendar } from "lucide-react"
+import { Package, Users, TrendingUp, ShoppingBag, Calendar } from "lucide-react"
 import type { Order } from "app/types"
 
 export default function AdminStatsComponent() {
@@ -301,7 +301,7 @@ export default function AdminStatsComponent() {
               <p className="text-sm text-gray-400">Total Revenue</p>
               <p className="text-2xl font-bold text-purple-400">LKR {stats.totalRevenue.toLocaleString()}</p>
             </div>
-            <DollarSign className="w-8 h-8 text-purple-400" />
+          
           </div>
         </motion.div>
       </div>
@@ -320,7 +320,7 @@ export default function AdminStatsComponent() {
             <span>Recent Orders</span>
           </h3>
           <div className="space-y-3">
-            {stats.recentOrders.map((order, index) => {
+            {stats.recentOrders.map((order: Order, index: number) => {
               const orderTotal = getOrderTotal(order)
               return (
                 <div key={order._id} className="flex items-center justify-between p-3 bg-black/50 rounded-lg">
@@ -353,7 +353,18 @@ export default function AdminStatsComponent() {
             <span>Top Selling Shoes</span>
           </h3>
           <div className="space-y-3">
-            {stats.topShoes.map((shoe, index) => (
+            {stats.topShoes.map((shoe: {
+              _id: string
+              name: string
+              brand: string
+              price: number
+              description: string
+              image: string
+              sizes: string[]
+              featured: boolean
+              createdAt: string
+              orderCount: number
+            }, index: number) => (
               <div key={shoe._id} className="flex items-center justify-between p-3 bg-black/50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <img
@@ -384,7 +395,7 @@ export default function AdminStatsComponent() {
         transition={{ duration: 0.6, delay: 0.6 }}
       >
         <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
-          <DollarSign className="w-5 h-5 text-yellow-400" />
+       
           <span>Monthly Revenue</span>
         </h3>
         <div className="flex items-center justify-between">

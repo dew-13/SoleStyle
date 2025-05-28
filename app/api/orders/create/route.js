@@ -47,6 +47,31 @@ export async function POST(request) {
     // Calculate total (ensure it's a number)
     const calculatedTotal = Number(totalPrice) || Number(shoe.price) * Number(quantity)
 
+    const customerPhone =
+      customerContact ||
+      (shippingAddress && (shippingAddress.phone || shippingAddress.mobile || shippingAddress.contact)) ||
+      ""
+
+
+         // Fallback for customerName and customerEmail
+    const finalCustomerName =
+      customerName ||
+      (shippingAddress && (shippingAddress.fullName || shippingAddress.name)) ||
+      ""
+    const finalCustomerEmail =
+      customerEmail ||
+      (shippingAddress && shippingAddress.email) ||
+      ""
+
+
+    // Set status based on payment method
+    let status = "pending"
+    if (paymentMethod === "full") {
+      status = "pending_full_payment"
+    } else if (paymentMethod === "installments") {
+      status = "pending_installment"
+    }
+
     // Create order
     const order = {
       orderId,
@@ -60,15 +85,13 @@ export async function POST(request) {
       },
       size,
       quantity: Number(quantity),
-      total: calculatedTotal,
       totalPrice: calculatedTotal, // Store both for compatibility
-      customerName,
-      customerContact,
-      customerPhone: customerContact, // Store phone in both fields
-      customerEmail,
+      customerName: finalCustomerName,
+      customerPhone: customerPhone, // Store phone in both fields
+      customerEmail: finalCustomerEmail,
       shippingAddress,
       paymentMethod,
-      status: "pending",
+      status,
       createdAt: new Date(),
       updatedAt: new Date(),
     }

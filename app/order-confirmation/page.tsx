@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, MapPin, CreditCard, MessageCircle } from "lucide-react"
@@ -9,7 +8,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import Header from "../components/Header"
+import Footer from "../components/Footer"
 import type { User, OrderDetails, ShippingAddress } from "app/types"
+import toast, { Toaster } from "react-hot-toast"
 
 export default function OrderConfirmationPage() {
   const router = useRouter()
@@ -84,70 +85,120 @@ export default function OrderConfirmationPage() {
       [e.target.name]: e.target.value,
     })
   }
-
-  const handleConfirmOrder = async () => {
-    if (!orderDetails) return
-
-    setLoading(true)
-
-    try {
-      const token = localStorage.getItem("token")
-
-      // First, save the shipping address to user profile
-      await fetch("/api/auth/update-profile", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          phone: shippingAddress.phone,
-          address: {
-            street: shippingAddress.address,
-            city: shippingAddress.city,
-            state: shippingAddress.state,
-            zipCode: shippingAddress.zipCode,
-          },
-        }),
-      })
-
-      // Then create the order
-      const response = await fetch("/api/orders/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          shoe: orderDetails.shoe,
-          size: orderDetails.size,
-          quantity: orderDetails.quantity,
-          totalPrice: orderDetails.totalPrice,
-          shippingAddress,
-          paymentMethod,
-        }),
-      })
-
-      if (response.ok) {
-        setOrderPlaced(true)
-        // Clear order details from localStorage
-        localStorage.removeItem("orderDetails")
-      } else {
-        alert("Failed to place order. Please try again.")
-      }
-    } catch (error) {
-      console.error("Order creation error:", error)
-      alert("An error occurred. Please try again.")
-    } finally {
-      setLoading(false)
-    }
+    const handleConfirmOrder = async () => {
+  if (!orderDetails) {
+    toast.error("Order details missing.")
+    return
   }
+
+  // Check for shoe ID
+  if (!orderDetails.shoe || !orderDetails.shoe._id) {
+    toast.error("Shoe ID missing in order details.")
+    console.error("orderDetails.shoe:", orderDetails.shoe)
+    return
+  }
+
+  setLoading(true)
+
+  try {
+    const token = localStorage.getItem("token")
+    if (!token) {
+      toast.error("Session expired. Please login again.")
+      router.push("/auth/login")
+      return
+    }
+
+    // Save the shipping address to user profile
+    await fetch("/api/auth/update-profile", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        phone: shippingAddress.phone,
+        address: {
+          street: shippingAddress.address,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          zipCode: shippingAddress.zipCode,
+        },
+      }),
+    })
+
+    // Prepare shipping address for order (exclude fullName)
+    const shippingAddressForOrder = {
+      address: shippingAddress.address,
+      city: shippingAddress.city,
+      state: shippingAddress.state,
+      zipCode: shippingAddress.zipCode,
+      phone: shippingAddress.phone,
+    }
+
+    // Debug: Log payload
+    console.log("Order payload:", {
+      shoe: orderDetails.shoe._id,
+      size: orderDetails.size,
+      quantity: orderDetails.quantity,
+      totalPrice: orderDetails.totalPrice,
+      shippingAddress: shippingAddressForOrder,
+      paymentMethod,
+    })
+
+    // Create the order (send only shoe ID)
+    const response = await fetch("/api/orders/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        shoeId: orderDetails.shoe._id, // Only the ID
+        size: orderDetails.size,
+        quantity: orderDetails.quantity,
+        totalPrice: orderDetails.totalPrice,
+        shippingAddress: shippingAddressForOrder,
+        paymentMethod,
+        customerName: shippingAddress.fullName, // <-- add this
+        customerEmail: user?.email,   
+      }),
+    })
+
+    if (response.ok) {
+      setOrderPlaced(true)
+      localStorage.removeItem("orderDetails")
+      toast.success("Order placed successfully!")
+    } else {
+      const errorData = await response.json().catch(() => ({}))
+      console.error("Order API error:", errorData)
+      toast.error(errorData.message || "Failed to place order. Please try again.")
+    }
+  } catch (error) {
+    console.error("Order creation error:", error)
+    toast.error("An error occurred. Please try again.")
+  } finally {
+    setLoading(false)
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const handleWhatsAppContact = () => {
     if (!orderDetails) return
 
     const message = `Hi! I've placed an order for ${orderDetails.shoe.name} (Size: ${orderDetails.size}). Order total: LKR ${orderDetails.totalPrice.toLocaleString()}. Please let me know the next steps for payment.`
-    const phoneNumber = "+94771234567" // Replace with actual contact number
+    const phoneNumber = "+14376611999" // Replace with actual contact number
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
   }
@@ -155,6 +206,7 @@ export default function OrderConfirmationPage() {
   if (!orderDetails || !user) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <Toaster position="top-right" />
         <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-yellow-400"></div>
       </div>
     )
@@ -163,6 +215,7 @@ export default function OrderConfirmationPage() {
   if (orderPlaced) {
     return (
       <div className="min-h-screen bg-black text-white">
+        <Toaster position="top-right" />
         <Header user={user} setUser={setUser} />
 
         <div className="pt-20 px-4">
@@ -194,7 +247,7 @@ export default function OrderConfirmationPage() {
                 whileTap={{ scale: 0.95 }}
               >
                 <MessageCircle className="w-6 h-6" />
-                <span>Contact Person1 on WhatsApp</span>
+                <span>Send your Payment Receipt on WhatsApp</span>
               </motion.button>
 
               <div className="mt-8 p-6 bg-black border border-yellow-400/20 rounded-lg">
@@ -237,6 +290,7 @@ export default function OrderConfirmationPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <Toaster position="top-right" />
       <Header user={user} setUser={setUser} />
 
       <div className="pt-20 px-4">
@@ -300,10 +354,7 @@ export default function OrderConfirmationPage() {
                   <span>Subtotal:</span>
                   <span>LKR {orderDetails.totalPrice.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Shipping:</span>
-                  <span>Free</span>
-                </div>
+                <p className="text-gray">(Including shipping and Tax clearance to SL)</p>
                 <div className="flex justify-between font-bold text-lg text-yellow-400 border-t border-gray-700 pt-3">
                   <span>Total:</span>
                   <span>LKR {orderDetails.totalPrice.toLocaleString()}</span>
@@ -432,6 +483,8 @@ export default function OrderConfirmationPage() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   )
 }

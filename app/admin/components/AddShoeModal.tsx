@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import toast, { Toaster } from "react-hot-toast"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Search, Plus, Trash2 } from "lucide-react"
@@ -188,11 +188,11 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
           window.location.reload()
         }, 2000)
       } else {
-        alert("Failed to add shoe")
+        toast.error("Failed to add shoe")
       }
     } catch (error) {
       console.error("Error adding shoe:", error)
-      alert("Error adding shoe")
+      toast.error("Error adding shoe")
     } finally {
       setLoading(false)
     }
@@ -222,6 +222,7 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
 
   return (
     <AnimatePresence>
+    
       {isOpen && (
         <motion.div
           className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
@@ -238,6 +239,7 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <Toaster position="top-right" />
               <h2 className="text-2xl font-semibold">Add New Shoe</h2>
               <button
                 onClick={() => {
@@ -517,6 +519,7 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
           </motion.div>
         </motion.div>
       )}
+   
     </AnimatePresence>
   )
 }

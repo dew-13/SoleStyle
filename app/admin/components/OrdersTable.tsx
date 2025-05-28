@@ -9,7 +9,7 @@ import {
   Calendar,
   User,
   Package,
-  DollarSign,
+
   Filter,
   RefreshCw,
   Phone,
@@ -430,7 +430,7 @@ export default function OrdersTable() {
           </div>
           <div className="bg-black/50 rounded-lg p-4">
             <div className="flex items-center space-x-2">
-              <DollarSign className="w-4 h-4 text-green-400" />
+              
               <span className="text-sm text-gray-400">Total Value</span>
             </div>
             <p className="text-xl font-bold text-green-400">LKR {calculateTotalValue().toLocaleString()}</p>
