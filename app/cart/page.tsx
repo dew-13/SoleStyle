@@ -202,6 +202,7 @@ export default function CartPage() {
                       <span>Total:</span>
                       <span className="text-yellow-400">LKR {getTotalPrice().toLocaleString()}</span>
                     </div>
+                    <p className="text-sm text-gray-600 leading-relaxed">(Including Shipping + Clearance Tax)</p>
                   </div>
                 </div>
 

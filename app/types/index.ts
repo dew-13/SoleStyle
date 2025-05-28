@@ -16,6 +16,25 @@ export interface User {
   createdAt: string
 }
 
+export interface Users {
+  id: string
+  _id?: string
+  firstName: string
+  lastName: string
+  email: string
+  phone?: string
+  isAdmin: boolean
+  address?: {
+    street: string
+    city: string
+    state: string
+    zipCode: string
+    country?: string
+  }
+  createdAt: string
+}
+
+
 export interface Shoe {
   _id: string
   name: string
@@ -121,6 +140,7 @@ export interface FormData {
   phone: string
   password: string
   confirmPassword?: string
+  paymentMethod: "full" | "installments"
 }
 
 export interface LoginFormData {
@@ -139,4 +159,21 @@ export interface ProfileData {
     state: string
     zipCode: string
   }
+}
+
+
+export type Address = {
+  street: string
+  city: string
+  state: string
+  zipCode: string
+}
+
+
+export type UserType = {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  address: Address
 }

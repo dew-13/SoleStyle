@@ -8,12 +8,22 @@ import Link from "next/link"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 
+// ...existing code...
+import type { Users, CartItem, Address } from "app/types"
+
 export default function CheckoutPage() {
-  const [user, setUser] = useState(null)
-  const [cartItems, setCartItems] = useState([])
+  const [user, setUser] = useState<Users | null>(null)
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    address: Address
+    paymentMethod: "full" | "installments"
+  }>({
     firstName: "",
     lastName: "",
     email: "",
@@ -41,7 +51,7 @@ export default function CheckoutPage() {
         })
 
         if (response.ok) {
-          const userData = await response.json()
+          const userData: Users = await response.json()
           setUser(userData)
           setFormData({
             firstName: userData.firstName || "",
@@ -85,7 +95,7 @@ export default function CheckoutPage() {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitting(true)
 
@@ -100,7 +110,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           totalPrice: item.price * item.quantity,
           customerName: `${formData.firstName} ${formData.lastName}`,
-          customerContact: formData.phone,
+          customerPhone: formData.phone,
           customerEmail: formData.email,
           shippingAddress: formData.address,
           paymentMethod: formData.paymentMethod,
@@ -148,6 +158,7 @@ export default function CheckoutPage() {
       setSubmitting(false)
     }
   }
+// ...existing code...
 
   if (loading) {
     return (
@@ -355,7 +366,7 @@ export default function CheckoutPage() {
                         name="paymentMethod"
                         value="full"
                         checked={formData.paymentMethod === "full"}
-                        onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                        onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value as "full" | "installments" })}
                         className="text-yellow-400 focus:ring-yellow-400"
                       />
                       <span>Full Payment</span>
@@ -366,7 +377,7 @@ export default function CheckoutPage() {
                         name="paymentMethod"
                         value="installments"
                         checked={formData.paymentMethod === "installments"}
-                        onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                        onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value as "full" | "installments" })}
                         className="text-yellow-400 focus:ring-yellow-400"
                       />
                       <span>Installments (3 months)</span>
@@ -412,8 +423,8 @@ export default function CheckoutPage() {
                     <span>LKR {getTotalPrice().toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Shipping:</span>
-                    <span className="text-green-400">Free</span>
+                    <p>(Including Shipping and Tax to Sri Lanka)</p>
+                    
                   </div>
                   <div className="border-t border-gray-700 pt-3">
                     <div className="flex justify-between font-bold text-lg">
