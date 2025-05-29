@@ -358,6 +358,7 @@ export default function OrderConfirmationPage() {
                 <div className="flex justify-between font-bold text-lg text-yellow-400 border-t border-gray-700 pt-3">
                   <span>Total:</span>
                   <span>LKR {orderDetails.totalPrice.toLocaleString()}</span>
+                  <span>By placing this order, you agree to our <a>Terms of Service.</a></span>
                 </div>
               </div>
             </motion.div>
@@ -464,6 +465,7 @@ export default function OrderConfirmationPage() {
                     />
                     <span>
                       Installments (3 payments of LKR {Math.round(orderDetails.totalPrice / 3).toLocaleString()})
+                      <br/> For balance payment, timely completion is required to secure your pair.
                     </span>
                   </label>
                 </div>

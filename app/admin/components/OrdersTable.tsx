@@ -37,9 +37,9 @@ export default function OrdersTable() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   const orderStatuses: OrderStatus[] = [
-    { value: "pending", label: "Order received and pending payment" },
-    { value: "payment_received", label: "Full Payment received" },
-    { value: "installment_received", label: "Installment received and pending installments" },
+    { value: "pending", label: "pending payment" },
+    { value: "paid", label: "paid - processing" },
+    { value: "balance-pending", label: "balance pending - processing" },
     { value: "shipped", label: "Shipped" },
     { value: "delivered", label: "Delivered" },
     { value: "cancelled", label: "Cancelled" },
