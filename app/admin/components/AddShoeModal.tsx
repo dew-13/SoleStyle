@@ -1,525 +1,786 @@
 "use client"
 
-import type React from "react"
-import toast, { Toaster } from "react-hot-toast"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Search, Plus, Trash2 } from "lucide-react"
-import Image from "next/image"
+import {
+  Eye,
+  Search,
+  Download,
+  Calendar,
+  User,
+  Package,
 
-interface AddShoeModalProps {
-  isOpen: boolean
-  onClose: () => void
+  Filter,
+  RefreshCw,
+  Phone,
+  Edit,
+  X,
+} from "lucide-react"
+import type { Order } from "app/types"
+
+interface OrderStatus {
+  value: string
+  label: string
 }
 
-interface SearchResult {
-  id: number
-  name: string
-  brand: string
-  image: string
-  price: number
-  description: string
-  store: string
-}
+export default function OrdersTable() {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [searchTerm, setSearchTerm] = useState<string>("")
+  const [statusFilter, setStatusFilter] = useState<string>("")
+  const [dateFilter, setDateFilter] = useState<string>("")
+  const [refreshing, setRefreshing] = useState<boolean>(false)
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null)
+  const [showEditModal, setShowEditModal] = useState<boolean>(false)
+  const [showOrderDetails, setShowOrderDetails] = useState<boolean>(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
-interface ShoeDetails {
-  name: string
-  brand: string
-  price: string
-  description: string
-  sizes: string[]
-  featured: boolean
-  images: string[]
-}
-
-interface CanadianStore {
-  name: string
-  url: string
-}
-
-export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
-  const [step, setStep] = useState<number>(1) // 1: Search, 2: Details, 3: Confirmation
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
-  const [selectedShoe, setSelectedShoe] = useState<SearchResult | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [shoeDetails, setShoeDetails] = useState<ShoeDetails>({
-    name: "",
-    brand: "",
-    price: "",
-    description: "",
-    sizes: [],
-    featured: false,
-    images: ["", "", "", ""], // Support up to 4 images
-  })
-
-  const availableSizes: string[] = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"]
-
-  // Canadian basketball shoe stores
-  const canadianStores: CanadianStore[] = [
-    { name: "Nike Canada", url: "https://www.nike.com/ca/" },
-    { name: "Adidas Canada", url: "https://www.adidas.ca/" },
-    { name: "Puma Canada", url: "https://ca.puma.com/" },
-    { name: "Reebok Canada", url: "https://www.reebok.ca/" },
-    { name: "Foot Locker Canada", url: "https://www.footlocker.ca/" },
-    { name: "Champs Sports Canada", url: "https://www.champssports.ca/" },
-    { name: "Sport Chek", url: "https://www.sportchek.ca/" },
+  const orderStatuses: OrderStatus[] = [
+    { value: "pending", label: "pending payment" },
+    { value: "paid", label: "paid - processing" },
+    { value: "balance-pending", label: "balance pending - processing" },
+    { value: "shipped", label: "Shipped" },
+    { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
   ]
 
-  // Mock shoe search API for Canadian stores
-  const searchShoes = async (): Promise<void> => {
-    if (!searchQuery.trim()) return
+  // Helper function to get order total with fallback
+  const getOrderTotal = (order: Order): number => {
+    // Try multiple fields to get the total amount
+    return order.total || order.totalPrice || order.shoe?.price * order.quantity || 0
+  }
 
-    setLoading(true)
+  const fetchOrders = async (): Promise<void> => {
     try {
-      // Simulate API call - replace with real Canadian store APIs
-      const mockResults: SearchResult[] = [
-        {
-          id: 1,
-          name: "Air Jordan 1 Retro High OG",
-          brand: "Nike",
-          image: "/placeholder.svg?height=200&width=200",
-          price: 23000,
-          description:
-            "The Air Jordan 1 Retro High OG remakes the classic sneaker, giving you a fresh take on what you know best.",
-          store: "Nike Canada",
-        },
-        {
-          id: 2,
-          name: "Yeezy Boost 350 V2",
-          brand: "Adidas",
-          image: "/placeholder.svg?height=200&width=200",
-          price: 28000,
-          description: "The Yeezy Boost 350 V2 features an upper composed of re-engineered Primeknit.",
-          store: "Adidas Canada",
-        },
-        {
-          id: 3,
-          name: "Puma Clyde All-Pro",
-          brand: "Puma",
-          image: "/placeholder.svg?height=200&width=200",
-          price: 14000,
-          description: "Built for the modern game, the Clyde All-Pro delivers performance and style.",
-          store: "Puma Canada",
-        },
-        {
-          id: 4,
-          name: "Reebok Question Mid",
-          brand: "Reebok",
-          image: "/placeholder.svg?height=200&width=200",
-          price: 16000,
-          description: "The iconic Question Mid returns with classic basketball heritage.",
-          store: "Reebok Canada",
-        },
-      ].filter(
-        (shoe) =>
-          shoe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          shoe.brand.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+      const token = localStorage.getItem("token")
+      const response = await fetch("/api/admin/orders", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setSearchResults(mockResults)
+      if (response.ok) {
+        const data: Order[] = await response.json()
+        // Ensure each order has a proper total
+        const ordersWithTotals = data.map((order) => ({
+          ...order,
+          total: getOrderTotal(order),
+        }))
+        setOrders(ordersWithTotals || [])
+        setFilteredOrders(ordersWithTotals || [])
+      } else {
+        // Fallback data with proper totals
+        const fallbackOrders: Order[] = [
+          {
+            _id: "1",
+            userId: "user1",
+            shoeId: "shoe1",
+            orderId: "OG001234",
+            customerName: "John Doe",
+            customerPhone: "+94-77-123-4567",
+            customerEmail: "john.doe@example.com",
+            shoe: {
+              _id: "shoe1",
+              name: "Air Jordan 1 Retro High",
+              brand: "Nike",
+              price: 28500,
+              description: "Classic basketball shoe",
+              image: "/placeholder.svg?height=400&width=400",
+              sizes: ["8", "9", "10", "11"],
+              featured: true,
+              createdAt: new Date().toISOString(),
+            },
+            size: "10",
+            quantity: 1,
+            total: 28500,
+            totalPrice: 28500,
+            status: "pending",
+            paymentMethod: "full",
+            createdAt: new Date().toISOString(),
+            shippingAddress: {
+              street: "123 Main St",
+              city: "Colombo",
+              state: "Western",
+              zipCode: "00100",
+              country: "Sri Lanka",
+            },
+          },
+          {
+            _id: "2",
+            userId: "user2",
+            shoeId: "shoe2",
+            orderId: "OG001235",
+            customerName: "Jane Smith",
+            customerPhone: "+94-77-234-5678",
+            customerEmail: "jane.smith@example.com",
+            shoe: {
+              _id: "shoe2",
+              name: "Yeezy Boost 350 V2",
+              brand: "Adidas",
+              price: 36800,
+              description: "Modern lifestyle sneaker",
+              image: "/placeholder.svg?height=400&width=400",
+              sizes: ["7", "8", "8.5", "9"],
+              featured: true,
+              createdAt: new Date().toISOString(),
+            },
+            size: "8.5",
+            quantity: 1,
+            total: 36800,
+            totalPrice: 36800,
+            status: "payment_received",
+            paymentMethod: "full",
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+            shippingAddress: {
+              street: "456 Elm St",
+              city: "Kandy",
+              state: "Central",
+              zipCode: "20000",
+              country: "Sri Lanka",
+            },
+          },
+          {
+            _id: "3",
+            userId: "user3",
+            shoeId: "shoe3",
+            orderId: "OG001236",
+            customerName: "Mike Johnson",
+            customerPhone: "+94-77-345-6789",
+            customerEmail: "mike.johnson@example.com",
+            shoe: {
+              _id: "shoe3",
+              name: "Chuck 70 High Top",
+              brand: "Converse",
+              price: 22500,
+              description: "Classic canvas sneaker",
+              image: "/placeholder.svg?height=400&width=400",
+              sizes: ["8", "9", "10", "11"],
+              featured: false,
+              createdAt: new Date().toISOString(),
+            },
+            size: "9",
+            quantity: 2,
+            total: 45000,
+            totalPrice: 45000,
+            status: "shipped",
+            paymentMethod: "full",
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+            shippingAddress: {
+              street: "789 Oak St",
+              city: "Galle",
+              state: "Southern",
+              zipCode: "80000",
+              country: "Sri Lanka",
+            },
+          },
+        ]
+        setOrders(fallbackOrders)
+        setFilteredOrders(fallbackOrders)
+      }
     } catch (error) {
-      console.error("Error searching shoes:", error)
+      console.error("Error fetching orders:", error)
+      setOrders([])
+      setFilteredOrders([])
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }
 
-  const selectShoe = (shoe: SearchResult): void => {
-    setSelectedShoe(shoe)
-    setShoeDetails({
-      name: shoe.name,
-      brand: shoe.brand,
-      price: shoe.price.toString(),
-      description: shoe.description,
-      sizes: [],
-      featured: false,
-      images: [shoe.image, "", "", ""],
-    })
-    setStep(2)
+  useEffect(() => {
+    fetchOrders()
+  }, [])
+
+  // Filter orders based on search term, status, and date
+  useEffect(() => {
+    let filtered = [...orders]
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (order: Order) =>
+          order.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.shoe?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.customerPhone?.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter((order: Order) => order.status === statusFilter)
+    }
+
+    if (dateFilter) {
+      const filterDate = new Date(dateFilter)
+      filtered = filtered.filter((order: Order) => {
+        const orderDate = new Date(order.createdAt)
+        return orderDate.toDateString() === filterDate.toDateString()
+      })
+    }
+
+    setFilteredOrders(filtered)
+  }, [searchTerm, statusFilter, dateFilter, orders])
+
+  const refreshOrders = async (): Promise<void> => {
+    setRefreshing(true)
+    await fetchOrders()
   }
 
-  const handleSizeToggle = (size: string): void => {
-    setShoeDetails((prev) => ({
-      ...prev,
-      sizes: prev.sizes.includes(size) ? prev.sizes.filter((s) => s !== size) : [...prev.sizes, size],
-    }))
-  }
-
-  const handleImageChange = (index: number, value: string): void => {
-    setShoeDetails((prev) => ({
-      ...prev,
-      images: prev.images.map((img, i) => (i === index ? value : img)),
-    }))
-  }
-
-  const removeImage = (index: number): void => {
-    setShoeDetails((prev) => ({
-      ...prev,
-      images: prev.images.map((img, i) => (i === index ? "" : img)),
-    }))
-  }
-
-  const handleSubmit = async (): Promise<void> => {
-    setLoading(true)
+  const updateOrderStatus = async (orderId: string, newStatus: string): Promise<void> => {
     try {
       const token = localStorage.getItem("token")
-
-      // Filter out empty images
-      const validImages = shoeDetails.images.filter((img) => img.trim() !== "")
-
-      const response = await fetch("/api/admin/shoes", {
-        method: "POST",
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...shoeDetails,
-          image: validImages[0] || "/placeholder.svg", // Primary image
-          images: validImages, // All images
-        }),
+        body: JSON.stringify({ status: newStatus }),
       })
 
       if (response.ok) {
-        setStep(3)
-        setTimeout(() => {
-          onClose()
-          window.location.reload()
-        }, 2000)
-      } else {
-        toast.error("Failed to add shoe")
+        setOrders((prev: Order[]) =>
+          prev.map((order: Order) =>
+            order._id === orderId ? { ...order, status: newStatus as Order["status"] } : order,
+          ),
+        )
+        setShowEditModal(false)
+        setEditingOrder(null)
       }
     } catch (error) {
-      console.error("Error adding shoe:", error)
-      toast.error("Error adding shoe")
-    } finally {
-      setLoading(false)
+      console.error("Error updating order status:", error)
     }
   }
 
-  const resetModal = (): void => {
-    setStep(1)
-    setSearchQuery("")
-    setSearchResults([])
-    setSelectedShoe(null)
-    setShoeDetails({
-      name: "",
-      brand: "",
-      price: "",
-      description: "",
-      sizes: [],
-      featured: false,
-      images: ["", "", "", ""],
-    })
+  const exportOrders = (): void => {
+    const csvContent = [
+      ["Order ID", "Customer Name", "Phone", "Shoe", "Brand", "Size", "Quantity", "Amount", "Status", "Date"].join(","),
+      ...filteredOrders.map((order: Order) =>
+        [
+          order.orderId || "",
+          order.customerName || "",
+          order.customerPhone || "",
+          `"${order.shoe?.name || ""}"`,
+          order.shoe?.brand || "",
+          order.size || "",
+          order.quantity || 0,
+          getOrderTotal(order),
+          order.status || "",
+          new Date(order.createdAt).toLocaleDateString(),
+        ].join(","),
+      ),
+    ].join("\n")
+
+    const blob = new Blob([csvContent], { type: "text/csv" })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `og-vault-orders-${new Date().toISOString().split("T")[0]}.csv`
+    a.click()
+    window.URL.revokeObjectURL(url)
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (e.key === "Enter") {
-      searchShoes()
+  const getStatusColor = (status: string): string => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-400/20 text-yellow-400"
+      case "paid":
+        return "bg-green-400/20 text-green-400"
+      case "balance-pending":
+        return "bg-blue-400/20 text-blue-400"
+      case "shipped":
+        return "bg-purple-400/20 text-purple-400"
+      case "delivered":
+        return "bg-emerald-400/20 text-emerald-400"
+      case "cancelled":
+        return "bg-red-400/20 text-red-400"
+      default:
+        return "bg-gray-400/20 text-gray-400"
     }
+  }
+
+  const getStatusLabel = (status: string): string => {
+    const statusObj = orderStatuses.find((s: OrderStatus) => s.value === status)
+    return statusObj ? statusObj.label : status
+  }
+
+  // Safe calculation functions
+  const calculateTotalValue = (): number => {
+    return filteredOrders.reduce((sum: number, order: Order) => sum + getOrderTotal(order), 0)
+  }
+
+  const calculateAverageOrder = (): number => {
+    if (filteredOrders.length === 0) return 0
+    return Math.round(calculateTotalValue() / filteredOrders.length)
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-black border border-yellow-400/20 rounded-lg p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="h-6 bg-gray-800 rounded w-1/4"></div>
+            <div className="h-10 bg-gray-800 rounded w-32"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-10 bg-gray-800 rounded"></div>
+            ))}
+          </div>
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-16 bg-gray-800 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <AnimatePresence>
-    
-      {isOpen && (
-        <motion.div
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div
-            className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+    <>
+      <motion.div
+        className="bg-black border border-yellow-400/20 rounded-lg p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 space-y-4 md:space-y-0">
+          <h2 className="text-2xl font-semibold flex items-center space-x-2">
+            <Package className="w-6 h-6 text-yellow-400" />
+            <span>Order Management</span>
+          </h2>
+          <div className="flex space-x-3">
+            <button
+              onClick={refreshOrders}
+              disabled={refreshing}
+              className="bg-gray-800 border border-yellow-400/20 text-yellow-400 px-4 py-2 rounded-lg font-semibold hover:bg-yellow-400/10 transition-all flex items-center space-x-2 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+              <span>Refresh</span>
+            </button>
+            <button
+              onClick={exportOrders}
+              className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-4 py-2 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all flex items-center space-x-2"
+            >
+              <Download className="w-4 h-4" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search orders..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-sm"
+            />
+          </div>
+
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-sm appearance-none"
+            >
+              <option value="">All Status</option>
+              {orderStatuses.map((status: OrderStatus) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative">
+            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-sm"
+            />
+          </div>
+
+          <button
+            onClick={() => {
+              setSearchTerm("")
+              setStatusFilter("")
+              setDateFilter("")
+            }}
+            className="px-4 py-2 border border-yellow-400/20 text-yellow-400 rounded-lg hover:bg-yellow-400/10 transition-all text-sm"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-700">
-              <Toaster position="top-right" />
-              <h2 className="text-2xl font-semibold">Add New Shoe</h2>
-              <button
-                onClick={() => {
-                  resetModal()
-                  onClose()
-                }}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+            Clear Filters
+          </button>
+        </div>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-black/50 rounded-lg p-4">
+            <div className="flex items-center space-x-2">
+              <Package className="w-4 h-4 text-blue-400" />
+              <span className="text-sm text-gray-400">Total Orders</span>
             </div>
+            <p className="text-xl font-bold text-blue-400">{filteredOrders.length}</p>
+          </div>
+          <div className="bg-black/50 rounded-lg p-4">
+            <div className="flex items-center space-x-2">
+              
+              <span className="text-sm text-gray-400">Total Value</span>
+            </div>
+            <p className="text-xl font-bold text-green-400">LKR {calculateTotalValue().toLocaleString()}</p>
+          </div>
+          <div className="bg-black/50 rounded-lg p-4">
+            <div className="flex items-center space-x-2">
+              <User className="w-4 h-4 text-purple-400" />
+              <span className="text-sm text-gray-400">Customers</span>
+            </div>
+            <p className="text-xl font-bold text-purple-400">
+              {new Set(filteredOrders.map((order: Order) => order.customerName)).size}
+            </p>
+          </div>
+          <div className="bg-black/50 rounded-lg p-4">
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-4 h-4 text-yellow-400" />
+              <span className="text-sm text-gray-400">Avg. Order</span>
+            </div>
+            <p className="text-xl font-bold text-yellow-400">LKR {calculateAverageOrder().toLocaleString()}</p>
+          </div>
+        </div>
 
-            {/* Content */}
-            <div className="p-6">
-              {/* Step 1: Search */}
-              {step === 1 && (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Search Canadian Basketball Stores</h3>
-                    <div className="flex space-x-4 mb-4">
-                      <input
-                        type="text"
-                        placeholder="Search by name or brand..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="flex-1 px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                        onKeyPress={handleKeyPress}
-                      />
-                      <button
-                        onClick={searchShoes}
-                        disabled={loading}
-                        className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all disabled:opacity-50 flex items-center space-x-2"
-                      >
-                        <Search className="w-4 h-4" />
-                        <span>{loading ? "Searching..." : "Search"}</span>
-                      </button>
-                    </div>
-
-                    {/* Store Links */}
-                    <div className="mb-6">
-                      <p className="text-sm text-gray-400 mb-3">Quick links to Canadian stores:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {canadianStores.map((store) => (
-                          <a
-                            key={store.name}
-                            href={store.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3 py-1 bg-gray-800 border border-gray-600 rounded-lg text-sm hover:border-yellow-400/50 transition-all"
+        {/* Orders Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-700">
+                <th className="text-left py-3 px-4 font-semibold">Order ID</th>
+                <th className="text-left py-3 px-4 font-semibold">Customer</th>
+                <th className="text-left py-3 px-4 font-semibold">Product</th>
+                <th className="text-left py-3 px-4 font-semibold">Details</th>
+                <th className="text-left py-3 px-4 font-semibold">Amount</th>
+                <th className="text-left py-3 px-4 font-semibold">Status</th>
+                <th className="text-left py-3 px-4 font-semibold">Date</th>
+                <th className="text-left py-3 px-4 font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredOrders.length > 0 ? (
+                filteredOrders.map((order: Order, index: number) => {
+                  const orderTotal = getOrderTotal(order)
+                  return (
+                    <motion.tr
+                      key={order._id}
+                      className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                    >
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
+                          <Package className="w-4 h-4 text-yellow-400" />
+                          <button
+                            onClick={() => {
+                              setSelectedOrder(order)
+                              setShowOrderDetails(true)
+                            }}
+                            className="font-mono text-sm font-medium text-yellow-400 hover:text-yellow-300 transition-colors underline"
                           >
-                            {store.name}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Search Results */}
-                  {searchResults.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {searchResults.map((shoe) => (
-                        <motion.div
-                          key={shoe.id}
-                          className="bg-black border border-yellow-400/20 rounded-lg p-4 hover:border-yellow-400/50 transition-all cursor-pointer"
-                          whileHover={{ y: -5 }}
-                          onClick={() => selectShoe(shoe)}
-                        >
-                          <Image
-                            src={shoe.image || "/placeholder.svg"}
-                            alt={shoe.name}
-                            width={200}
-                            height={200}
-                            className="w-full h-32 object-cover rounded-lg mb-3"
-                          />
-                          <h4 className="font-semibold mb-1">{shoe.name}</h4>
-                          <p className="text-gray-400 text-sm mb-2">{shoe.brand}</p>
-                          <div className="flex justify-between items-center">
-                            <p className="text-yellow-400 font-bold">LKR {shoe.price.toLocaleString()}</p>
-                            <p className="text-xs text-gray-500">{shoe.store}</p>
+                            {order.orderId || order._id}
+                          </button>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <User className="w-4 h-4 text-gray-400" />
+                            <span className="font-medium">{order.customerName || "N/A"}</span>
                           </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Manual Entry Option */}
-                  <div className="border-t border-gray-700 pt-6">
-                    <button
-                      onClick={() => setStep(2)}
-                      className="w-full border border-yellow-400/20 text-yellow-400 py-3 rounded-lg font-semibold hover:bg-yellow-400/10 transition-all"
-                    >
-                      Or add shoe manually
-                    </button>
-                  </div>
-                </div>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Phone className="w-3 h-3 text-gray-500" />
+                            <p className="text-sm text-gray-400">{order.customerPhone || "N/A"}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="font-medium">{order.shoe?.name || "N/A"}</p>
+                          <p className="text-sm text-gray-400">{order.shoe?.brand || "N/A"}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="text-sm">
+                          <p>
+                            Size: <span className="font-medium">{order.size || "N/A"}</span>
+                          </p>
+                          <p>
+                            Qty: <span className="font-medium">{order.quantity || 0}</span>
+                          </p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-1">
+                          <span className="text-sm text-gray-400">LKR</span>
+                          <span className="font-semibold text-yellow-400">{orderTotal.toLocaleString()}</span>
+                        </div>
+                        {orderTotal === 0 && <p className="text-xs text-red-400 mt-1">Amount missing</p>}
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                          {getStatusLabel(order.status)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-1 text-sm text-gray-400">
+                          <Calendar className="w-4 h-4" />
+                          <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => {
+                              setEditingOrder(order)
+                              setShowEditModal(true)
+                            }}
+                            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                          >
+                            <Edit className="w-4 h-4 text-gray-400 hover:text-white" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedOrder(order)
+                              setShowOrderDetails(true)
+                            }}
+                            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                          >
+                            <Eye className="w-4 h-4 text-gray-400 hover:text-white" />
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  )
+                })
+              ) : (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center">
+                    <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-400 text-lg">No orders found</p>
+                    <p className="text-gray-500 text-sm">Try adjusting your search criteria</p>
+                  </td>
+                </tr>
               )}
+            </tbody>
+          </table>
+        </div>
 
-              {/* Step 2: Details */}
-              {step === 2 && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Shoe Details</h3>
-                    <button
-                      onClick={() => setStep(1)}
-                      className="text-yellow-400 hover:text-yellow-300 transition-colors"
-                    >
-                      ← Back to search
-                    </button>
-                  </div>
+        {/* Pagination */}
+        {filteredOrders.length > 0 && (
+          <div className="flex items-center justify-between mt-6">
+            <p className="text-sm text-gray-400">
+              Showing {filteredOrders.length} of {orders.length} orders
+            </p>
+          </div>
+        )}
+      </motion.div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Left Column */}
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Name</label>
-                        <input
-                          type="text"
-                          value={shoeDetails.name}
-                          onChange={(e) => setShoeDetails({ ...shoeDetails, name: e.target.value })}
-                          className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                          required
-                        />
-                      </div>
+      {/* Order Details Modal */}
+      <AnimatePresence>
+        {showOrderDetails && selectedOrder && (
+          <motion.div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className="flex items-center justify-between p-6 border-b border-gray-700">
+                <h2 className="text-2xl font-semibold">Order Details</h2>
+                <button
+                  onClick={() => setShowOrderDetails(false)}
+                  className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Brand</label>
-                        <input
-                          type="text"
-                          value={shoeDetails.brand}
-                          onChange={(e) => setShoeDetails({ ...shoeDetails, brand: e.target.value })}
-                          className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Price (LKR)</label>
-                        <input
-                          type="number"
-                          value={shoeDetails.price}
-                          onChange={(e) => setShoeDetails({ ...shoeDetails, price: e.target.value })}
-                          className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Description</label>
-                        <textarea
-                          value={shoeDetails.description}
-                          onChange={(e) => setShoeDetails({ ...shoeDetails, description: e.target.value })}
-                          rows={4}
-                          className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none resize-none"
-                          required
-                        />
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="featured"
-                          checked={shoeDetails.featured}
-                          onChange={(e) => setShoeDetails({ ...shoeDetails, featured: e.target.checked })}
-                          className="rounded border-yellow-400/20 text-yellow-400 focus:ring-yellow-400"
-                        />
-                        <label htmlFor="featured" className="text-sm font-medium">
-                          Featured shoe
-                        </label>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Available Sizes</label>
-                        <div className="grid grid-cols-4 gap-2">
-                          {availableSizes.map((size) => (
-                            <button
-                              key={size}
-                              type="button"
-                              onClick={() => handleSizeToggle(size)}
-                              className={`py-2 px-3 border rounded-lg transition-all ${
-                                shoeDetails.sizes.includes(size)
-                                  ? "border-yellow-400 bg-yellow-400/10 text-yellow-400"
-                                  : "border-gray-600 hover:border-gray-500"
-                              }`}
-                            >
-                              {size}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Column - Images */}
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Product Images (up to 4)</label>
-                        <div className="space-y-3">
-                          {shoeDetails.images.map((image, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                              <input
-                                type="url"
-                                placeholder={`Image ${index + 1} URL`}
-                                value={image}
-                                onChange={(e) => handleImageChange(index, e.target.value)}
-                                className="flex-1 px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                              />
-                              {image && (
-                                <button
-                                  type="button"
-                                  onClick={() => removeImage(index)}
-                                  className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Image Previews */}
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Image Previews</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {shoeDetails.images.map((image, index) => (
-                            <div key={index} className="aspect-square">
-                              {image ? (
-                                <Image
-                                  src={image || "/placeholder.svg"}
-                                  alt={`Preview ${index + 1}`}
-                                  width={150}
-                                  height={150}
-                                  className="w-full h-full object-cover rounded-lg border border-yellow-400/20"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gray-800 border border-gray-600 rounded-lg flex items-center justify-center">
-                                  <Plus className="w-8 h-8 text-gray-600" />
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+              <div className="p-6 space-y-6">
+                {/* Order Info */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-black/50 rounded-lg p-4">
+                    <h3 className="font-semibold mb-3 text-yellow-400">Order Information</h3>
+                    <div className="space-y-2 text-sm">
+                      <p>
+                        <span className="text-gray-400">Order ID:</span> {selectedOrder.orderId || selectedOrder._id}
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Date:</span>{" "}
+                        {new Date(selectedOrder.createdAt).toLocaleDateString()}
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Status:</span>
+                        <span className={`ml-2 px-2 py-1 rounded-full text-xs ${getStatusColor(selectedOrder.status)}`}>
+                          {getStatusLabel(selectedOrder.status)}
+                        </span>
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Payment:</span>{" "}
+                        {selectedOrder.paymentMethod === "full" ? "Full Payment" : "Installments"}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex justify-end space-x-4">
-                    <button
-                      onClick={() => setStep(1)}
-                      className="px-6 py-3 border border-gray-600 rounded-lg hover:bg-gray-800 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSubmit}
-                      disabled={loading || !shoeDetails.name || !shoeDetails.brand || !shoeDetails.price}
-                      className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all disabled:opacity-50"
-                    >
-                      {loading ? "Adding..." : "Add Shoe"}
-                    </button>
+                  <div className="bg-black/50 rounded-lg p-4">
+                    <h3 className="font-semibold mb-3 text-yellow-400">Customer Information</h3>
+                    <div className="space-y-2 text-sm">
+                      <p>
+                        <span className="text-gray-400">Name:</span> {selectedOrder.customerName || "N/A"}
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Phone:</span> {selectedOrder.customerPhone || "N/A"}
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Email:</span> {selectedOrder.customerEmail || "N/A"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
 
-              {/* Step 3: Confirmation */}
-              {step === 3 && (
-                <div className="text-center py-8">
-                  <div className="bg-green-500/10 border border-green-500/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                  <div className="bg-black/50 rounded-lg p-4">
+                    <h3 className="font-semibold mb-3 text-yellow-400">Product Details</h3>
+                    <div className="space-y-2 text-sm">
+                      <p>
+                        <span className="text-gray-400">Product:</span> {selectedOrder.shoe?.name || "N/A"}
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Brand:</span> {selectedOrder.shoe?.brand || "N/A"}
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Size:</span> {selectedOrder.size || "N/A"}
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Quantity:</span> {selectedOrder.quantity || 0}
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Unit Price:</span>{" "}
+                        <span className="text-white">LKR {(selectedOrder.shoe?.price || 0).toLocaleString()}</span>
+                      </p>
+                      <p>
+                        <span className="text-gray-400">Total:</span>{" "}
+                        <span className="text-yellow-400 font-bold text-lg">
+                          LKR {getOrderTotal(selectedOrder).toLocaleString()}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Shoe Added Successfully!</h3>
-                  <p className="text-gray-400">The shoe has been added to your inventory.</p>
                 </div>
-              )}
-            </div>
+
+                {/* Shipping Address */}
+                {selectedOrder.shippingAddress && (
+                  <div className="bg-black/50 rounded-lg p-4">
+                    <h3 className="font-semibold mb-3 text-yellow-400">Shipping Address</h3>
+                    <div className="text-sm">
+                      <p>{selectedOrder.shippingAddress.street}</p>
+                      <p>
+                        {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{" "}
+                        {selectedOrder.shippingAddress.zipCode}
+                      </p>
+                      <p>{selectedOrder.shippingAddress.country}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setShowOrderDetails(false)}
+                    className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
-   
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Order Status Modal */}
+      <AnimatePresence>
+        {showEditModal && editingOrder && (
+          <motion.div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-md"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className="flex items-center justify-between p-6 border-b border-gray-700">
+                <h2 className="text-xl font-semibold">Update Order Status</h2>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Order: {editingOrder.orderId || editingOrder._id}</p>
+                  <p className="font-medium">{editingOrder.shoe?.name || "N/A"}</p>
+                  <p className="text-sm text-gray-400">{editingOrder.customerName || "N/A"}</p>
+                  <p className="text-sm text-yellow-400 font-semibold">
+                    Amount: LKR {getOrderTotal(editingOrder).toLocaleString()}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Order Status</label>
+                  <select
+                    value={editingOrder.status}
+                    onChange={(e) => setEditingOrder({ ...editingOrder, status: e.target.value as Order["status"] })}
+                    className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                  >
+                    {orderStatuses.map((status: OrderStatus) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex justify-end space-x-4">
+                  <button
+                    onClick={() => setShowEditModal(false)}
+                    className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => updateOrderStatus(editingOrder._id, editingOrder.status)}
+                    className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-4 py-2 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                  >
+                    Update Status
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
