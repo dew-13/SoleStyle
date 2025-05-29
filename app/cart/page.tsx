@@ -99,7 +99,7 @@ export default function CartPage() {
       totalPrice: shoe.price * quantity,
     }
     localStorage.setItem("orderDetails", JSON.stringify(orderDetails))
-    router.push("/order-confirmation")
+    router.push("/checkout")
   }
 
   if (loading) {
