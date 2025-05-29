@@ -386,15 +386,15 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
                       <div>
                         <label className="block text-sm font-medium mb-2">Retail Price (LKR)</label>
                         <input
-                          type="number"
-                          min="0"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                           value={shoeDetails.retailPrice}
                           onChange={(e) => {
                             const retail = e.target.value
                             const profit = shoeDetails.profit
                             const total =
-                              (parseFloat(retail) >= 0 ? parseFloat(retail) : 0) +
-                              (parseFloat(profit) >= 0 ? parseFloat(profit) : 0)
+                              (parseFloat(retail) || 0) + (parseFloat(profit) || 0)
                             setShoeDetails({
                               ...shoeDetails,
                               retailPrice: retail,
@@ -407,18 +407,19 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
                       </div>
 
 
+
                       <div>
                         <label className="block text-sm font-medium mb-2">Profit (LKR)</label>
                         <input
-                          type="number"
-                          min="0"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                           value={shoeDetails.profit}
                           onChange={(e) => {
                             const profit = e.target.value
                             const retail = shoeDetails.retailPrice
                             const total =
-                              (parseFloat(retail) >= 0 ? parseFloat(retail) : 0) +
-                              (parseFloat(profit) >= 0 ? parseFloat(profit) : 0)
+                              (parseFloat(retail) || 0) + (parseFloat(profit) || 0)
                             setShoeDetails({
                               ...shoeDetails,
                               profit: profit,
@@ -429,6 +430,7 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
                           required
                         />
                       </div>
+
 
 
                       <div>
