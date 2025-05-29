@@ -93,7 +93,7 @@ export default function CartPage() {
     localStorage.setItem("checkoutItems", JSON.stringify(cartItems))
     toast.success("Proceeding to checkout...")
     setTimeout(() => {
-      window.location.href = "/checkout"
+      window.location.href = "/order-confirmation"
     }, 1200)
   }
 
