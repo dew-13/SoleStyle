@@ -409,11 +409,19 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
                         <label className="block text-sm font-medium mb-2">Price (LKR)</label>
                         <input
                           type="number"
-                          value={shoeDetails.price}
-                          onChange={(e) => setShoeDetails({ ...shoeDetails, price: e.target.value })}
-                          className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                          required
+                          value={shoeDetails.retailPrice}
+                          onChange={(e) => {
+                            const retail = e.target.value
+                            const profit = shoeDetails.profit
+                            const total = (parseFloat(retail) || 0) + (parseFloat(profit) || 0)
+                            setShoeDetails({
+                              ...shoeDetails,
+                              retailPrice: retail,
+                              price: total.toString(),
+                            })
+                          }}
                         />
+
                       </div>
 
                       <div>
