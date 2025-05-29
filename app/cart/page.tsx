@@ -9,11 +9,13 @@ import Header from "../components/Header"
 import Footer from "../components/Footer"
 import type { User, CartItem } from "app/types"
 import toast, { Toaster } from "react-hot-toast"
+import { useRouter } from "next/navigation"
 
 export default function CartPage() {
   const [user, setUser] = useState<User | null>(null)
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const router = useRouter()
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -89,12 +91,15 @@ export default function CartPage() {
       return
     }
 
-    // Store cart details and redirect to checkout
-    localStorage.setItem("checkoutItems", JSON.stringify(cartItems))
-    toast.success("Proceeding to checkout...")
-    setTimeout(() => {
-      window.location.href = "/checkout"
-    }, 1200)
+    // Store order details in localStorage and redirect to order confirmation
+    const orderDetails = {
+      shoe,
+      size: selectedSize,
+      quantity,
+      totalPrice: shoe.price * quantity,
+    }
+    localStorage.setItem("orderDetails", JSON.stringify(orderDetails))
+    router.push("/checkout")
   }
 
   if (loading) {
