@@ -91,12 +91,15 @@ export default function CartPage() {
       return
     }
 
-    // Store cart details and redirect to checkout
-    localStorage.setItem("checkoutItems", JSON.stringify(cartItems))
-    toast.success("Proceeding to checkout...")
-    setTimeout(() => {
-      router.push("/order-confirmation")
-    }, 1200)
+    // Store order details in localStorage and redirect to order confirmation
+    const orderDetails = {
+      shoe,
+      size: selectedSize,
+      quantity,
+      totalPrice: shoe.price * quantity,
+    }
+    localStorage.setItem("orderDetails", JSON.stringify(orderDetails))
+    router.push("/order-confirmation")
   }
 
   if (loading) {
