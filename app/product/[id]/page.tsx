@@ -338,7 +338,7 @@ export default function ProductPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Pre-Order Now
+                  Buy Now
                 </motion.button>
 
                 <button
