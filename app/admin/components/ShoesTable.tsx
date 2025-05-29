@@ -408,7 +408,7 @@ export default function ShoesTable() {
                       value={editingShoe.retailPrice || 0}
                       onChange={(e) => {
                         const retail = parseFloat(e.target.value) || 0
-                        const profit = editingShoe.profit || 0
+                        const profit = parseFloat(editingShoe.profit?.toString() || "0")
                         setEditingShoe({
                           ...editingShoe,
                           retailPrice: retail,
@@ -419,6 +419,7 @@ export default function ShoesTable() {
                     />
                   </div>
 
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Profit (LKR)</label>
                     <input
@@ -426,7 +427,7 @@ export default function ShoesTable() {
                       value={editingShoe.profit || 0}
                       onChange={(e) => {
                         const profit = parseFloat(e.target.value) || 0
-                        const retail = editingShoe.retailPrice || 0
+                        const retail = parseFloat(editingShoe.retailPrice?.toString() || "0")
                         setEditingShoe({
                           ...editingShoe,
                           profit: profit,
@@ -436,6 +437,8 @@ export default function ShoesTable() {
                       className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
                     />
                   </div>
+
+                  
 
 
                   <div>
