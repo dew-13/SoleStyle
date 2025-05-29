@@ -282,9 +282,9 @@ export default function OrdersTable() {
     switch (status) {
       case "pending":
         return "bg-yellow-400/20 text-yellow-400"
-      case "payment_received":
+      case "paid":
         return "bg-green-400/20 text-green-400"
-      case "installment_received":
+      case "balance-pending":
         return "bg-blue-400/20 text-blue-400"
       case "shipped":
         return "bg-purple-400/20 text-purple-400"
