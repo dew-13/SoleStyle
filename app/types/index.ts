@@ -39,6 +39,8 @@ export interface Shoe {
   _id: string
   name: string
   brand: string
+  profit: number
+  retailPrice: number
   price: number
   description: string
   image: string

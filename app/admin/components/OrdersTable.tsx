@@ -88,6 +88,8 @@ export default function OrdersTable() {
               sizes: ["8", "9", "10", "11"],
               featured: true,
               createdAt: new Date().toISOString(),
+              profit: 0,
+              retailPrice: 0
             },
             size: "10",
             quantity: 1,
@@ -122,6 +124,8 @@ export default function OrdersTable() {
               sizes: ["7", "8", "8.5", "9"],
               featured: true,
               createdAt: new Date().toISOString(),
+              profit: 0,
+              retailPrice: 0
             },
             size: "8.5",
             quantity: 1,
@@ -156,6 +160,8 @@ export default function OrdersTable() {
               sizes: ["8", "9", "10", "11"],
               featured: false,
               createdAt: new Date().toISOString(),
+              profit: 0,
+              retailPrice: 0
             },
             size: "9",
             quantity: 2,

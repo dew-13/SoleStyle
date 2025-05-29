@@ -142,6 +142,8 @@ export default function ShoesTable() {
         body: JSON.stringify({
           name: editingShoe.name,
           brand: editingShoe.brand,
+          retailPrice: editingShoe.retailPrice,
+          profit: editingShoe.profit,
           price: editingShoe.price,
           description: editingShoe.description,
           image: editingShoe.image,
@@ -400,16 +402,52 @@ export default function ShoesTable() {
                   </div>
 
                   <div>
+                    <label className="block text-sm font-medium mb-2">Retail Price (LKR)</label>
+                    <input
+                      type="number"
+                      value={editingShoe.retailPrice || 0}
+                      onChange={(e) => {
+                        const retail = parseFloat(e.target.value) || 0
+                        const profit = editingShoe.profit || 0
+                        setEditingShoe({
+                          ...editingShoe,
+                          retailPrice: retail,
+                          price: retail + profit,
+                        })
+                      }}
+                      className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Profit (LKR)</label>
+                    <input
+                      type="number"
+                      value={editingShoe.profit || 0}
+                      onChange={(e) => {
+                        const profit = parseFloat(e.target.value) || 0
+                        const retail = editingShoe.retailPrice || 0
+                        setEditingShoe({
+                          ...editingShoe,
+                          profit: profit,
+                          price: retail + profit,
+                        })
+                      }}
+                      className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                    />
+                  </div>
+
+
+                  <div>
                     <label className="block text-sm font-medium mb-2">Price (LKR)</label>
                     <input
                       type="number"
                       value={editingShoe.price || 0}
-                      onChange={(e) =>
-                        setEditingShoe({ ...editingShoe, price: Number.parseFloat(e.target.value) || 0 })
-                      }
-                      className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-800 border border-yellow-400/20 rounded-lg cursor-not-allowed"
                     />
                   </div>
+
 
                   <div>
                     <label className="block text-sm font-medium mb-2">Available Sizes</label>
