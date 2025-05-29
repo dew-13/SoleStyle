@@ -25,6 +25,8 @@ interface SearchResult {
 interface ShoeDetails {
   name: string
   brand: string
+  retailPrice: string
+  profit: string
   price: string
   description: string
   sizes: string[]
@@ -46,6 +48,8 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
   const [shoeDetails, setShoeDetails] = useState<ShoeDetails>({
     name: "",
     brand: "",
+    retailPrice: "",
+    profit: "",
     price: "",
     description: "",
     sizes: [],
@@ -131,6 +135,8 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
       name: shoe.name,
       brand: shoe.brand,
       price: shoe.price.toString(),
+      retailPrice: shoe.price.toString(),
+      profit: "0",
       description: shoe.description,
       sizes: [],
       featured: false,
@@ -206,6 +212,8 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
     setShoeDetails({
       name: "",
       brand: "",
+      retailPrice: "",
+      profit: "",
       price: "",
       description: "",
       sizes: [],
@@ -376,13 +384,62 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
                       </div>
 
                       <div>
+                        <label className="block text-sm font-medium mb-2">Retail Price (LKR)</label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={shoeDetails.retailPrice}
+                          onChange={(e) => {
+                            const retail = e.target.value
+                            const profit = shoeDetails.profit
+                            const total =
+                              (parseFloat(retail) || 0) + (parseFloat(profit) || 0)
+                            setShoeDetails({
+                              ...shoeDetails,
+                              retailPrice: retail,
+                              price: total.toString(),
+                            })
+                          }}
+                          className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                          required
+                        />
+                      </div>
+
+
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Profit (LKR)</label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={shoeDetails.profit}
+                          onChange={(e) => {
+                            const profit = e.target.value
+                            const retail = shoeDetails.retailPrice
+                            const total =
+                              (parseFloat(retail) || 0) + (parseFloat(profit) || 0)
+                            setShoeDetails({
+                              ...shoeDetails,
+                              profit: profit,
+                              price: total.toString(),
+                            })
+                          }}
+                          className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                          required
+                        />
+                      </div>
+
+
+
+                      <div>
                         <label className="block text-sm font-medium mb-2">Price (LKR)</label>
                         <input
                           type="number"
                           value={shoeDetails.price}
-                          onChange={(e) => setShoeDetails({ ...shoeDetails, price: e.target.value })}
-                          className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                          required
+                          readOnly
+                          className="w-full px-4 py-3 bg-gray-800 border border-yellow-400/20 rounded-lg cursor-not-allowed"
                         />
                       </div>
 
