@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Plus, Package, Users, ShoppingBag BarChart3, Settings } from "lucide-react"
+import { Plus, Package, Users, ShoppingBag, BarChart3, Settings } from "lucide-react"
 import Header from "../components/Header"
 import AdminStats from "./components/AdminStats"
 import AddShoeModal from "./components/AddShoeModal"
