@@ -24,12 +24,14 @@ export default function OrdersTable() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   const orderStatuses: OrderStatus[] = [
-    { value: "pending", label: "Pending Payment" },
-    { value: "payment_received", label: "Payment Received" },
-    { value: "installment_received", label: "Installment Received" },
-    { value: "shipped", label: "Shipped" },
-    { value: "delivered", label: "Delivered" },
-    { value: "cancelled", label: "Cancelled" },
+    { value: "pending", label: "Pending Full Payment" },
+    { value: "full_payment_received", label: "Full Payment Received" },
+    { value: "installment_received", label: "Installment Received, Pending Installments" },
+    { value: "full_payment_received_shipped", label: "Payments Done,Shipped" },
+    { value: "full_payment_received_delivered", label: "Payments Done, Delivered" },
+    { value: "installment_received_shipped", label: "Balance Due,Shipped" },
+    { value: "intallment_received_delivered", label: "Balance Due, Delivered" },
+    { value: "cancelled", label: "Order Cancelled" },
   ]
 
   // Helper function to get order total with fallback
