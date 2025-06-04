@@ -66,7 +66,7 @@ export default function AdminDashboard() {
     { id: "dashboard", label: "Dashboard", icon: BarChart3 },
     { id: "shoes", label: "Manage Shoes", icon: Package },
     { id: "orders", label: "Orders", icon: ShoppingBag },
-    { id: "settings", label: "Settings", icon: Settings },
+    
   ]
 
   return (
