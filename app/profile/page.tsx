@@ -4,7 +4,7 @@ import type React from "react"
 import toast, { Toaster } from "react-hot-toast"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { User, Package, Heart, Edit } from 'lucide-react'
+import { User, Package, Heart, Edit } from "lucide-react"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import Header from "../components/Header"
@@ -346,7 +346,6 @@ export default function ProfilePage() {
               {[
                 { id: "profile", label: "Profile", icon: User },
                 { id: "orders", label: "Orders", icon: Package },
-                
               ].map((tab) => {
                 const Icon = tab.icon
                 return (
@@ -495,7 +494,7 @@ export default function ProfilePage() {
                           </div>
                           <div className="text-right">
                             <p className="text-yellow-400 font-bold text-xl">
-                              LKR {order.total ? order.total.toLocaleString() : "0"}
+                              LKR {(order.total || order.shoe?.price * order.quantity || 0).toLocaleString()}
                             </p>
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}

@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Home, Search, ShoppingCart, User, LogOut, Package, UserCircle, Menu, X, Shield } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import type { HeaderProps, CartItem } from "app/types"
+import type { HeaderProps } from "app/types"
 import { useCart } from "../context/CartContext"
 
 export default function Header({ user, setUser }: HeaderProps) {
@@ -13,7 +13,8 @@ export default function Header({ user, setUser }: HeaderProps) {
   const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false)
   const { cartItems } = useCart()
 
- 
+  // Calculate total cart items (sum of quantities)
+  const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0)
 
   // Handle logout
   const handleLogout = () => {
@@ -41,9 +42,7 @@ export default function Header({ user, setUser }: HeaderProps) {
           <Link href="/" className="flex items-center space-x-2">
             <motion.div className="flex items-center space-x-2" whileHover={{ scale: 1.05 }}>
               <Image src="/body-logo.png" alt="OG Vault" width={100} height={60} className="object-contain" />
-              <div className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-               
-              </div>
+              <div className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent"></div>
             </motion.div>
           </Link>
 
@@ -79,9 +78,9 @@ export default function Header({ user, setUser }: HeaderProps) {
                 whileTap={{ scale: 0.95 }}
               >
                 <ShoppingCart className="w-6 h-6 text-yellow-400" />
-                {cartItems.length > 0 && (
+                {cartItemCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                    {cartItems.length}
+                    {cartItemCount > 99 ? "99+" : cartItemCount}
                   </span>
                 )}
               </motion.div>
@@ -224,7 +223,7 @@ export default function Header({ user, setUser }: HeaderProps) {
                 <Link href="/cart" onClick={closeMobileMenu}>
                   <div className="flex items-center space-x-3 p-2 hover:bg-yellow-400/10 rounded-lg transition-colors">
                     <ShoppingCart className="w-5 h-5 text-yellow-400" />
-                    <span>Cart ({cartItems.length})</span>
+                    <span>Cart ({cartItemCount})</span>
                   </div>
                 </Link>
 

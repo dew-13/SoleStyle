@@ -2,18 +2,19 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react"
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
-import type { User, CartItem } from "app/types"
+import type { User } from "app/types"
 import toast, { Toaster } from "react-hot-toast"
+import { useCart } from "../context/CartContext"
 
 export default function CartPage() {
   const [user, setUser] = useState<User | null>(null)
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const { cartItems, updateQuantity, removeFromCart } = useCart()
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -33,43 +34,9 @@ export default function CartPage() {
       }
     }
 
-    // Load cart items from localStorage
-    const savedCart = localStorage.getItem("cart")
-    if (savedCart) {
-      try {
-        setCartItems(JSON.parse(savedCart))
-      } catch (error) {
-        console.error("Error parsing cart data:", error)
-        setCartItems([])
-      }
-    }
-
     checkAuth()
     setLoading(false)
   }, [])
-
-  const updateQuantity = (itemId: string, size: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeItem(itemId, size)
-      return
-    }
-
-    const updatedCart = cartItems.map((item) =>
-      item.id === itemId && item.size === size ? { ...item, quantity: newQuantity } : item,
-    )
-
-    setCartItems(updatedCart)
-    localStorage.setItem("cart", JSON.stringify(updatedCart))
-    toast.success("Cart updated!")
-  }
-
-  const removeItem = (itemId: string, size: string) => {
-    const updatedCart = cartItems.filter((item) => !(item.id === itemId && item.size === size))
-
-    setCartItems(updatedCart)
-    localStorage.setItem("cart", JSON.stringify(updatedCart))
-    toast.success("Item removed from cart!")
-  }
 
   const getTotalPrice = (): number => {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
@@ -177,7 +144,7 @@ export default function CartPage() {
                         </div>
 
                         <button
-                          onClick={() => removeItem(item.id, item.size)}
+                          onClick={() => removeFromCart(item.id, item.size)}
                           className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-5 h-5" />
