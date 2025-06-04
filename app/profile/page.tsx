@@ -4,7 +4,7 @@ import type React from "react"
 import toast, { Toaster } from "react-hot-toast"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { User, Package, Heart, Edit } from "lucide-react"
+import { User, Package, Heart, Edit } from 'lucide-react'
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import Header from "../components/Header"
@@ -118,6 +118,8 @@ export default function ProfilePage() {
             sizes: ["9", "10", "11"],
             featured: true,
             createdAt: new Date().toISOString(),
+            profit: 0,
+            retailPrice: 0
           },
           size: "10",
           quantity: 1,
@@ -151,6 +153,8 @@ export default function ProfilePage() {
             sizes: ["9", "9.5", "10"],
             featured: true,
             createdAt: new Date().toISOString(),
+            profit: 0,
+            retailPrice: 0
           },
           size: "9.5",
           quantity: 1,
@@ -198,6 +202,8 @@ export default function ProfilePage() {
             sizes: ["8", "9", "10"],
             featured: false,
             createdAt: new Date().toISOString(),
+            profit: 0,
+            retailPrice: 0
           },
           createdAt: new Date().toISOString(),
         },
@@ -215,6 +221,8 @@ export default function ProfilePage() {
             sizes: ["8", "9", "10"],
             featured: false,
             createdAt: new Date().toISOString(),
+            profit: 0,
+            retailPrice: 0
           },
           createdAt: new Date().toISOString(),
         },
@@ -481,12 +489,14 @@ export default function ProfilePage() {
                       <div key={order._id} className="bg-black/50 rounded-lg p-4 border border-gray-700">
                         <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
                           <div>
-                            <h3 className="font-semibold text-lg">{order.shoe.name}</h3>
-                            <p className="text-gray-400">{order.shoe.brand}</p>
+                            <h3 className="font-semibold text-lg">{order.shoe?.name || "Unknown Product"}</h3>
+                            <p className="text-gray-400">{order.shoe?.brand || "Unknown Brand"}</p>
                             <p className="text-sm text-gray-500">Order ID: {order.orderId}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-yellow-400 font-bold text-xl">LKR {order.total.toLocaleString()}</p>
+                            <p className="text-yellow-400 font-bold text-xl">
+                              LKR {order.total ? order.total.toLocaleString() : "0"}
+                            </p>
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
                             >
@@ -497,11 +507,11 @@ export default function ProfilePage() {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
                             <span className="text-gray-400">Size:</span>
-                            <p className="font-medium">{order.size}</p>
+                            <p className="font-medium">{order.size || "N/A"}</p>
                           </div>
                           <div>
                             <span className="text-gray-400">Quantity:</span>
-                            <p className="font-medium">{order.quantity}</p>
+                            <p className="font-medium">{order.quantity || 1}</p>
                           </div>
                           <div>
                             <span className="text-gray-400">Payment:</span>
@@ -511,7 +521,9 @@ export default function ProfilePage() {
                           </div>
                           <div>
                             <span className="text-gray-400">Date:</span>
-                            <p className="font-medium">{new Date(order.createdAt).toLocaleDateString()}</p>
+                            <p className="font-medium">
+                              {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -556,7 +568,9 @@ export default function ProfilePage() {
                           </div>
                           <p className="text-gray-400 text-sm mb-2">{item.shoe?.brand}</p>
                           <div className="flex items-center justify-between">
-                            <span className="text-yellow-400 font-bold">LKR {item.shoe?.price?.toLocaleString()}</span>
+                            <span className="text-yellow-400 font-bold">
+                              LKR {item.shoe?.price ? item.shoe.price.toLocaleString() : "0"}
+                            </span>
                             <a
                               href={`/product/${item.shoe?._id}`}
                               className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
