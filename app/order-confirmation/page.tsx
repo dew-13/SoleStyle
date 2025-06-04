@@ -85,114 +85,116 @@ export default function OrderConfirmationPage() {
       [e.target.name]: e.target.value,
     })
   }
-    const handleConfirmOrder = async () => {
-  if (!orderDetails) {
-    toast.error("Order details missing.")
-    return
-  }
 
-  // Check for shoe ID
-  if (!orderDetails.shoe || !orderDetails.shoe._id) {
-    toast.error("Shoe ID missing in order details.")
-    console.error("orderDetails.shoe:", orderDetails.shoe)
-    return
-  }
-
-  setLoading(true)
-
-  try {
-    const token = localStorage.getItem("token")
-    if (!token) {
-      toast.error("Session expired. Please login again.")
-      router.push("/auth/login")
+  const handleConfirmOrder = async () => {
+    if (!orderDetails) {
+      toast.error("Order details missing.")
       return
     }
 
-    // Save the shipping address to user profile
-    await fetch("/api/auth/update-profile", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        phone: shippingAddress.phone,
-        address: {
-          street: shippingAddress.address,
-          city: shippingAddress.city,
-          state: shippingAddress.state,
-          zipCode: shippingAddress.zipCode,
-        },
-      }),
-    })
-
-    // Prepare shipping address for order (exclude fullName)
-    const shippingAddressForOrder = {
-      address: shippingAddress.address,
-      city: shippingAddress.city,
-      state: shippingAddress.state,
-      zipCode: shippingAddress.zipCode,
-      phone: shippingAddress.phone,
+    // Check for shoe ID
+    if (!orderDetails.shoe || !orderDetails.shoe._id) {
+      toast.error("Shoe ID missing in order details.")
+      console.error("orderDetails.shoe:", orderDetails.shoe)
+      return
     }
 
-    // Debug: Log payload
-    console.log("Order payload:", {
-      shoe: orderDetails.shoe._id,
-      size: orderDetails.size,
-      quantity: orderDetails.quantity,
-      totalPrice: orderDetails.totalPrice,
-      shippingAddress: shippingAddressForOrder,
-      paymentMethod,
-    })
+    setLoading(true)
 
-    // Create the order (send only shoe ID)
-    const response = await fetch("/api/orders/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        shoeId: orderDetails.shoe._id, // Only the ID
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        toast.error("Session expired. Please login again.")
+        router.push("/auth/login")
+        return
+      }
+
+      // Save the shipping address to user profile
+      await fetch("/api/auth/update-profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          phone: shippingAddress.phone,
+          address: {
+            street: shippingAddress.address,
+            city: shippingAddress.city,
+            state: shippingAddress.state,
+            zipCode: shippingAddress.zipCode,
+          },
+        }),
+      })
+
+      // Prepare shipping address for order (exclude fullName)
+      const shippingAddressForOrder = {
+        address: shippingAddress.address,
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        zipCode: shippingAddress.zipCode,
+        phone: shippingAddress.phone,
+      }
+
+      // Fetch complete shoe details to get pricing information
+      const shoeResponse = await fetch(`/api/shoes/${orderDetails.shoe._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      let shoeDetails = null
+      if (shoeResponse.ok) {
+        shoeDetails = await shoeResponse.json()
+      }
+
+      // Debug: Log payload
+      console.log("Order payload:", {
+        shoe: orderDetails.shoe._id,
         size: orderDetails.size,
         quantity: orderDetails.quantity,
         totalPrice: orderDetails.totalPrice,
         shippingAddress: shippingAddressForOrder,
         paymentMethod,
-        customerName: shippingAddress.fullName, // <-- add this
-        customerEmail: user?.email,   
-      }),
-    })
+      })
 
-    if (response.ok) {
-      setOrderPlaced(true)
-      localStorage.removeItem("orderDetails")
-      toast.success("Order placed successfully!")
-    } else {
-      const errorData = await response.json().catch(() => ({}))
-      console.error("Order API error:", errorData)
-      toast.error(errorData.message || "Failed to place order. Please try again.")
+      // Create the order (send only shoe ID)
+      const response = await fetch("/api/orders/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          shoeId: orderDetails.shoe._id, // Only the ID
+          size: orderDetails.size,
+          quantity: orderDetails.quantity,
+          totalPrice: orderDetails.totalPrice,
+          // Include pricing information for profit calculation
+          unitPrice: orderDetails.shoe.price,
+          retailPrice: shoeDetails?.retailPrice || orderDetails.shoe.retailPrice || 0,
+          profit: shoeDetails?.profit || orderDetails.shoe.profit || 0,
+          shippingAddress: shippingAddressForOrder,
+          paymentMethod,
+          customerName: shippingAddress.fullName,
+          customerEmail: user?.email,
+        }),
+      })
+
+      if (response.ok) {
+        setOrderPlaced(true)
+        localStorage.removeItem("orderDetails")
+        toast.success("Order placed successfully!")
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Order API error:", errorData)
+        toast.error(errorData.message || "Failed to place order. Please try again.")
+      }
+    } catch (error) {
+      console.error("Order creation error:", error)
+      toast.error("An error occurred. Please try again.")
+    } finally {
+      setLoading(false)
     }
-  } catch (error) {
-    console.error("Order creation error:", error)
-    toast.error("An error occurred. Please try again.")
-  } finally {
-    setLoading(false)
   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   const handleWhatsAppContact = () => {
     if (!orderDetails) return
@@ -354,12 +356,17 @@ export default function OrderConfirmationPage() {
                   <span>Subtotal:</span>
                   <span>LKR {orderDetails.totalPrice.toLocaleString()}</span>
                 </div>
-                <p className="text-gray">(Including shipping and Tax clearance to SL)</p>
+                <p className="text-gray-400 text-sm">(Including shipping and Tax clearance to SL)</p>
                 <div className="flex justify-between font-bold text-lg text-yellow-400 border-t border-gray-700 pt-3">
                   <span>Total:</span>
                   <span>LKR {orderDetails.totalPrice.toLocaleString()}</span>
-                  <span>By placing this order, you agree to our <a>Terms of Service.</a></span>
                 </div>
+                <p className="text-gray-400 text-sm">
+                  By placing this order, you agree to our{" "}
+                  <a href="#" className="text-yellow-400 underline">
+                    Terms of Service.
+                  </a>
+                </p>
               </div>
             </motion.div>
 
@@ -465,7 +472,7 @@ export default function OrderConfirmationPage() {
                     />
                     <span>
                       Installments (3 payments of LKR {Math.round(orderDetails.totalPrice / 3).toLocaleString()})
-                      <br/> For balance payment, timely completion is required to secure your pair.
+                      <br /> For balance payment, timely completion is required to secure your pair.
                     </span>
                   </label>
                 </div>

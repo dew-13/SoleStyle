@@ -59,6 +59,8 @@ export interface CartItem {
   name: string
   brand: string
   price: number
+  retailPrice: number
+  profit: number
   image: string
   size: string
   quantity: number

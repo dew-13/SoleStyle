@@ -10,6 +10,9 @@ export async function POST(request) {
       shoeId,
       size,
       quantity,
+      retailPrice,
+      profit,
+      price,
       totalPrice,
       customerName,
       customerContact,
@@ -82,9 +85,13 @@ export async function POST(request) {
         brand: shoe.brand,
         image: shoe.image,
         price: shoe.price,
+        retailPrice: shoe.retailPrice, // Use provided retailPrice or fallback
+        profit: shoe.profit, 
       },
       size,
       quantity: Number(quantity),
+      retailPrice: Number(retailPrice) || shoe.retailPrice,
+      profit: Number(profit) || shoe.profit,
       totalPrice: calculatedTotal, // Store both for compatibility
       customerName: finalCustomerName,
       customerPhone: customerPhone, // Store phone in both fields

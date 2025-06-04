@@ -143,6 +143,9 @@ export default function CheckoutPage() {
             shoeId: item.id,
             size: item.size,
             quantity: item.quantity,
+            
+            retailPrice: item.retailPrice, // Add this
+            profit: item.profit,
             totalPrice: item.price * item.quantity,
             shippingAddress: shippingAddressForOrder,
             paymentMethod,
