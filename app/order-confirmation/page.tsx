@@ -424,7 +424,7 @@ export default function OrderConfirmationPage() {
                   <input
                     type="text"
                     name="state"
-                    placeholder="State"
+                    placeholder="District"
                     value={shippingAddress.state}
                     onChange={handleAddressChange}
                     className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"

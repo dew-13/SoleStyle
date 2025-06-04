@@ -130,7 +130,7 @@ export default function Header({ user, setUser }: HeaderProps) {
                         <Link href="/profile?tab=orders">
                           <button className="w-full px-4 py-2 text-left hover:bg-yellow-400/10 flex items-center space-x-2">
                             <Package className="w-4 h-4" />
-                            <span>Orders</span>
+                            <span>Order History</span>
                           </button>
                         </Link>
                         {user.isAdmin && (

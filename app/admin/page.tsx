@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Plus, Package, Users, BarChart3, Settings } from "lucide-react"
+import { Plus, Package, Users, ShoppingBag BarChart3, Settings } from "lucide-react"
 import Header from "../components/Header"
 import AdminStats from "./components/AdminStats"
 import AddShoeModal from "./components/AddShoeModal"
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
   const tabs = [
     { id: "dashboard", label: "Dashboard", icon: BarChart3 },
     { id: "shoes", label: "Manage Shoes", icon: Package },
-    { id: "orders", label: "Orders", icon: Users },
+    { id: "orders", label: "Orders", icon: ShoppingBag },
     { id: "settings", label: "Settings", icon: Settings },
   ]
 
