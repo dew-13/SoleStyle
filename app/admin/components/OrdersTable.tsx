@@ -2,20 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import {
-  Eye,
-  Search,
-  Download,
-  Calendar,
-  User,
-  Package,
-
-  Filter,
-  RefreshCw,
-  Phone,
-  Edit,
-  X,
-} from "lucide-react"
+import { Eye, Search, Download, Calendar, User, Package, Filter, RefreshCw, Phone, Edit, X, DollarSign } from 'lucide-react'
 import type { Order } from "app/types"
 
 interface OrderStatus {
@@ -37,9 +24,9 @@ export default function OrdersTable() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   const orderStatuses: OrderStatus[] = [
-    { value: "pending", label: "pending payment" },
-    { value: "paid", label: "paid - processing" },
-    { value: "balance-pending", label: "balance pending - processing" },
+    { value: "pending", label: "Pending Payment" },
+    { value: "payment_received", label: "Payment Received" },
+    { value: "installment_received", label: "Installment Received" },
     { value: "shipped", label: "Shipped" },
     { value: "delivered", label: "Delivered" },
     { value: "cancelled", label: "Cancelled" },
@@ -47,8 +34,13 @@ export default function OrdersTable() {
 
   // Helper function to get order total with fallback
   const getOrderTotal = (order: Order): number => {
-    // Try multiple fields to get the total amount
-    return order.total || order.totalPrice || order.shoe?.price * order.quantity || 0
+    return order.total || order.totalPrice || (order.shoe?.price * order.quantity) || 0
+  }
+
+  // Helper function to get order profit
+  const getOrderProfit = (order: Order): number => {
+    const profit = order.shoe?.profit || 0
+    return profit * order.quantity
   }
 
   const fetchOrders = async (): Promise<void> => {
@@ -60,7 +52,6 @@ export default function OrdersTable() {
 
       if (response.ok) {
         const data: Order[] = await response.json()
-        // Ensure each order has a proper total
         const ordersWithTotals = data.map((order) => ({
           ...order,
           total: getOrderTotal(order),
@@ -68,7 +59,7 @@ export default function OrdersTable() {
         setOrders(ordersWithTotals || [])
         setFilteredOrders(ordersWithTotals || [])
       } else {
-        // Fallback data with proper totals
+        // Fallback data with proper totals and profit
         const fallbackOrders: Order[] = [
           {
             _id: "1",
@@ -83,13 +74,13 @@ export default function OrdersTable() {
               name: "Air Jordan 1 Retro High",
               brand: "Nike",
               price: 28500,
+              profit: 8500,
+              retailPrice: 20000,
               description: "Classic basketball shoe",
               image: "/placeholder.svg?height=400&width=400",
               sizes: ["8", "9", "10", "11"],
               featured: true,
               createdAt: new Date().toISOString(),
-              profit: 0,
-              retailPrice: 0
             },
             size: "10",
             quantity: 1,
@@ -119,13 +110,13 @@ export default function OrdersTable() {
               name: "Yeezy Boost 350 V2",
               brand: "Adidas",
               price: 36800,
+              profit: 12800,
+              retailPrice: 24000,
               description: "Modern lifestyle sneaker",
               image: "/placeholder.svg?height=400&width=400",
               sizes: ["7", "8", "8.5", "9"],
               featured: true,
               createdAt: new Date().toISOString(),
-              profit: 0,
-              retailPrice: 0
             },
             size: "8.5",
             quantity: 1,
@@ -155,13 +146,13 @@ export default function OrdersTable() {
               name: "Chuck 70 High Top",
               brand: "Converse",
               price: 22500,
+              profit: 7500,
+              retailPrice: 15000,
               description: "Classic canvas sneaker",
               image: "/placeholder.svg?height=400&width=400",
               sizes: ["8", "9", "10", "11"],
               featured: false,
               createdAt: new Date().toISOString(),
-              profit: 0,
-              retailPrice: 0
             },
             size: "9",
             quantity: 2,
@@ -200,13 +191,15 @@ export default function OrdersTable() {
   useEffect(() => {
     let filtered = [...orders]
 
-    if (searchTerm) {
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase()
       filtered = filtered.filter(
         (order: Order) =>
-          order.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.shoe?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.customerPhone?.toLowerCase().includes(searchTerm.toLowerCase()),
+          order.orderId?.toLowerCase().includes(searchLower) ||
+          order.customerName?.toLowerCase().includes(searchLower) ||
+          order.shoe?.name?.toLowerCase().includes(searchLower) ||
+          order.customerPhone?.toLowerCase().includes(searchLower) ||
+          order.customerEmail?.toLowerCase().includes(searchLower)
       )
     }
 
@@ -245,8 +238,8 @@ export default function OrdersTable() {
       if (response.ok) {
         setOrders((prev: Order[]) =>
           prev.map((order: Order) =>
-            order._id === orderId ? { ...order, status: newStatus as Order["status"] } : order,
-          ),
+            order._id === orderId ? { ...order, status: newStatus as Order["status"] } : order
+          )
         )
         setShowEditModal(false)
         setEditingOrder(null)
@@ -258,7 +251,7 @@ export default function OrdersTable() {
 
   const exportOrders = (): void => {
     const csvContent = [
-      ["Order ID", "Customer Name", "Phone", "Shoe", "Brand", "Size", "Quantity", "Amount", "Status", "Date"].join(","),
+      ["Order ID", "Customer Name", "Phone", "Shoe", "Brand", "Size", "Quantity", "Amount", "Profit", "Status", "Date"].join(","),
       ...filteredOrders.map((order: Order) =>
         [
           order.orderId || "",
@@ -269,9 +262,10 @@ export default function OrdersTable() {
           order.size || "",
           order.quantity || 0,
           getOrderTotal(order),
+          getOrderProfit(order),
           order.status || "",
           new Date(order.createdAt).toLocaleDateString(),
-        ].join(","),
+        ].join(",")
       ),
     ].join("\n")
 
@@ -288,9 +282,9 @@ export default function OrdersTable() {
     switch (status) {
       case "pending":
         return "bg-yellow-400/20 text-yellow-400"
-      case "paid":
+      case "payment_received":
         return "bg-green-400/20 text-green-400"
-      case "balance-pending":
+      case "installment_received":
         return "bg-blue-400/20 text-blue-400"
       case "shipped":
         return "bg-purple-400/20 text-purple-400"
@@ -308,14 +302,15 @@ export default function OrdersTable() {
     return statusObj ? statusObj.label : status
   }
 
-  // Safe calculation functions
-  const calculateTotalValue = (): number => {
-    return filteredOrders.reduce((sum: number, order: Order) => sum + getOrderTotal(order), 0)
+  // Calculate total profit instead of total value
+  const calculateTotalProfit = (): number => {
+    return filteredOrders.reduce((sum: number, order: Order) => sum + getOrderProfit(order), 0)
   }
 
   const calculateAverageOrder = (): number => {
     if (filteredOrders.length === 0) return 0
-    return Math.round(calculateTotalValue() / filteredOrders.length)
+    const totalValue = filteredOrders.reduce((sum: number, order: Order) => sum + getOrderTotal(order), 0)
+    return Math.round(totalValue / filteredOrders.length)
   }
 
   if (loading) {
@@ -436,10 +431,10 @@ export default function OrdersTable() {
           </div>
           <div className="bg-black/50 rounded-lg p-4">
             <div className="flex items-center space-x-2">
-              
-              <span className="text-sm text-gray-400">Total Value</span>
+              <DollarSign className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm text-gray-400">Total Profit</span>
             </div>
-            <p className="text-xl font-bold text-green-400">LKR {calculateTotalValue().toLocaleString()}</p>
+            <p className="text-xl font-bold text-emerald-400">LKR {calculateTotalProfit().toLocaleString()}</p>
           </div>
           <div className="bg-black/50 rounded-lg p-4">
             <div className="flex items-center space-x-2">
@@ -469,6 +464,7 @@ export default function OrdersTable() {
                 <th className="text-left py-3 px-4 font-semibold">Product</th>
                 <th className="text-left py-3 px-4 font-semibold">Details</th>
                 <th className="text-left py-3 px-4 font-semibold">Amount</th>
+                <th className="text-left py-3 px-4 font-semibold">Profit</th>
                 <th className="text-left py-3 px-4 font-semibold">Status</th>
                 <th className="text-left py-3 px-4 font-semibold">Date</th>
                 <th className="text-left py-3 px-4 font-semibold">Actions</th>
@@ -478,6 +474,7 @@ export default function OrdersTable() {
               {filteredOrders.length > 0 ? (
                 filteredOrders.map((order: Order, index: number) => {
                   const orderTotal = getOrderTotal(order)
+                  const orderProfit = getOrderProfit(order)
                   return (
                     <motion.tr
                       key={order._id}
@@ -536,6 +533,12 @@ export default function OrdersTable() {
                         {orderTotal === 0 && <p className="text-xs text-red-400 mt-1">Amount missing</p>}
                       </td>
                       <td className="py-4 px-4">
+                        <div className="flex items-center space-x-1">
+                          <span className="text-sm text-gray-400">LKR</span>
+                          <span className="font-semibold text-emerald-400">{orderProfit.toLocaleString()}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                           {getStatusLabel(order.status)}
                         </span>
@@ -573,7 +576,7 @@ export default function OrdersTable() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center">
+                  <td colSpan={9} className="py-12 text-center">
                     <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                     <p className="text-gray-400 text-lg">No orders found</p>
                     <p className="text-gray-500 text-sm">Try adjusting your search criteria</p>
@@ -685,6 +688,12 @@ export default function OrdersTable() {
                           LKR {getOrderTotal(selectedOrder).toLocaleString()}
                         </span>
                       </p>
+                      <p>
+                        <span className="text-gray-400">Profit:</span>{" "}
+                        <span className="text-emerald-400 font-bold text-lg">
+                          LKR {getOrderProfit(selectedOrder).toLocaleString()}
+                        </span>
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -750,6 +759,9 @@ export default function OrdersTable() {
                   <p className="text-sm text-gray-400">{editingOrder.customerName || "N/A"}</p>
                   <p className="text-sm text-yellow-400 font-semibold">
                     Amount: LKR {getOrderTotal(editingOrder).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-emerald-400 font-semibold">
+                    Profit: LKR {getOrderProfit(editingOrder).toLocaleString()}
                   </p>
                 </div>
 

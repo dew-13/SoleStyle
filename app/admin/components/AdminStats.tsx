@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Package, Users, TrendingUp, ShoppingBag, Calendar } from "lucide-react"
+import { Package, Users, TrendingUp, ShoppingBag, Calendar, DollarSign } from 'lucide-react'
 import type { Order } from "app/types"
 
 export default function AdminStatsComponent() {
@@ -11,7 +11,13 @@ export default function AdminStatsComponent() {
 
   // Helper function to get order total with fallback
   const getOrderTotal = (order: Order): number => {
-    return order.total || order.totalPrice || order.shoe?.price * order.quantity || 0
+    return order.total || order.totalPrice || (order.shoe?.price * order.quantity) || 0
+  }
+
+  // Helper function to get order profit
+  const getOrderProfit = (order: Order): number => {
+    const profit = order.shoe?.profit || 0
+    return profit * order.quantity
   }
 
   useEffect(() => {
@@ -33,12 +39,13 @@ export default function AdminStatsComponent() {
           }
           setStats(data)
         } else {
-          // Fallback stats with proper totals
+          // Fallback stats with proper totals and profit
           const fallbackStats = {
             totalShoes: 25,
             totalOrders: 156,
             totalUsers: 89,
             totalRevenue: 2450000,
+            totalProfit: 485000,
             monthlyRevenue: 485000,
             featuredShoes: 8,
             recentOrders: [
@@ -55,6 +62,8 @@ export default function AdminStatsComponent() {
                   name: "Air Jordan 1 Retro High",
                   brand: "Nike",
                   price: 28500,
+                  profit: 8500,
+                  retailPrice: 20000,
                   description: "Classic basketball shoe",
                   image: "/placeholder.svg?height=400&width=400",
                   sizes: ["8", "9", "10", "11"],
@@ -88,6 +97,8 @@ export default function AdminStatsComponent() {
                   name: "Yeezy Boost 350 V2",
                   brand: "Adidas",
                   price: 36800,
+                  profit: 12800,
+                  retailPrice: 24000,
                   description: "Modern lifestyle sneaker",
                   image: "/placeholder.svg?height=400&width=400",
                   sizes: ["7", "8", "8.5", "9"],
@@ -121,6 +132,8 @@ export default function AdminStatsComponent() {
                   name: "Chuck 70 High Top",
                   brand: "Converse",
                   price: 22500,
+                  profit: 7500,
+                  retailPrice: 15000,
                   description: "Classic canvas sneaker",
                   image: "/placeholder.svg?height=400&width=400",
                   sizes: ["8", "9", "10", "11"],
@@ -141,6 +154,76 @@ export default function AdminStatsComponent() {
                   country: "Sri Lanka",
                 },
               },
+              {
+                _id: "4",
+                userId: "user4",
+                shoeId: "shoe4",
+                orderId: "OG001237",
+                customerName: "Sarah Wilson",
+                customerPhone: "+94-77-456-7890",
+                customerEmail: "sarah.wilson@example.com",
+                shoe: {
+                  _id: "shoe4",
+                  name: "Air Force 1 Low",
+                  brand: "Nike",
+                  price: 18500,
+                  profit: 5500,
+                  retailPrice: 13000,
+                  description: "Classic lifestyle sneaker",
+                  image: "/placeholder.svg?height=400&width=400",
+                  sizes: ["7", "8", "9", "10"],
+                  featured: false,
+                  createdAt: new Date().toISOString(),
+                },
+                size: "8",
+                quantity: 1,
+                total: 18500,
+                status: "delivered",
+                paymentMethod: "full",
+                createdAt: new Date(Date.now() - 259200000).toISOString(),
+                shippingAddress: {
+                  street: "321 Pine St",
+                  city: "Negombo",
+                  state: "Western",
+                  zipCode: "11500",
+                  country: "Sri Lanka",
+                },
+              },
+              {
+                _id: "5",
+                userId: "user5",
+                shoeId: "shoe5",
+                orderId: "OG001238",
+                customerName: "David Brown",
+                customerPhone: "+94-77-567-8901",
+                customerEmail: "david.brown@example.com",
+                shoe: {
+                  _id: "shoe5",
+                  name: "Stan Smith",
+                  brand: "Adidas",
+                  price: 16800,
+                  profit: 4800,
+                  retailPrice: 12000,
+                  description: "Classic tennis shoe",
+                  image: "/placeholder.svg?height=400&width=400",
+                  sizes: ["8", "9", "10", "11"],
+                  featured: false,
+                  createdAt: new Date().toISOString(),
+                },
+                size: "9",
+                quantity: 1,
+                total: 16800,
+                status: "payment_received",
+                paymentMethod: "installments",
+                createdAt: new Date(Date.now() - 345600000).toISOString(),
+                shippingAddress: {
+                  street: "654 Cedar St",
+                  city: "Matara",
+                  state: "Southern",
+                  zipCode: "81000",
+                  country: "Sri Lanka",
+                },
+              },
             ],
             topShoes: [
               {
@@ -148,6 +231,8 @@ export default function AdminStatsComponent() {
                 name: "Air Jordan 1 Retro High",
                 brand: "Nike",
                 price: 28500,
+                profit: 8500,
+                retailPrice: 20000,
                 description: "Classic basketball shoe",
                 image: "/placeholder.svg?height=400&width=400",
                 sizes: ["8", "9", "10", "11"],
@@ -160,6 +245,8 @@ export default function AdminStatsComponent() {
                 name: "Yeezy Boost 350 V2",
                 brand: "Adidas",
                 price: 36800,
+                profit: 12800,
+                retailPrice: 24000,
                 description: "Modern lifestyle sneaker",
                 image: "/placeholder.svg?height=400&width=400",
                 sizes: ["7", "8", "8.5", "9"],
@@ -198,6 +285,14 @@ export default function AdminStatsComponent() {
       default:
         return "bg-gray-400/20 text-gray-400"
     }
+  }
+
+  // Calculate total profit from recent orders
+  const calculateTotalProfit = (): number => {
+    if (!stats?.recentOrders) return 0
+    return stats.recentOrders.reduce((total: number, order: Order) => {
+      return total + getOrderProfit(order)
+    }, 0)
   }
 
   if (loading) {
@@ -244,7 +339,7 @@ export default function AdminStatsComponent() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <motion.div
           className="bg-black border border-yellow-400/20 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
@@ -301,27 +396,43 @@ export default function AdminStatsComponent() {
               <p className="text-sm text-gray-400">Total Revenue</p>
               <p className="text-2xl font-bold text-purple-400">LKR {stats.totalRevenue.toLocaleString()}</p>
             </div>
-          
+            <TrendingUp className="w-8 h-8 text-purple-400" />
           </div>
         </motion.div>
-      </div>
 
-      {/* Recent Orders and Top Shoes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Orders */}
         <motion.div
           className="bg-black border border-yellow-400/20 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-400">Total Profit</p>
+              <p className="text-2xl font-bold text-emerald-400">LKR {calculateTotalProfit().toLocaleString()}</p>
+            </div>
+            <DollarSign className="w-8 h-8 text-emerald-400" />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Recent Orders and Top Shoes */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Orders - Show only 5 */}
+        <motion.div
+          className="bg-black border border-yellow-400/20 rounded-lg p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
           <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
             <Calendar className="w-5 h-5 text-yellow-400" />
-            <span>Recent Orders</span>
+            <span>Recent Orders (Latest 5)</span>
           </h3>
           <div className="space-y-3">
-            {stats.recentOrders.map((order: Order, index: number) => {
+            {stats.recentOrders.slice(0, 5).map((order: Order, index: number) => {
               const orderTotal = getOrderTotal(order)
+              const orderProfit = getOrderProfit(order)
               return (
                 <div key={order._id} className="flex items-center justify-between p-3 bg-black/50 rounded-lg">
                   <div className="flex-1">
@@ -331,6 +442,7 @@ export default function AdminStatsComponent() {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-yellow-400 text-sm">LKR {orderTotal.toLocaleString()}</p>
+                    <p className="font-semibold text-emerald-400 text-xs">Profit: LKR {orderProfit.toLocaleString()}</p>
                     <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(order.status)}`}>
                       {order.status}
                     </span>
@@ -346,25 +458,14 @@ export default function AdminStatsComponent() {
           className="bg-black border border-yellow-400/20 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
             <TrendingUp className="w-5 h-5 text-yellow-400" />
             <span>Top Selling Shoes</span>
           </h3>
           <div className="space-y-3">
-            {stats.topShoes.map((shoe: {
-              _id: string
-              name: string
-              brand: string
-              price: number
-              description: string
-              image: string
-              sizes: string[]
-              featured: boolean
-              createdAt: string
-              orderCount: number
-            }, index: number) => (
+            {stats.topShoes.map((shoe: any, index: number) => (
               <div key={shoe._id} className="flex items-center justify-between p-3 bg-black/50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <img
@@ -386,29 +487,6 @@ export default function AdminStatsComponent() {
           </div>
         </motion.div>
       </div>
-
-      {/* Monthly Revenue */}
-      <motion.div
-        className="bg-black border border-yellow-400/20 rounded-lg p-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-      >
-        <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
-       
-          <span>Monthly Revenue</span>
-        </h3>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-3xl font-bold text-green-400">LKR {stats.monthlyRevenue.toLocaleString()}</p>
-            <p className="text-sm text-gray-400">This month's revenue</p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-gray-400">Featured Shoes</p>
-            <p className="text-xl font-semibold text-yellow-400">{stats.featuredShoes}</p>
-          </div>
-        </div>
-      </motion.div>
     </div>
   )
 }

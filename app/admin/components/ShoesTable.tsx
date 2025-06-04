@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, Edit, Trash2, Search, Star, Package, EyeOff, X } from "lucide-react"
+import { Edit, Trash2, Search, Star, Package, X } from "lucide-react"
 import Image from "next/image"
 import type { Shoe } from "app/types"
 import toast, { Toaster } from "react-hot-toast"
@@ -162,7 +162,7 @@ export default function ShoesTable() {
         toast.success("Shoe updated successfully!")
       } else {
         const error = await response.json()
-      toast.error(`Error updating shoe: ${error.message}`)
+        toast.error(`Error updating shoe: ${error.message}`)
       }
     } catch (error) {
       console.error("Error updating shoe:", error)
@@ -301,7 +301,6 @@ export default function ShoesTable() {
                         >
                           <Star className={`w-4 h-4 ${shoe.featured ? "fill-current" : ""}`} />
                         </button>
-                        
                       </div>
                     </td>
                     <td className="py-4 px-4">
@@ -348,7 +347,6 @@ export default function ShoesTable() {
                 <Star className="w-4 h-4 text-yellow-400" />
                 <span>Featured: {shoes.filter((shoe: Shoe) => shoe.featured).length}</span>
               </div>
-
             </div>
           </div>
         )}
@@ -364,7 +362,7 @@ export default function ShoesTable() {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+              className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -380,175 +378,213 @@ export default function ShoesTable() {
               </div>
 
               <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Name</label>
-                    <input
-                      type="text"
-                      value={editingShoe.name || ""}
-                      onChange={(e) => setEditingShoe({ ...editingShoe, name: e.target.value })}
-                      className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Brand</label>
-                    <input
-                      type="text"
-                      value={editingShoe.brand || ""}
-                      onChange={(e) => setEditingShoe({ ...editingShoe, brand: e.target.value })}
-                      className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Retail Price (LKR)</label>
-                    <input
-                      type="number"
-                      value={editingShoe.retailPrice || 0}
-                      onChange={(e) => {
-                        const retail = parseFloat(e.target.value) || 0
-                        const profit = parseFloat(editingShoe.profit?.toString() || "0")
-                        setEditingShoe({
-                          ...editingShoe,
-                          retailPrice: retail,
-                          price: retail + profit,
-                        })
-                      }}
-                      className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                    />
-                  </div>
-
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Profit (LKR)</label>
-                    <input
-                      type="number"
-                      value={editingShoe.profit || 0}
-                      onChange={(e) => {
-                        const profit = parseFloat(e.target.value) || 0
-                        const retail = parseFloat(editingShoe.retailPrice?.toString() || "0")
-                        setEditingShoe({
-                          ...editingShoe,
-                          profit: profit,
-                          price: retail + profit,
-                        })
-                      }}
-                      className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                    />
-                  </div>
-
-                  
-
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Price (LKR)</label>
-                    <input
-                      type="number"
-                      value={editingShoe.price || 0}
-                      readOnly
-                      className="w-full px-4 py-3 bg-gray-800 border border-yellow-400/20 rounded-lg cursor-not-allowed"
-                    />
-                  </div>
-
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Available Sizes</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"].map(
-                        (size: string) => (
-                          <button
-                            key={size}
-                            type="button"
-                            onClick={() => {
-                              const sizes = editingShoe.sizes || []
-                              const newSizes = sizes.includes(size) ? sizes.filter((s) => s !== size) : [...sizes, size]
-                              setEditingShoe({ ...editingShoe, sizes: newSizes })
-                            }}
-                            className={`py-2 px-3 border rounded-lg transition-all ${
-                              (editingShoe.sizes || []).includes(size)
-                                ? "border-yellow-400 bg-yellow-400/10 text-yellow-400"
-                                : "border-gray-600 hover:border-gray-500"
-                            }`}
-                          >
-                            {size}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Description</label>
-                  <textarea
-                    value={editingShoe.description || ""}
-                    onChange={(e) => setEditingShoe({ ...editingShoe, description: e.target.value })}
-                    rows={3}
-                    className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Primary Image URL</label>
-                  <input
-                    type="url"
-                    value={editingShoe.image || ""}
-                    onChange={(e) => setEditingShoe({ ...editingShoe, image: e.target.value })}
-                    className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Additional Images</label>
-                  <div className="space-y-2">
-                    {(editingShoe.images || []).map((img: string, index: number) => (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Left Column - Basic Details */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Name</label>
                       <input
-                        key={index}
-                        type="url"
-                        placeholder={`Image ${index + 1} URL`}
-                        value={img || ""}
+                        type="text"
+                        value={editingShoe.name || ""}
+                        onChange={(e) => setEditingShoe({ ...editingShoe, name: e.target.value })}
+                        className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Brand</label>
+                      <input
+                        type="text"
+                        value={editingShoe.brand || ""}
+                        onChange={(e) => setEditingShoe({ ...editingShoe, brand: e.target.value })}
+                        className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Retail Price (LKR)</label>
+                      <input
+                        type="number"
+                        value={editingShoe.retailPrice || 0}
                         onChange={(e) => {
-                          const newImages = [...(editingShoe.images || [])]
-                          newImages[index] = e.target.value
-                          setEditingShoe({ ...editingShoe, images: newImages })
+                          const retail = Number.parseFloat(e.target.value) || 0
+                          const profit = Number.parseFloat(editingShoe.profit?.toString() || "0")
+                          setEditingShoe({
+                            ...editingShoe,
+                            retailPrice: retail,
+                            price: retail + profit,
+                          })
                         }}
                         className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
                       />
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newImages = [...(editingShoe.images || []), ""]
-                        setEditingShoe({ ...editingShoe, images: newImages })
-                      }}
-                      className="w-full px-4 py-2 border border-yellow-400/20 text-yellow-400 rounded-lg hover:bg-yellow-400/10 transition-all"
-                    >
-                      Add Image URL
-                    </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Profit (LKR)</label>
+                      <input
+                        type="number"
+                        value={editingShoe.profit || 0}
+                        onChange={(e) => {
+                          const profit = Number.parseFloat(e.target.value) || 0
+                          const retail = Number.parseFloat(editingShoe.retailPrice?.toString() || "0")
+                          setEditingShoe({
+                            ...editingShoe,
+                            profit: profit,
+                            price: retail + profit,
+                          })
+                        }}
+                        className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Price (LKR)</label>
+                      <input
+                        type="number"
+                        value={editingShoe.price || 0}
+                        readOnly
+                        className="w-full px-4 py-3 bg-gray-800 border border-yellow-400/20 rounded-lg cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Description</label>
+                      <textarea
+                        value={editingShoe.description || ""}
+                        onChange={(e) => setEditingShoe({ ...editingShoe, description: e.target.value })}
+                        rows={3}
+                        className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Available Sizes</label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"].map(
+                          (size: string) => (
+                            <button
+                              key={size}
+                              type="button"
+                              onClick={() => {
+                                const sizes = editingShoe.sizes || []
+                                const newSizes = sizes.includes(size)
+                                  ? sizes.filter((s) => s !== size)
+                                  : [...sizes, size]
+                                setEditingShoe({ ...editingShoe, sizes: newSizes })
+                              }}
+                              className={`py-2 px-3 border rounded-lg transition-all ${
+                                (editingShoe.sizes || []).includes(size)
+                                  ? "border-yellow-400 bg-yellow-400/10 text-yellow-400"
+                                  : "border-gray-600 hover:border-gray-500"
+                              }`}
+                            >
+                              {size}
+                            </button>
+                          ),
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={editingShoe.featured || false}
+                          onChange={(e) => setEditingShoe({ ...editingShoe, featured: e.target.checked })}
+                          className="rounded border-yellow-400/20 text-yellow-400 focus:ring-yellow-400"
+                        />
+                        <span>Featured</span>
+                      </label>
+
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={!editingShoe.hidden}
+                          onChange={(e) => setEditingShoe({ ...editingShoe, hidden: !e.target.checked })}
+                          className="rounded border-yellow-400/20 text-yellow-400 focus:ring-yellow-400"
+                        />
+                        <span>Visible on website</span>
+                      </label>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center space-x-4">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={editingShoe.featured || false}
-                      onChange={(e) => setEditingShoe({ ...editingShoe, featured: e.target.checked })}
-                      className="rounded border-yellow-400/20 text-yellow-400 focus:ring-yellow-400"
-                    />
-                    <span>Featured</span>
-                  </label>
+                  {/* Right Column - Images */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Primary Image URL</label>
+                      <input
+                        type="url"
+                        value={editingShoe.image || ""}
+                        onChange={(e) => setEditingShoe({ ...editingShoe, image: e.target.value })}
+                        className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                      />
+                    </div>
 
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={!editingShoe.hidden}
-                      onChange={(e) => setEditingShoe({ ...editingShoe, hidden: !e.target.checked })}
-                      className="rounded border-yellow-400/20 text-yellow-400 focus:ring-yellow-400"
-                    />
-                    <span>Visible on website</span>
-                  </label>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Additional Images</label>
+                      <div className="space-y-3">
+                        {(editingShoe.images || []).map((img: string, index: number) => (
+                          <div key={index} className="space-y-2">
+                            <input
+                              type="url"
+                              placeholder={`Image ${index + 1} URL`}
+                              value={img || ""}
+                              onChange={(e) => {
+                                const newImages = [...(editingShoe.images || [])]
+                                newImages[index] = e.target.value
+                                setEditingShoe({ ...editingShoe, images: newImages })
+                              }}
+                              className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                            />
+                            {img && (
+                              <div className="w-full h-32 border border-yellow-400/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src={img || "/placeholder.svg"}
+                                  alt={`Image ${index + 1}`}
+                                  width={200}
+                                  height={128}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newImages = [...(editingShoe.images || []), ""]
+                            setEditingShoe({ ...editingShoe, images: newImages })
+                          }}
+                          className="w-full px-4 py-2 border border-yellow-400/20 text-yellow-400 rounded-lg hover:bg-yellow-400/10 transition-all"
+                        >
+                          Add Image URL
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Image Preview Grid */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Image Previews</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {(editingShoe.images || [])
+                          .filter((img) => img.trim())
+                          .map((image: string, index: number) => (
+                            <div
+                              key={index}
+                              className="aspect-square border border-yellow-400/20 rounded-lg overflow-hidden"
+                            >
+                              <Image
+                                src={image || "/placeholder.svg"}
+                                alt={`Preview ${index + 1}`}
+                                width={150}
+                                height={150}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex justify-end space-x-4">
