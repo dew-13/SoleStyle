@@ -11,6 +11,7 @@ import Header from "../components/Header"
 import Footer from "../components/Footer"
 import type { User, ShippingAddress, CartItem } from "app/types"
 import toast, { Toaster } from "react-hot-toast"
+import { useCart } from "../context/CartContext"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -27,6 +28,7 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<string>("full")
   const [loading, setLoading] = useState<boolean>(false)
   const [orderPlaced, setOrderPlaced] = useState<boolean>(false)
+  const { clearCart } = useCart()
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -157,9 +159,11 @@ export default function CheckoutPage() {
         }
       }
 
+      // Clear the cart after successful order placement
+      clearCart()
+
       setOrderPlaced(true)
       localStorage.removeItem("checkoutItems")
-      localStorage.removeItem("cart")
       toast.success("Orders placed successfully!")
     } catch (error) {
       console.error("Order creation error:", error)

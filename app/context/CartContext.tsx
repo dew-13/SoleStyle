@@ -59,7 +59,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setCartItems((prev) => prev.map((item) => (item.id === id && item.size === size ? { ...item, quantity } : item)))
   }
 
-  const clearCart = () => setCartItems([])
+  const clearCart = () => {
+    setCartItems([])
+    localStorage.removeItem("cart")
+  }
 
   const getCartItemCount = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0)
