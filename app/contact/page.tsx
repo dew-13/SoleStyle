@@ -112,13 +112,13 @@ Please assist me with this inquiry. Thank you!`
     {
       icon: <Phone className="w-6 h-6" />,
       title: "Call Us",
-      content: "+94 77 123 4567",
+      content: "+1 437 661 1999",
       description: "Mon-Fri 9AM-6PM (Sri Lanka Time)",
     },
     {
       icon: <Clock className="w-6 h-6" />,
       title: "Response Time",
-      content: "Within 2 Hours",
+      content: "Within 24 Hours",
       description: "Fast customer support",
     },
     {
@@ -132,7 +132,7 @@ Please assist me with this inquiry. Thank you!`
   const faqs = [
     {
       question: "How long does shipping take?",
-      answer: "Typically 7-14 business days from Canada to Sri Lanka, including customs clearance.",
+      answer: "Typically 20-30 business days from Canada to Sri Lanka, including customs clearance.",
     },
     {
       question: "Are all shoes 100% authentic?",
@@ -140,7 +140,7 @@ Please assist me with this inquiry. Thank you!`
     },
     {
       question: "What payment methods do you accept?",
-      answer: "We accept bank transfers, online payments, and installment plans for your convenience.",
+      answer: "We accept bank transfers, and installment plans for your convenience. Send your payment receipt via WhatsApp to confirm your order.",
     },
     {
       question: "Can I return or exchange shoes?",
@@ -149,7 +149,7 @@ Please assist me with this inquiry. Thank you!`
     },
     {
       question: "Do you offer size exchanges?",
-      answer: "Size exchanges are handled case-by-case. Contact us immediately if you have sizing concerns.",
+      answer: "Size exchanges are not facilitated. Make sure to check our size guide before ordering.",
     },
   ]
 
@@ -292,12 +292,8 @@ Please assist me with this inquiry. Thank you!`
                 </div>
                 <div className="space-y-2 text-gray-300">
                   <div className="flex justify-between">
-                    <span>Monday - Friday:</span>
+                    <span>Monday - Saturday:</span>
                     <span>9:00 AM - 6:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Saturday:</span>
-                    <span>10:00 AM - 4:00 PM</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Sunday:</span>

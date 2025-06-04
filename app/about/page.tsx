@@ -47,19 +47,19 @@ export default function AboutPage() {
 
   const teamMembers = [
     {
-      name: "Alex Johnson",
+      name: "Abitharan",
       role: "Founder & CEO",
       image: "/placeholder.svg?height=300&width=300",
       description: "Passionate sneakerhead with 10+ years in the footwear industry.",
     },
     {
-      name: "Sarah Chen",
+      name: "Shane",
       role: "Head of Operations",
       image: "/placeholder.svg?height=300&width=300",
       description: "Expert in international logistics and customer experience.",
     },
     {
-      name: "Marcus Williams",
+      name: "Person 3",
       role: "Product Curator",
       image: "/placeholder.svg?height=300&width=300",
       description: "Basketball enthusiast who sources the latest and greatest kicks.",
@@ -147,7 +147,7 @@ export default function AboutPage() {
             </div>
             <div className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden">
               <Image
-                src="/placeholder.svg?height=400&width=600"
+                src="/og-vault-logo.PNG?height=400&width=600"
                 alt="Our Story"
                 width={600}
                 height={400}
@@ -352,10 +352,10 @@ export default function AboutPage() {
             transition={{ duration: 0.6, delay: 1.0 }}
           >
             {[
-              { number: "2000+", label: "Shoes Imported" },
-              { number: "500+", label: "Happy Customers" },
+              { number: "20+", label: "Shoes Imported" },
+              { number: "20+", label: "Happy Customers" },
               { number: "100%", label: "Authenticity Rate" },
-              { number: "7-14", label: "Days Delivery" },
+              { number: "20 - 30", label: "Days Delivery" },
             ].map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-yellow-400 mb-2">{stat.number}</div>
