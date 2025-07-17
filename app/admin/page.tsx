@@ -73,43 +73,43 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-black text-white">
       <Header user={user} setUser={setUser} />
 
-      <div className="pt-20 px-4">
-        <div className="container mx-auto">
+      <div className="pt-16 sm:pt-20 px-2 sm:px-4">
+        <div className="container mx-auto max-w-full sm:max-w-5xl xl:max-w-7xl">
           {/* Page Header */}
           <motion.div
-            className="mb-8"
+            className="mb-6 sm:mb-8"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
               Admin Dashboard
             </h1>
-            <p className="text-gray-400">Manage your OG Vault store</p>
+            <p className="text-gray-400 text-sm sm:text-base">Manage your OG Vault store</p>
           </motion.div>
 
           {/* Tab Navigation */}
           <motion.div
-            className="mb-8"
+            className="mb-6 sm:mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="flex flex-wrap gap-2 bg-black p-2 rounded-lg border border-yellow-400/20">
+            <div className="flex flex-wrap gap-2 bg-black p-1 sm:p-2 rounded-lg border border-yellow-400/20">
               {tabs.map((tab) => {
                 const Icon = tab.icon
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                    className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 rounded-lg transition-all text-xs sm:text-sm ${
                       activeTab === tab.id
                         ? "bg-yellow-400 text-black"
                         : "text-gray-400 hover:text-white hover:bg-gray-800"
                     }`}
                   >
                     <Icon className="w-4 h-4" />
-                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="hidden xs:inline sm:inline">{tab.label}</span>
                   </button>
                 )
               })}
@@ -126,11 +126,11 @@ export default function AdminDashboard() {
             {activeTab === "dashboard" && <AdminStats />}
             {activeTab === "shoes" && (
               <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-semibold">Manage Shoes</h2>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2 sm:gap-0">
+                  <h2 className="text-xl sm:text-2xl font-semibold">Manage Shoes</h2>
                   <motion.button
                     onClick={() => setShowAddShoeModal(true)}
-                    className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-4 py-2 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all flex items-center space-x-2"
+                    className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 sm:px-4 py-2 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -143,9 +143,9 @@ export default function AdminDashboard() {
             )}
             {activeTab === "orders" && <OrdersTable />}
             {activeTab === "settings" && (
-              <div className="bg-black border border-yellow-400/20 rounded-lg p-6">
-                <h2 className="text-2xl font-semibold mb-4">Settings</h2>
-                <p className="text-gray-400">Settings panel coming soon...</p>
+              <div className="bg-black border border-yellow-400/20 rounded-lg p-4 sm:p-6">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">Settings</h2>
+                <p className="text-gray-400 text-sm sm:text-base">Settings panel coming soon...</p>
               </div>
             )}
           </motion.div>

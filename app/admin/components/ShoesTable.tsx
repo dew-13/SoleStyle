@@ -190,13 +190,13 @@ export default function ShoesTable() {
   return (
     <>
       <motion.div
-        className="bg-black border border-yellow-400/20 rounded-lg p-6"
+        className="bg-black border border-yellow-400/20 rounded-lg p-2 sm:p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
           <Toaster position="top-right" />
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -233,9 +233,9 @@ export default function ShoesTable() {
           </button>
         </div>
 
-        {/* Shoes Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        {/* Shoes Table for md+ */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-gray-700">
                 <th className="text-left py-3 px-4 font-semibold">Product</th>
@@ -331,14 +331,63 @@ export default function ShoesTable() {
             </tbody>
           </table>
         </div>
+        {/* Shoes Card List for mobile */}
+        <div className="block md:hidden space-y-2">
+          {filteredShoes.length > 0 ? (
+            filteredShoes.map((shoe: Shoe) => (
+              <div
+                key={shoe._id}
+                className="bg-black border border-yellow-400/20 rounded-lg p-2 xs:p-3 flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-3"
+              >
+                <div className="flex-shrink-0 flex items-center justify-center">
+                  <Image
+                    src={shoe.image || "/placeholder.svg"}
+                    alt={shoe.name || "Shoe"}
+                    width={48}
+                    height={48}
+                    className="rounded-lg object-cover w-12 h-12 xs:w-[50px] xs:h-[50px]"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate" title={shoe.name || "N/A"}>{shoe.name || "N/A"}</p>
+                  <p className="text-xs text-gray-400 truncate max-w-full" title={shoe.description || "N/A"}>{shoe.description || "N/A"}</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    <span className="font-semibold text-yellow-400 text-xs">LKR {(shoe.price || 0).toLocaleString()}</span>
+                    <span className="font-medium text-xs">{shoe.brand || "N/A"}</span>
+                    <span className="text-xs">{(shoe.sizes || []).length} sizes</span>
+                    {shoe.featured && <span className="text-yellow-400 text-xs">★ Featured</span>}
+                  </div>
+                </div>
+                <div className="flex xs:flex-col flex-row gap-1 xs:space-y-1 xs:space-x-0 space-x-1 xs:gap-0">
+                  <button
+                    onClick={() => openEditModal(shoe)}
+                    className="p-1 hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center"
+                    aria-label="Edit Shoe"
+                  >
+                    <Edit className="w-4 h-4 text-gray-400 hover:text-white" />
+                  </button>
+                  <button
+                    onClick={() => deleteShoe(shoe._id)}
+                    className="p-1 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center"
+                    aria-label="Delete Shoe"
+                  >
+                    <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="py-8 text-center text-gray-400">No shoes found</div>
+          )}
+        </div>
 
         {/* Summary */}
         {filteredShoes.length > 0 && (
-          <div className="flex items-center justify-between mt-6">
-            <p className="text-sm text-gray-400">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-4 sm:mt-6 gap-2 sm:gap-0">
+            <p className="text-xs sm:text-sm text-gray-400">
               Showing {filteredShoes.length} of {shoes.length} shoes
             </p>
-            <div className="flex items-center space-x-4 text-sm text-gray-400">
+            <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-400">
               <div className="flex items-center space-x-1">
                 <Package className="w-4 h-4" />
                 <span>Total: {shoes.length}</span>

@@ -337,9 +337,9 @@ export default function AdminStatsComponent() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
         <motion.div
           className="bg-black border border-yellow-400/20 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
@@ -417,19 +417,19 @@ export default function AdminStatsComponent() {
       </div>
 
       {/* Recent Orders and Top Shoes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Recent Orders - Show only 5 */}
         <motion.div
-          className="bg-black border border-yellow-400/20 rounded-lg p-6"
+          className="bg-black border border-yellow-400/20 rounded-lg p-4 sm:p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
-          <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
+          <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-4 flex items-center space-x-2">
             <Calendar className="w-5 h-5 text-yellow-400" />
             <span>Recent Orders (Latest 5)</span>
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {stats.recentOrders.slice(0, 5).map((order: Order, index: number) => {
               const orderTotal = getOrderTotal(order)
               const orderProfit = getOrderProfit(order)
@@ -455,16 +455,16 @@ export default function AdminStatsComponent() {
 
         {/* Top Shoes */}
         <motion.div
-          className="bg-black border border-yellow-400/20 rounded-lg p-6"
+          className="bg-black border border-yellow-400/20 rounded-lg p-4 sm:p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
+          <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-4 flex items-center space-x-2">
             <TrendingUp className="w-5 h-5 text-yellow-400" />
             <span>Top Selling Shoes</span>
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {stats.topShoes.map((shoe: any, index: number) => (
               <div key={shoe._id} className="flex items-center justify-between p-3 bg-black/50 rounded-lg">
                 <div className="flex items-center space-x-3">

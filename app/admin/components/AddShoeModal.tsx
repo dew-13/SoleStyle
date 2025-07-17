@@ -233,22 +233,22 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
     
       {isOpen && (
         <motion.div
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto"
+            className="bg-black border border-yellow-400/20 rounded-lg w-full max-w-md sm:max-w-2xl md:max-w-4xl max-h-[90vh] overflow-y-auto p-2 sm:p-6"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+            <div className="flex items-center justify-between pb-2 sm:pb-6 border-b border-gray-700">
               <Toaster position="top-right" />
-              <h2 className="text-2xl font-semibold">Add New Shoe</h2>
+              <h2 className="text-lg sm:text-2xl font-semibold">Add New Shoe</h2>
               <button
                 onClick={() => {
                   resetModal()

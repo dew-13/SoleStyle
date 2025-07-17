@@ -337,16 +337,21 @@ export default function OrdersTable() {
     )
   }
 
+  const openEditModal = (order: Order) => {
+    setEditingOrder(order)
+    setShowEditModal(true)
+  }
+
   return (
     <>
       <motion.div
-        className="bg-black border border-yellow-400/20 rounded-lg p-6"
+        className="bg-black border border-yellow-400/20 rounded-lg p-2 sm:p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 space-y-4 md:space-y-0">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 sm:mb-6 space-y-2 md:space-y-0">
           <h2 className="text-2xl font-semibold flex items-center space-x-2">
             <Package className="w-6 h-6 text-yellow-400" />
             <span>Order Management</span>
@@ -371,7 +376,7 @@ export default function OrdersTable() {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -422,7 +427,7 @@ export default function OrdersTable() {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
           <div className="bg-black/50 rounded-lg p-4">
             <div className="flex items-center space-x-2">
               <Package className="w-4 h-4 text-blue-400" />
@@ -455,9 +460,9 @@ export default function OrdersTable() {
           </div>
         </div>
 
-        {/* Orders Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        {/* Orders Table for md+ */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-gray-700">
                 <th className="text-left py-3 px-4 font-semibold">Order ID</th>
@@ -587,15 +592,36 @@ export default function OrdersTable() {
             </tbody>
           </table>
         </div>
-
-        {/* Pagination */}
-        {filteredOrders.length > 0 && (
-          <div className="flex items-center justify-between mt-6">
-            <p className="text-sm text-gray-400">
-              Showing {filteredOrders.length} of {orders.length} orders
-            </p>
-          </div>
-        )}
+        {/* Orders Card List for mobile */}
+        <div className="block md:hidden space-y-2">
+          {filteredOrders.length > 0 ? (
+            filteredOrders.map((order: Order) => (
+              <div key={order._id} className="bg-black border border-yellow-400/20 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-mono text-xs font-medium text-yellow-400">{order.orderId || order._id}</span>
+                  <span className="px-2 py-1 rounded-full text-xs font-semibold bg-gray-800 text-gray-400">{order.status}</span>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs text-gray-400 mb-2">
+                  <span>Customer: {order.customerName || "N/A"}</span>
+                  <span>Phone: {order.customerPhone || "N/A"}</span>
+                  <span>Product: {order.shoe?.name || "N/A"}</span>
+                  <span>Size: {order.size}</span>
+                  <span>Qty: {order.quantity}</span>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs mb-2">
+                  <span className="text-yellow-400 font-semibold">LKR {(order.total || 0).toLocaleString()}</span>
+                  <span className="text-emerald-400 font-semibold">Profit: LKR {(order.shoe?.profit || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex space-x-2 mt-2">
+                  <button onClick={() => { setSelectedOrder(order); setShowOrderDetails(true); }} className="p-1 bg-gray-800 rounded text-yellow-400 text-xs">Details</button>
+                  <button onClick={() => openEditModal(order)} className="p-1 bg-gray-800 rounded text-xs text-gray-400">Edit</button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="py-8 text-center text-gray-400">No orders found</div>
+          )}
+        </div>
       </motion.div>
 
       {/* Order Details Modal */}
