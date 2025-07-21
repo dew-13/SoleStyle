@@ -94,8 +94,8 @@ export default function FeaturedApparel() {
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 rounded-2xl" />
                       </div>
-                      <button className="card-button flex-1 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-2 px-4 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 text-center">
-                        View Details
+                      <button className="card-button bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-2 px-1 min-w-0 w-auto rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 text-center whitespace-nowrap">
+                        More Info
                       </button>
                     </div>
                   </Link>
@@ -138,12 +138,13 @@ export default function FeaturedApparel() {
         >
           <Link
             href="/shop?tab=apparel"
-            className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300"
           >
-            <span>View All Apparel</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            <button className="learn-more">
+              <span className="circle" aria-hidden="true">
+                <span className="icon arrow"></span>
+              </span>
+              <span className="button-text">Shop Now</span>
+            </button>
           </Link>
         </motion.div>
       </div>

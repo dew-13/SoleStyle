@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Package, Users, TrendingUp, ShoppingBag, Calendar, DollarSign } from 'lucide-react'
+import { BarChart3, Package, ShoppingBag, Users, Calendar, TrendingUp, Shirt } from "lucide-react"
 import type { Order } from "app/types"
 
 export default function AdminStatsComponent() {
@@ -412,6 +412,21 @@ export default function AdminStatsComponent() {
               <p className="text-2xl font-bold text-emerald-400">LKR {calculateTotalProfit().toLocaleString()}</p>
             </div>
             <DollarSign className="w-8 h-8 text-emerald-400" />
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="bg-black border border-yellow-400/20 rounded-lg p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-400">Total Apparel Items</p>
+              <p className="text-2xl font-bold text-pink-400">{stats.totalApparel}</p>
+            </div>
+            <Shirt className="w-8 h-8 text-pink-400" />
           </div>
         </motion.div>
       </div>
