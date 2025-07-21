@@ -54,6 +54,25 @@ export interface Shoe {
   features?: string[]
 }
 
+export interface Apparel {
+  _id: string
+  name: string
+  brand: string
+  profit: number
+  retailPrice: number
+  price: number
+  description: string
+  image: string
+  images?: string[]
+  sizes: string[] // e.g., ["S", "M", "L", "XL", "XXL"]
+  featured: boolean
+  hidden?: boolean
+  createdAt: string
+  rating?: number
+  reviews?: number
+  features?: string[]
+}
+
 export interface CartItem {
   id: string
   name: string

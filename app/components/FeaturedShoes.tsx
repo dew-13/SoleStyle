@@ -68,54 +68,70 @@ export default function FeaturedShoes() {
           <p className="text-gray-400 text-lg">Discover our handpicked selection original footwear</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuredShoes.map((shoe, index) => (
-          <Link href={`/product/${shoe._id}`} key={shoe._id} className="block group">
-            <motion.div
-              key={shoe._id}
-              className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -10 }}
-            >
-              <div className="relative overflow-hidden">
-                <Image
-                  src={shoe.image || "/placeholder.svg"}
-                  alt={shoe.name}
-                  width={400}
-                  height={300}
-                  className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="card" key={shoe._id}>
+              <div className="card2">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  {/* Product Image */}
+                  <Link href={`/product/${shoe._id}`}>
+                    <div className="aspect-square relative overflow-hidden rounded-2xl">
+                      <div className="card-blur">
+                        <Image
+                          src={shoe.image || "/placeholder.svg"}
+                          alt={shoe.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-2xl"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 rounded-2xl" />
+                      </div>
+                      <button className="card-button flex-1 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-2 px-4 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 text-center">
+                        View Details
+                      </button>
+                    </div>
+                  </Link>
+                  {/* Product Info */}
+                  <div className="p-4">
+                    <div className="mb-2">
+                      <h3 className="font-semibold text-sm sm:text-base mb-1 line-clamp-2 group-hover:text-yellow-400 transition-colors">
+                        {shoe.name}
+                      </h3>
+                      <p className="text-gray-400 text-xs sm:text-sm">{shoe.brand}</p>
+                    </div>
+                    <div className="flex items-center justify-between relative">
+                      <span className="text-yellow-400 font-bold text-sm sm:text-base">
+                        LKR {shoe.price?.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
-
-              <div className="p-6">
-                {/* Fixed height container for shoe name - always 2 lines */}
-                <div className="h-14 mb-2">
-                  <h3 className="text-xl font-semibold text-white group-hover:text-yellow-400 transition-colors line-clamp-2 leading-7">
-                    {shoe.name}
-                  </h3>
-                </div>
-                <p className="text-gray-400 mb-3">{shoe.brand}</p>
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-yellow-400">LKR {shoe.price?.toLocaleString()}</span>
-                 
-                    <motion.button
-                      className=" text-gray-400 px-4 py-2 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      View Details
-                    </motion.button>
-                  
-                </div>
-              </div>
-            </motion.div>
-          </Link>
+            </div>
           ))}
         </div>
+
+        {/* View All Shoes Button */}
+        <motion.div
+          className="text-center mt-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+        >
+          <Link href="/shop?tab=shoes">
+            <motion.button
+              className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-8 py-4 rounded-lg font-semibold text-lg hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              View All Shoes
+            </motion.button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   )

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Header from "./components/Header"
 import FeaturedShoes from "./components/FeaturedShoes"
+import FeaturedApparel from "./components/FeaturedApparel"
 import PopularBrands from "./components/PopularBrands"
 import Footer from "./components/Footer"
 import { User } from "./types"
@@ -31,6 +32,23 @@ export default function HomePage() {
     }
     checkAuth()
   }, [])
+
+  const starSVG = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlSpace="preserve"
+      version="1.1"
+      style={{ shapeRendering: "geometricPrecision", textRendering: "geometricPrecision", imageRendering: "optimizeQuality", fillRule: "evenodd", clipRule: "evenodd" }}
+      viewBox="0 0 784.11 815.53"
+    >
+      <g>
+        <path
+          className="fil0"
+          d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"
+        ></path>
+      </g>
+    </svg>
+  )
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -62,13 +80,20 @@ export default function HomePage() {
             Unlock the Legacy - Sealed for Greatness
           </motion.p>
           <motion.button
-            className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-8 py-4 rounded-full font-semibold text-lg hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 mb-16"
+            className="vault-btn mb-16"
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.8 }}
             onClick={() => (window.location.href = "/shop")}
+            type="button"
           >
             Enter the Vault
+            <div className="star-1">{starSVG}</div>
+            <div className="star-2">{starSVG}</div>
+            <div className="star-3">{starSVG}</div>
+            <div className="star-4">{starSVG}</div>
+            <div className="star-5">{starSVG}</div>
+            <div className="star-6">{starSVG}</div>
           </motion.button>
         </div>
 
@@ -100,6 +125,9 @@ export default function HomePage() {
       <div className="-mt-16 relative z-30">
         <FeaturedShoes />
       </div>
+
+      {/* Featured Apparel Section */}
+      <FeaturedApparel />
 
       {/* Popular Brands Section */}
       <PopularBrands />

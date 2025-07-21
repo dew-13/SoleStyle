@@ -6,6 +6,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Search, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
+import ImageUpload from "../../components/ImageUpload"
 
 interface AddShoeModalProps {
   isOpen: boolean
@@ -191,7 +192,7 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
         setStep(3)
         setTimeout(() => {
           onClose()
-          window.location.reload()
+          window.location.href = "/admin?tab=shoes"
         }, 2000)
       } else {
         toast.error("Failed to add shoe")
@@ -492,51 +493,42 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium mb-2">Product Images (up to 4)</label>
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           {shoeDetails.images.map((image, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                              <input
-                                type="url"
-                                placeholder={`Image ${index + 1} URL`}
+                            <div key={index} className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-400">Image {index + 1}</span>
+                                {index > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeImage(index)}
+                                    className="text-red-400 hover:text-red-300 text-sm"
+                                  >
+                                    Remove
+                                  </button>
+                                )}
+                              </div>
+                              <ImageUpload
                                 value={image}
-                                onChange={(e) => handleImageChange(index, e.target.value)}
-                                className="flex-1 px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none"
+                                onChange={(url) => handleImageChange(index, url)}
+                                placeholder={`Enter URL or upload image ${index + 1}`}
+                                showPreview={true}
+                                maxSize={5}
                               />
-                              {image && (
-                                <button
-                                  type="button"
-                                  onClick={() => removeImage(index)}
-                                  className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
                             </div>
                           ))}
-                        </div>
-                      </div>
-
-                      {/* Image Previews */}
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Image Previews</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {shoeDetails.images.map((image, index) => (
-                            <div key={index} className="aspect-square">
-                              {image ? (
-                                <Image
-                                  src={image || "/placeholder.svg"}
-                                  alt={`Preview ${index + 1}`}
-                                  width={150}
-                                  height={150}
-                                  className="w-full h-full object-cover rounded-lg border border-yellow-400/20"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gray-800 border border-gray-600 rounded-lg flex items-center justify-center">
-                                  <Plus className="w-8 h-8 text-gray-600" />
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                          {shoeDetails.images.filter(img => img.trim()).length < 4 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newImages = [...shoeDetails.images, ""]
+                                setShoeDetails({ ...shoeDetails, images: newImages })
+                              }}
+                              className="w-full px-4 py-2 border border-yellow-400/20 text-yellow-400 rounded-lg hover:bg-yellow-400/10 transition-all"
+                            >
+                              Add Another Image
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

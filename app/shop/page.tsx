@@ -1,18 +1,35 @@
 "use client";
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Search, Filter, X, Heart } from "lucide-react"
+import { Search, Filter, X, Heart, Package, Shirt } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
-import type { User, Shoe } from "app/types"
+import type { User, Shoe, Apparel } from "app/types"
 import toast, { Toaster } from "react-hot-toast"
+
+// Add a simple ShoeIcon SVG component
+const ShoeIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M2 17h20v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2z" />
+    <path d="M17 17V7a2 2 0 0 0-2-2H7.5a2 2 0 0 0-1.7 1l-3.3 6a2 2 0 0 0 1.7 3h13.8z" />
+    <path d="M6 10h.01" />
+  </svg>
+)
 
 export default function ShopPage() {
   const [user, setUser] = useState<User | null>(null)
+  const [activeTab, setActiveTab] = useState<"shoes" | "apparel">("shoes")
+  
+  // Shoes state
   const [shoes, setShoes] = useState<Shoe[]>([])
   const [filteredShoes, setFilteredShoes] = useState<Shoe[]>([])
+  
+  // Apparel state
+  const [apparel, setApparel] = useState<Apparel[]>([])
+  const [filteredApparel, setFilteredApparel] = useState<Apparel[]>([])
+  
   const [loading, setLoading] = useState<boolean>(true)
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [selectedBrand, setSelectedBrand] = useState<string>("")
@@ -39,7 +56,10 @@ export default function ShopPage() {
   ]
 
   // Available shoe sizes
-  const sizes = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"]
+  const shoeSizes = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"]
+  
+  // Available apparel sizes
+  const apparelSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"]
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -61,6 +81,17 @@ export default function ShopPage() {
       }
     }
     checkAuth()
+  }, [])
+
+  // Handle URL parameters for tab selection
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const tabParam = urlParams.get('tab')
+      if (tabParam === 'apparel' || tabParam === 'shoes') {
+        setActiveTab(tabParam as "shoes" | "apparel")
+      }
+    }
   }, [])
 
   const loadWishlist = async (userId: string) => {
@@ -147,6 +178,42 @@ export default function ShopPage() {
           setShoes(fallbackShoes)
           setFilteredShoes(fallbackShoes)
         }
+
+        // Fetch apparel
+        const apparelResponse = await fetch("/api/apparel")
+        if (apparelResponse.ok) {
+          const apparelData = await apparelResponse.json()
+          setApparel(apparelData)
+          setFilteredApparel(apparelData)
+        } else {
+          // Fallback data for apparel
+          const fallbackApparel: Apparel[] = [
+            {
+              _id: "1",
+              name: "Nike Sportswear Club Fleece",
+              brand: "Nike",
+              price: 10000,
+              image: "/apparel/product1.PNG",
+              sizes: ["S", "M", "L", "XL", "XXL"],
+              description: "Premium comfort with classic Nike style",
+              featured: true,
+              createdAt: new Date().toISOString(),
+            },
+            {
+              _id: "2",
+              name: "Adidas Originals Trefoil Hoodie",
+              brand: "Adidas",
+              price: 9000,
+              image: "/apparel/product2.PNG",
+              sizes: ["XS", "S", "M", "L", "XL"],
+              description: "Iconic Adidas trefoil logo on a comfortable hoodie",
+              featured: true,
+              createdAt: new Date().toISOString(),
+            },
+          ]
+          setApparel(fallbackApparel)
+          setFilteredApparel(fallbackApparel)
+        }
       } catch (error) {
         console.error("Error fetching data:", error)
       } finally {
@@ -182,6 +249,32 @@ export default function ShopPage() {
 
     setFilteredShoes(filtered)
   }, [searchTerm, selectedBrand, selectedSize, shoes])
+
+  // Filter apparel based on search term, brand, and size
+  useEffect(() => {
+    let filtered = apparel
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.brand.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    }
+
+    // Filter by brand
+    if (selectedBrand) {
+      filtered = filtered.filter((item) => item.brand === selectedBrand)
+    }
+
+    // Filter by size
+    if (selectedSize) {
+      filtered = filtered.filter((item) => item.sizes && item.sizes.includes(selectedSize))
+    }
+
+    setFilteredApparel(filtered)
+  }, [searchTerm, selectedBrand, selectedSize, apparel])
 
   const clearFilters = () => {
     setSearchTerm("")
@@ -228,10 +321,43 @@ export default function ShopPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-white from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-              Shop Shoes
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+              Shop
             </h1>
-            <p className="text-gray-400">Discover our complete collection of premium basketball footwear</p>
+            <p className="text-gray-400">Discover our complete collection of premium footwear and apparel</p>
+          </motion.div>
+
+          {/* Tab Navigation */}
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            <div className="flex space-x-1 bg-black p-1 rounded-lg border border-yellow-400/20">
+              <button
+                onClick={() => setActiveTab("shoes")}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all ${
+                  activeTab === "shoes"
+                    ? "bg-yellow-400 text-black"
+                    : "text-gray-400 hover:text-white hover:bg-gray-800"
+                }`}
+              >
+                <ShoeIcon className="w-5 h-5" />
+                <span>Shoes</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("apparel")}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all ${
+                  activeTab === "apparel"
+                    ? "bg-yellow-400 text-black"
+                    : "text-gray-400 hover:text-white hover:bg-gray-800"
+                }`}
+              >
+                <Shirt className="w-5 h-5" />
+                <span>Apparel</span>
+              </button>
+            </div>
           </motion.div>
 
           {/* Search and Filter Bar */}
@@ -246,7 +372,7 @@ export default function ShopPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search shoes..."
+                placeholder={`Search ${activeTab}...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none text-white"
@@ -298,7 +424,7 @@ export default function ShopPage() {
                 className="bg-black border border-yellow-400/20 rounded-lg px-4 py-3 focus:border-yellow-400 focus:outline-none text-gray-400"
               >
                 <option value="">All Sizes</option>
-                {sizes.map((size) => (
+                {(activeTab === "shoes" ? shoeSizes : apparelSizes).map((size) => (
                   <option key={size} value={size}>
                     Size {size}
                   </option>
@@ -315,71 +441,122 @@ export default function ShopPage() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <p className="text-gray-400">
-              Showing {filteredShoes.length} of {shoes.length} shoes
+              Showing {activeTab === "shoes" ? filteredShoes.length : filteredApparel.length} of {activeTab === "shoes" ? shoes.length : apparel.length} {activeTab}
             </p>
           </motion.div>
 
-          {/* Shoes Grid */}
+          {/* Products Grid */}
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            {filteredShoes.map((shoe, index) => (
-            <Link href={`/product/${shoe._id}`} key={shoe._id} className="block group">
-              <motion.div
-                className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative cursor-pointer"
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-              >
-                {/* ...existing card content... */}
-                <div className="relative overflow-hidden">
-                  <Image
-                    src={shoe.image || "/placeholder.svg"}
-                    alt={shoe.name}
-                    width={400}
-                    height={300}
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg h-14 font-semibold mb-1 text-white group-hover:text-yellow-400 transition-colors">
-                    {shoe.name}
-                  </h3>
-                  <p className="text-gray-400 text-sm mb-2">{shoe.brand}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-yellow-400">LKR {shoe.price.toLocaleString()}</span>
-                    {/* Optional: keep the View button for style, but it's not needed for navigation */}
-                    <motion.button
-                        className=" text-gray-600 px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
+            {activeTab === "shoes" ? (
+              // Shoes Grid
+              filteredShoes.map((shoe, index) => (
+                <Link href={`/product/${shoe._id}`} key={shoe._id} className="block group">
+                  <motion.div
+                    className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative cursor-pointer"
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="relative overflow-hidden">
+                      <Image
+                        src={shoe.image || "/placeholder.svg"}
+                        alt={shoe.name}
+                        width={400}
+                        height={300}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-lg h-14 font-semibold mb-1 text-white group-hover:text-yellow-400 transition-colors">
+                        {shoe.name}
+                      </h3>
+                      <p className="text-gray-400 text-sm mb-2">{shoe.brand}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-yellow-400">LKR {shoe.price.toLocaleString()}</span>
+                        <motion.button
+                          className="text-gray-600 px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          View
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))
+            ) : (
+              // Apparel Grid
+              filteredApparel.map((item, index) => (
+                <Link href={`/product/${item._id}`} key={item._id} className="block group">
+                  <motion.div
+                    className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative cursor-pointer"
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="relative overflow-hidden">
+                      <Image
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.name}
+                        width={400}
+                        height={300}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-lg h-14 font-semibold mb-1 text-white group-hover:text-yellow-400 transition-colors">
+                        {item.name}
+                      </h3>
+                      <p className="text-gray-400 text-sm mb-2">{item.brand}</p>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-bold text-yellow-400">LKR {item.price.toLocaleString()}</span>
+                        <div className="flex flex-wrap gap-1">
+                          {(item.sizes || []).slice(0, 3).map((size) => (
+                            <span key={size} className="px-1.5 py-0.5 bg-gray-800 text-xs rounded">
+                              {size}
+                            </span>
+                          ))}
+                          {(item.sizes || []).length > 3 && (
+                            <span className="px-1.5 py-0.5 bg-gray-800 text-xs rounded">
+                              +{(item.sizes || []).length - 3}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <motion.button
+                        className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-2 px-4 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        View
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            </Link>
-            ))}
-                    
-                      
+                        View Details
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))
+            )}
           </motion.div>          
             
 
           {/* No Results */}
-          {filteredShoes.length === 0 && (
+          {(activeTab === "shoes" ? filteredShoes.length === 0 : filteredApparel.length === 0) && (
             <motion.div
               className="text-center py-16"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6 }}
             >
-              <h3 className="text-2xl font-semibold mb-4 text-gray-400">No shoes found</h3>
+              <h3 className="text-2xl font-semibold mb-4 text-gray-400">No {activeTab} found</h3>
               <p className="text-gray-500 mb-6">Try adjusting your search or filter criteria</p>
               <button
                 onClick={clearFilters}

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Apparel Items - OG Vault</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #111;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        h1 {
+            text-align: center;
+            color: #fbbf24;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fbbf24;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #000;
+            color: #fff;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #fbbf24;
+        }
+        .size-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .size-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .size-checkbox input {
+            width: auto;
+        }
+        button {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            color: #000;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+        }
+        .success {
+            background: #10b981;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .error {
+            background: #ef4444;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .apparel-item {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+        .apparel-item h3 {
+            color: #fbbf24;
+            margin-top: 0;
+        }
+        .apparel-item img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add Apparel Items - OG Vault</h1>
+        
+        <div id="message"></div>
+        
+        <div class="apparel-item">
+            <h3>Nike Sportswear Club Fleece</h3>
+            <img src="/apparel/product1.PNG" alt="Nike Fleece">
+            <form id="apparel1">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" value="Nike Sportswear Club Fleece" required>
+                </div>
+                <div class="form-group">
+                    <label>Brand:</label>
+                    <input type="text" value="Nike" required>
+                </div>
+                <div class="form-group">
+                    <label>Retail Price (LKR):</label>
+                    <input type="number" value="8500" required>
+                </div>
+                <div class="form-group">
+                    <label>Profit (LKR):</label>
+                    <input type="number" value="1500" required>
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea rows="3" required>Premium comfort with classic Nike style. Made from soft fleece material for ultimate comfort and warmth.</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image URL:</label>
+                    <input type="text" value="/apparel/product1.PNG" required>
+                </div>
+                <div class="form-group">
+                    <label>Available Sizes:</label>
+                    <div class="size-checkboxes">
+                        <div class="size-checkbox"><input type="checkbox" value="XS"><label>XS</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="S" checked><label>S</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="M" checked><label>M</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="L" checked><label>L</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XL" checked><label>XL</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XXL" checked><label>XXL</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XXXL"><label>XXXL</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" checked> Featured</label>
+                </div>
+                <button type="submit">Add Nike Fleece</button>
+            </form>
+        </div>
+
+        <div class="apparel-item">
+            <h3>Adidas Originals Trefoil Hoodie</h3>
+            <img src="/apparel/product2.PNG" alt="Adidas Hoodie">
+            <form id="apparel2">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" value="Adidas Originals Trefoil Hoodie" required>
+                </div>
+                <div class="form-group">
+                    <label>Brand:</label>
+                    <input type="text" value="Adidas" required>
+                </div>
+                <div class="form-group">
+                    <label>Retail Price (LKR):</label>
+                    <input type="number" value="7800" required>
+                </div>
+                <div class="form-group">
+                    <label>Profit (LKR):</label>
+                    <input type="number" value="1200" required>
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea rows="3" required>Iconic Adidas trefoil logo on a comfortable hoodie. Perfect for casual wear and street style.</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image URL:</label>
+                    <input type="text" value="/apparel/product2.PNG" required>
+                </div>
+                <div class="form-group">
+                    <label>Available Sizes:</label>
+                    <div class="size-checkboxes">
+                        <div class="size-checkbox"><input type="checkbox" value="XS" checked><label>XS</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="S" checked><label>S</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="M" checked><label>M</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="L" checked><label>L</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XL" checked><label>XL</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XXL"><label>XXL</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XXXL"><label>XXXL</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" checked> Featured</label>
+                </div>
+                <button type="submit">Add Adidas Hoodie</button>
+            </form>
+        </div>
+
+        <div class="apparel-item">
+            <h3>Puma RS-X Sweatshirt</h3>
+            <img src="/apparel/product3.PNG" alt="Puma Sweatshirt">
+            <form id="apparel3">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" value="Puma RS-X Sweatshirt" required>
+                </div>
+                <div class="form-group">
+                    <label>Brand:</label>
+                    <input type="text" value="Puma" required>
+                </div>
+                <div class="form-group">
+                    <label>Retail Price (LKR):</label>
+                    <input type="number" value="7200" required>
+                </div>
+                <div class="form-group">
+                    <label>Profit (LKR):</label>
+                    <input type="number" value="1300" required>
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea rows="3" required>Retro-inspired design with modern comfort. The RS-X series brings back the 80s aesthetic with contemporary fit.</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image URL:</label>
+                    <input type="text" value="/apparel/product3.PNG" required>
+                </div>
+                <div class="form-group">
+                    <label>Available Sizes:</label>
+                    <div class="size-checkboxes">
+                        <div class="size-checkbox"><input type="checkbox" value="XS"><label>XS</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="S" checked><label>S</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="M" checked><label>M</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="L" checked><label>L</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XL" checked><label>XL</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XXL" checked><label>XXL</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XXXL" checked><label>XXXL</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox"> Featured</label>
+                </div>
+                <button type="submit">Add Puma Sweatshirt</button>
+            </form>
+        </div>
+
+        <div class="apparel-item">
+            <h3>Vans Classic Crew Neck</h3>
+            <img src="/apparel/product4.PNG" alt="Vans Crew Neck">
+            <form id="apparel4">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" value="Vans Classic Crew Neck" required>
+                </div>
+                <div class="form-group">
+                    <label>Brand:</label>
+                    <input type="text" value="Vans" required>
+                </div>
+                <div class="form-group">
+                    <label>Retail Price (LKR):</label>
+                    <input type="number" value="6500" required>
+                </div>
+                <div class="form-group">
+                    <label>Profit (LKR):</label>
+                    <input type="number" value="1000" required>
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea rows="3" required>Timeless Vans style with the classic logo. Perfect for everyday wear and skate culture enthusiasts.</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image URL:</label>
+                    <input type="text" value="/apparel/product4.PNG" required>
+                </div>
+                <div class="form-group">
+                    <label>Available Sizes:</label>
+                    <div class="size-checkboxes">
+                        <div class="size-checkbox"><input type="checkbox" value="XS" checked><label>XS</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="S" checked><label>S</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="M" checked><label>M</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="L" checked><label>L</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XL" checked><label>XL</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XXL"><label>XXL</label></div>
+                        <div class="size-checkbox"><input type="checkbox" value="XXXL"><label>XXXL</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" checked> Featured</label>
+                </div>
+                <button type="submit">Add Vans Crew Neck</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function getSelectedSizes(form) {
+            const checkboxes = form.querySelectorAll('.size-checkboxes input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function getFormData(form) {
+            const inputs = form.querySelectorAll('input[type="text"], input[type="number"], textarea');
+            const data = {};
+            
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    data[input.previousElementSibling.textContent.replace(':', '').trim()] = parseFloat(input.value);
+                } else {
+                    data[input.previousElementSibling.textContent.replace(':', '').trim()] = input.value;
+                }
+            });
+
+            // Add sizes
+            data['Available Sizes'] = getSelectedSizes(form);
+            
+            // Add featured status
+            const featuredCheckbox = form.querySelector('input[type="checkbox"]:last-of-type');
+            data['Featured'] = featuredCheckbox.checked;
+
+            return data;
+        }
+
+        function addApparel(formData) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showMessage('Please log in as admin first', 'error');
+                return;
+            }
+
+            const apparelData = {
+                name: formData['Name'],
+                brand: formData['Brand'],
+                retailPrice: formData['Retail Price (LKR)'],
+                profit: formData['Profit (LKR)'],
+                price: formData['Retail Price (LKR)'] + formData['Profit (LKR)'],
+                description: formData['Description'],
+                image: formData['Image URL'],
+                images: [formData['Image URL']],
+                sizes: formData['Available Sizes'],
+                featured: formData['Featured'],
+                hidden: false,
+                createdAt: new Date().toISOString(),
+                rating: 4.0 + Math.random() * 0.5,
+                reviews: Math.floor(Math.random() * 20) + 5,
+                features: ["Comfortable", "Stylish", "Durable"]
+            };
+
+            fetch('/api/admin/apparel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(apparelData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    showMessage(data.message, 'error');
+                } else {
+                    showMessage(`${apparelData.name} added successfully!`, 'success');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Error adding apparel item', 'error');
+            });
+        }
+
+        // Add event listeners to all forms
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = getFormData(this);
+                addApparel(formData);
+            });
+        });
+    </script>
+</body>
+</html> 

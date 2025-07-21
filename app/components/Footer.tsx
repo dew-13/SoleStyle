@@ -29,7 +29,9 @@ export default function Footer() {
             <div className="flex space-x-4">
               <Facebook className="w-5 h-5 text-gray-400 hover:text-yellow-400 cursor-pointer transition-colors" />
              
-              <Instagram className="w-5 h-5 text-gray-400 hover:text-yellow-400 cursor-pointer transition-colors" />
+              <a href="https://www.instagram.com/ogvault2025?igsh=MXRnajRkd2toYXduNg==" target="_blank" rel="noopener noreferrer">
+                <Instagram className="w-5 h-5 text-gray-400 hover:text-yellow-400 cursor-pointer transition-colors" />
+              </a>
               
             </div>
           </motion.div>
