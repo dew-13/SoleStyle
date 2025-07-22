@@ -114,6 +114,7 @@ export async function GET(request) {
         totalRevenue: 0,
         monthlyRevenue: 0,
         featuredShoes: 0,
+        totalApparel: 0,
         recentOrders: [],
         topShoes: [],
       })
