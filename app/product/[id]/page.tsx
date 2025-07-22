@@ -58,6 +58,7 @@ export default function ProductPage() {
           }
         } else {
           console.error("Failed to fetch shoe")
+          router.push("/shop")
         }
       } catch (error) {
         console.error("Error fetching shoe:", error)
@@ -68,6 +69,9 @@ export default function ProductPage() {
 
     if (params.id) {
       fetchShoe()
+    } else {
+      setLoading(false)
+      router.push("/shop")
     }
   }, [params.id])
 

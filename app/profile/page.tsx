@@ -488,13 +488,13 @@ export default function ProfilePage() {
                       <div key={order._id} className="bg-black/50 rounded-lg p-4 border border-gray-700">
                         <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
                           <div>
-                            <h3 className="font-semibold text-lg">{order.shoe?.name || "Unknown Product"}</h3>
-                            <p className="text-gray-400">{order.shoe?.brand || "Unknown Brand"}</p>
+                            <h3 className="font-semibold text-lg">{order.shoe?.name || order.apparel?.name || "Unknown Product"}</h3>
+                            <p className="text-gray-400">{order.shoe?.brand || order.apparel?.brand || "Unknown Brand"}</p>
                             <p className="text-sm text-gray-500">Order ID: {order.orderId}</p>
                           </div>
                           <div className="text-right">
                             <p className="text-yellow-400 font-bold text-xl">
-                              LKR {(order.total || order.shoe?.price * order.quantity || 0).toLocaleString()}
+                              LKR {(order.total || order.shoe?.price * order.quantity || order.apparel?.price * order.quantity || 0).toLocaleString()}
                             </p>
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
@@ -525,6 +525,15 @@ export default function ProfilePage() {
                             </p>
                           </div>
                         </div>
+                        <div className="mt-4 flex items-center">
+                          <Image
+                            src={order.shoe?.image || order.apparel?.image || "/placeholder.svg"}
+                            alt={order.shoe?.name || order.apparel?.name || "Product"}
+                            width={80}
+                            height={80}
+                            className="rounded-lg"
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -551,7 +560,7 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {wishlist.map((item) => (
                       <div
-                        key={item._id}
+                        key={item._id || item.shoe?._id}
                         className="bg-black/50 rounded-lg overflow-hidden border border-gray-700 hover:border-yellow-400/50 transition-all"
                       >
                         <Image
@@ -568,14 +577,23 @@ export default function ProfilePage() {
                           <p className="text-gray-400 text-sm mb-2">{item.shoe?.brand}</p>
                           <div className="flex items-center justify-between">
                             <span className="text-yellow-400 font-bold">
-                              LKR {item.shoe?.price ? item.shoe.price.toLocaleString() : "0"}
+                              LKR {item.shoe?.price ? item.shoe.price.toLocaleString() : item.price?.toLocaleString?.() || "0"}
                             </span>
-                            <a
-                              href={`/product/${item.shoe?._id}`}
-                              className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
-                            >
-                              View
-                            </a>
+                            {item.shoe ? (
+                              <a
+                                href={`/product/${item.shoe._id}`}
+                                className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                              >
+                                View
+                              </a>
+                            ) : (
+                              <a
+                                href={`/apparel/${item._id}`}
+                                className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                              >
+                                View
+                              </a>
+                            )}
                           </div>
                         </div>
                       </div>

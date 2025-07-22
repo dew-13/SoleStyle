@@ -8,6 +8,8 @@ export async function POST(request) {
     const body = await request.json()
     const {
       shoeId,
+      apparelId,
+      type,
       size,
       quantity,
       retailPrice,
@@ -37,10 +39,24 @@ export async function POST(request) {
 
     const { db } = await connectToDatabase()
 
-    // Get shoe details
-    const shoe = await db.collection("shoes").findOne({ _id: new ObjectId(shoeId) })
-    if (!shoe) {
-      return NextResponse.json({ message: "Shoe not found" }, { status: 404 })
+    let item = null
+    let itemType = type || "shoe"
+    if (itemType === "apparel") {
+      if (!apparelId) {
+        return NextResponse.json({ message: "Apparel ID required" }, { status: 400 })
+      }
+      item = await db.collection("apparel").findOne({ _id: new ObjectId(apparelId) })
+      if (!item) {
+        return NextResponse.json({ message: "Apparel not found" }, { status: 404 })
+      }
+    } else {
+      if (!shoeId) {
+        return NextResponse.json({ message: "Shoe ID required" }, { status: 400 })
+      }
+      item = await db.collection("shoes").findOne({ _id: new ObjectId(shoeId) })
+      if (!item) {
+        return NextResponse.json({ message: "Shoe not found" }, { status: 404 })
+      }
     }
 
     // Generate order ID
@@ -48,7 +64,7 @@ export async function POST(request) {
     const orderId = `OG${String(orderCount + 1).padStart(6, "0")}`
 
     // Calculate total (ensure it's a number)
-    const calculatedTotal = Number(totalPrice) || Number(shoe.price) * Number(quantity)
+    const calculatedTotal = Number(totalPrice) || Number(item.price) * Number(quantity)
 
     const customerPhone =
       customerContact ||
@@ -79,22 +95,22 @@ export async function POST(request) {
     const order = {
       orderId,
       userId: userId ? new ObjectId(userId) : null,
-      shoe: {
-        _id: shoe._id,
-        name: shoe.name,
-        brand: shoe.brand,
-        image: shoe.image,
-        price: shoe.price,
-        retailPrice: shoe.retailPrice, // Use provided retailPrice or fallback
-        profit: shoe.profit, 
+      [itemType]: {
+        _id: item._id,
+        name: item.name,
+        brand: item.brand,
+        image: item.image,
+        price: item.price,
+        retailPrice: item.retailPrice,
+        profit: item.profit,
       },
       size,
       quantity: Number(quantity),
-      retailPrice: Number(retailPrice) || shoe.retailPrice,
-      profit: Number(profit) || shoe.profit,
-      totalPrice: calculatedTotal, // Store both for compatibility
+      retailPrice: Number(retailPrice) || item.retailPrice,
+      profit: Number(profit) || item.profit,
+      totalPrice: calculatedTotal,
       customerName: finalCustomerName,
-      customerPhone: customerPhone, // Store phone in both fields
+      customerPhone: customerPhone,
       customerEmail: finalCustomerEmail,
       shippingAddress,
       paymentMethod,

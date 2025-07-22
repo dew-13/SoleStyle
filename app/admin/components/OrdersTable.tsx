@@ -40,7 +40,7 @@ export default function OrdersTable() {
 
   // Helper function to get order profit
   const getOrderProfit = (order: Order): number => {
-    const profit = order.shoe?.profit || 0
+    const profit = order.shoe?.profit || order.apparel?.profit || 0
     return profit * order.quantity
   }
 
@@ -517,8 +517,8 @@ export default function OrdersTable() {
                       </td>
                       <td className="py-4 px-4">
                         <div>
-                          <p className="font-medium">{order.shoe?.name || "N/A"}</p>
-                          <p className="text-sm text-gray-400">{order.shoe?.brand || "N/A"}</p>
+                          <p className="font-medium">{order.shoe?.name || order.apparel?.name || "N/A"}</p>
+                          <p className="text-sm text-gray-400">{order.shoe?.brand || order.apparel?.brand || "N/A"}</p>
                         </div>
                       </td>
                       <td className="py-4 px-4">
@@ -604,7 +604,7 @@ export default function OrdersTable() {
                 <div className="flex flex-wrap gap-2 text-xs text-gray-400 mb-2">
                   <span>Customer: {order.customerName || "N/A"}</span>
                   <span>Phone: {order.customerPhone || "N/A"}</span>
-                  <span>Product: {order.shoe?.name || "N/A"}</span>
+                  <span>Product: {order.shoe?.name || order.apparel?.name || "N/A"}</span>
                   <span>Size: {order.size}</span>
                   <span>Qty: {order.quantity}</span>
                 </div>
@@ -694,10 +694,10 @@ export default function OrdersTable() {
                     <h3 className="font-semibold mb-3 text-yellow-400">Product Details</h3>
                     <div className="space-y-2 text-sm">
                       <p>
-                        <span className="text-gray-400">Product:</span> {selectedOrder.shoe?.name || "N/A"}
+                        <span className="text-gray-400">Product:</span> {selectedOrder.shoe?.name || selectedOrder.apparel?.name || "N/A"}
                       </p>
                       <p>
-                        <span className="text-gray-400">Brand:</span> {selectedOrder.shoe?.brand || "N/A"}
+                        <span className="text-gray-400">Brand:</span> {selectedOrder.shoe?.brand || selectedOrder.apparel?.brand || "N/A"}
                       </p>
                       <p>
                         <span className="text-gray-400">Size:</span> {selectedOrder.size || "N/A"}
@@ -707,7 +707,7 @@ export default function OrdersTable() {
                       </p>
                       <p>
                         <span className="text-gray-400">Unit Price:</span>{" "}
-                        <span className="text-white">LKR {(selectedOrder.shoe?.price || 0).toLocaleString()}</span>
+                        <span className="text-white">LKR {(selectedOrder.shoe?.price || selectedOrder.apparel?.price || 0).toLocaleString()}</span>
                       </p>
                       <p>
                         <span className="text-gray-400">Total:</span>{" "}
@@ -782,7 +782,7 @@ export default function OrdersTable() {
               <div className="p-6 space-y-4">
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Order: {editingOrder.orderId || editingOrder._id}</p>
-                  <p className="font-medium">{editingOrder.shoe?.name || "N/A"}</p>
+                  <p className="font-medium">{editingOrder.shoe?.name || editingOrder.apparel?.name || "N/A"}</p>
                   <p className="text-sm text-gray-400">{editingOrder.customerName || "N/A"}</p>
                   <p className="text-sm text-yellow-400 font-semibold">
                     Amount: LKR {getOrderTotal(editingOrder).toLocaleString()}

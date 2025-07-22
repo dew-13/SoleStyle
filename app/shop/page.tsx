@@ -495,7 +495,7 @@ export default function ShopPage() {
             ) : (
               // Apparel Grid
               filteredApparel.map((item, index) => (
-                <Link href={`/product/${item._id}`} key={item._id} className="block group">
+                <Link href={`/apparel/${item._id}`} key={item._id} className="block group">
                   <motion.div
                     className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative cursor-pointer"
                     initial={{ opacity: 0, y: 50 }}

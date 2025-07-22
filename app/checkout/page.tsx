@@ -133,25 +133,30 @@ export default function CheckoutPage() {
 
       // Create orders for each item
       for (const item of checkoutItems) {
+        const orderBody = {
+          size: item.size,
+          quantity: item.quantity,
+          retailPrice: item.retailPrice,
+          profit: item.profit,
+          totalPrice: item.price * item.quantity,
+          shippingAddress: shippingAddressForOrder,
+          paymentMethod,
+          customerName: shippingAddress.fullName,
+          customerEmail: user?.email,
+          type: item.type || "shoe",
+        }
+        if (item.type === "apparel") {
+          orderBody.apparelId = item._id
+        } else {
+          orderBody.shoeId = item.id || item._id
+        }
         const response = await fetch("/api/orders/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            shoeId: item.id,
-            size: item.size,
-            quantity: item.quantity,
-            
-            retailPrice: item.retailPrice, // Add this
-            profit: item.profit,
-            totalPrice: item.price * item.quantity,
-            shippingAddress: shippingAddressForOrder,
-            paymentMethod,
-            customerName: shippingAddress.fullName,
-            customerEmail: user?.email,
-          }),
+          body: JSON.stringify(orderBody),
         })
 
         if (!response.ok) {

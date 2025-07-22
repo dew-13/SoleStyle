@@ -38,7 +38,7 @@ export default function HomePage() {
       xmlns="http://www.w3.org/2000/svg"
       xmlSpace="preserve"
       version="1.1"
-      style={{ shapeRendering: "geometricPrecision", textRendering: "geometricPrecision", imageRendering: "optimizeQuality", fillRule: "evenodd", clipRule: "evenodd" }}
+      style={{ shapeRendering: "geometricPrecision", textRendering: "geometricPrecision", imageRendering: "auto", fillRule: "evenodd", clipRule: "evenodd" }}
       viewBox="0 0 784.11 815.53"
     >
       <g>

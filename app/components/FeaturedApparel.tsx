@@ -69,7 +69,7 @@ export default function FeaturedApparel() {
             Featured T-Shirts
           </h2>
           <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">
-            Discover our collection of premium t-shirts from top brands
+            Stand Out in Style - Designed In-House with Passion
           </p>
         </motion.div>
 
@@ -83,7 +83,7 @@ export default function FeaturedApparel() {
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                 >
                   {/* Product Image */}
-                  <Link href={`/product/${apparel._id}`}>
+                  <Link href={`/apparel/${apparel._id}`}>
                     <div className="aspect-square relative overflow-hidden rounded-2xl">
                       <div className="card-blur">
                         <Image

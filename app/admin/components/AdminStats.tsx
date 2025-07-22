@@ -411,7 +411,7 @@ export default function AdminStatsComponent() {
               <p className="text-sm text-gray-400">Total Profit</p>
               <p className="text-2xl font-bold text-emerald-400">LKR {calculateTotalProfit().toLocaleString()}</p>
             </div>
-            <DollarSign className="w-8 h-8 text-emerald-400" />
+            <BarChart3 className="w-8 h-8 text-emerald-400" />
           </div>
         </motion.div>
 

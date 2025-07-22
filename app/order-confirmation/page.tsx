@@ -93,8 +93,8 @@ export default function OrderConfirmationPage() {
     }
 
     // Check for shoe ID
-    if (!orderDetails.shoe || !orderDetails.shoe._id) {
-      toast.error("Shoe ID missing in order details.")
+    if (!orderDetails.shoe && !orderDetails.apparel) {
+      toast.error("Shoe or Apparel ID missing in order details.")
       console.error("orderDetails.shoe:", orderDetails.shoe)
       return
     }
@@ -137,18 +137,35 @@ export default function OrderConfirmationPage() {
       }
 
       // Fetch complete shoe details to get pricing information
-      const shoeResponse = await fetch(`/api/shoes/${orderDetails.shoe._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-
       let shoeDetails = null
-      if (shoeResponse.ok) {
-        shoeDetails = await shoeResponse.json()
+      if (orderDetails.shoe) {
+        const shoeResponse = await fetch(`/api/shoes/${orderDetails.shoe._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (shoeResponse.ok) {
+          shoeDetails = await shoeResponse.json()
+        }
+      } else if (orderDetails.apparel) {
+        const apparelResponse = await fetch(`/api/apparels/${orderDetails.apparel._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (apparelResponse.ok) {
+          const apparelDetails = await apparelResponse.json()
+          shoeDetails = {
+            _id: apparelDetails._id,
+            name: apparelDetails.name,
+            brand: apparelDetails.brand,
+            price: apparelDetails.price,
+            retailPrice: apparelDetails.retailPrice,
+            profit: apparelDetails.profit,
+            image: apparelDetails.image,
+          }
+        }
       }
 
       // Debug: Log payload
       console.log("Order payload:", {
-        shoe: orderDetails.shoe._id,
+        shoe: orderDetails.shoe?._id || orderDetails.apparel?._id,
         size: orderDetails.size,
         quantity: orderDetails.quantity,
         totalPrice: orderDetails.totalPrice,
@@ -164,14 +181,14 @@ export default function OrderConfirmationPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          shoeId: orderDetails.shoe._id, // Only the ID
+          shoeId: orderDetails.shoe?._id || orderDetails.apparel?._id, // Only the ID
           size: orderDetails.size,
           quantity: orderDetails.quantity,
           totalPrice: orderDetails.totalPrice,
           // Include pricing information for profit calculation
-          unitPrice: orderDetails.shoe.price,
-          retailPrice: shoeDetails?.retailPrice || orderDetails.shoe.retailPrice || 0,
-          profit: shoeDetails?.profit || orderDetails.shoe.profit || 0,
+          unitPrice: orderDetails.shoe?.price || orderDetails.apparel?.price || 0,
+          retailPrice: shoeDetails?.retailPrice || orderDetails.shoe?.retailPrice || orderDetails.apparel?.retailPrice || 0,
+          profit: shoeDetails?.profit || orderDetails.shoe?.profit || orderDetails.apparel?.profit || 0,
           shippingAddress: shippingAddressForOrder,
           paymentMethod,
           customerName: shippingAddress.fullName,
@@ -199,7 +216,7 @@ export default function OrderConfirmationPage() {
   const handleWhatsAppContact = () => {
     if (!orderDetails) return
 
-    const message = `Hi! I've placed an order for ${orderDetails.shoe.name} (Size: ${orderDetails.size}). Order total: LKR ${orderDetails.totalPrice.toLocaleString()}. Please let me know the next steps for payment.`
+    const message = `Hi! I've placed an order for ${orderDetails.shoe?.name || orderDetails.apparel?.name} (Size: ${orderDetails.size}). Order total: LKR ${orderDetails.totalPrice.toLocaleString()}. Please let me know the next steps for payment.`
     const phoneNumber = "+14376611999" // Replace with actual contact number
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
@@ -257,7 +274,7 @@ export default function OrderConfirmationPage() {
                 <div className="space-y-2 text-left">
                   <div className="flex justify-between">
                     <span>Product:</span>
-                    <span>{orderDetails.shoe.name}</span>
+                    <span>{orderDetails.shoe?.name || orderDetails.apparel?.name}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Size:</span>
@@ -304,7 +321,7 @@ export default function OrderConfirmationPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Link href={`/product/${orderDetails.shoe._id}`}>
+            <Link href={`/${orderDetails.shoe ? "product" : "apparel"}/${orderDetails.shoe?._id || orderDetails.apparel?._id}`}>
               <button className="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300 transition-colors">
                 <ArrowLeft className="w-5 h-5" />
                 <span>Back to Product</span>
@@ -337,15 +354,15 @@ export default function OrderConfirmationPage() {
 
               <div className="flex items-center space-x-4 mb-6">
                 <Image
-                  src={orderDetails.shoe.image || "/placeholder.svg"}
-                  alt={orderDetails.shoe.name}
+                  src={orderDetails.shoe?.image || orderDetails.apparel?.image || "/placeholder.svg"}
+                  alt={orderDetails.shoe?.name || orderDetails.apparel?.name || "Product"}
                   width={100}
                   height={100}
                   className="rounded-lg"
                 />
                 <div>
-                  <h3 className="text-lg font-semibold">{orderDetails.shoe.name}</h3>
-                  <p className="text-gray-400">{orderDetails.shoe.brand}</p>
+                  <h3 className="text-lg font-semibold">{orderDetails.shoe?.name || orderDetails.apparel?.name}</h3>
+                  <p className="text-gray-400">{orderDetails.shoe?.brand || orderDetails.apparel?.brand}</p>
                   <p className="text-sm text-gray-400">Size: {orderDetails.size}</p>
                   <p className="text-sm text-gray-400">Quantity: {orderDetails.quantity}</p>
                 </div>

@@ -58,19 +58,18 @@ export interface Apparel {
   _id: string
   name: string
   brand: string
-  profit: number
-  retailPrice: number
   price: number
-  description: string
   image: string
   images?: string[]
-  sizes: string[] // e.g., ["S", "M", "L", "XL", "XXL"]
+  sizes: string[]
+  description: string
   featured: boolean
-  hidden?: boolean
   createdAt: string
   rating?: number
   reviews?: number
   features?: string[]
+  retailPrice?: number
+  profit?: number
 }
 
 export interface CartItem {
@@ -88,12 +87,14 @@ export interface CartItem {
 export interface Order {
   _id: string
   userId: string
-  shoeId: string
+  shoeId?: string
+  apparelId?: string
   orderId?: string
   customerName: string
   customerPhone: string
   customerEmail: string
-  shoe: Shoe
+  shoe?: Shoe
+  apparel?: Apparel
   size: string
   quantity: number
   total: number
@@ -136,7 +137,8 @@ export interface AdminStats {
 }
 
 export interface OrderDetails {
-  shoe: Shoe
+  shoe?: Shoe
+  apparel?: Apparel
   size: string
   quantity: number
   totalPrice: number

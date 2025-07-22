@@ -24,13 +24,14 @@ export async function GET(request) {
 
     try {
       // Get real statistics from database
-      const [totalShoes, totalOrders, totalUsers, orders, shoes, featuredShoesCount] = await Promise.all([
+      const [totalShoes, totalOrders, totalUsers, orders, shoes, featuredShoesCount, totalApparel] = await Promise.all([
         db.collection("shoes").countDocuments(),
         db.collection("orders").countDocuments(),
         db.collection("users").countDocuments(),
         db.collection("orders").find({}).sort({ createdAt: -1 }).limit(10).toArray(),
         db.collection("shoes").find({}).toArray(),
         db.collection("shoes").countDocuments({ featured: true }),
+        db.collection("apparel").countDocuments(),
       ])
 
       // Calculate total revenue from actual orders
@@ -99,6 +100,7 @@ export async function GET(request) {
         totalRevenue,
         monthlyRevenue,
         featuredShoes: featuredShoesCount,
+        totalApparel,
         recentOrders,
         topShoes,
       })
