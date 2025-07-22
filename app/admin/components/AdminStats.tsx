@@ -48,6 +48,7 @@ export default function AdminStatsComponent() {
             totalProfit: 485000,
             monthlyRevenue: 485000,
             featuredShoes: 8,
+            totalApparel: 12,
             recentOrders: [
               {
                 _id: "1",
