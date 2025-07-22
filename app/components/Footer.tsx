@@ -112,9 +112,8 @@ export default function Footer() {
           >
             <h4 className="text-lg font-semibold text-white">Contact Info</h4>
             <div className="space-y-2 text-gray-400">
-              <p>123 Fashion Street</p>
-              <p>New York, NY 10001</p>
-              <p>Phone: +1 (437) 661-1999</p>
+              <p>Phone: +94 76 599 7965</p>
+              <p>Phone: +1 437 6611999</p>
               <p>Email: ogvaultinfinity@gmail.com</p>
             </div>
           </motion.div>
