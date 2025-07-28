@@ -131,40 +131,46 @@ export default function CheckoutPage() {
         phone: shippingAddress.phone,
       }
 
-      // Create orders for each item
-      for (const item of checkoutItems) {
-        const orderBody = {
+      // Create a single order with multiple items
+      const orderItems = checkoutItems.map((item) => {
+        const orderItem = {
           size: item.size,
           quantity: item.quantity,
           retailPrice: item.retailPrice,
           profit: item.profit,
           totalPrice: item.price * item.quantity,
-          shippingAddress: shippingAddressForOrder,
-          paymentMethod,
-          customerName: shippingAddress.fullName,
-          customerEmail: user?.email,
           type: item.type || "shoe",
         }
         if (item.type === "apparel") {
-          orderBody.apparelId = item._id
+          orderItem.apparelId = item._id
         } else {
-          orderBody.shoeId = item.id || item._id
+          orderItem.shoeId = item.id || item._id
         }
-        const response = await fetch("/api/orders/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(orderBody),
-        })
+        return orderItem
+      })
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-          console.error("Order API error:", errorData)
-          toast.error(errorData.message || "Failed to place order. Please try again.")
-          return
-        }
+      const orderBody = {
+        items: orderItems,
+        shippingAddress: shippingAddressForOrder,
+        paymentMethod,
+        customerName: shippingAddress.fullName,
+        customerEmail: user?.email,
+      }
+
+      const response = await fetch("/api/orders/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderBody),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Order API error:", errorData)
+        toast.error(errorData.message || "Failed to place order. Please try again.")
+        return
       }
 
       // Clear the cart after successful order placement

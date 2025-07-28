@@ -35,13 +35,46 @@ export default function OrdersTable() {
 
   // Helper function to get order total with fallback
   const getOrderTotal = (order: Order): number => {
+    // New multi-item orders
+    if (order.items && Array.isArray(order.items)) {
+      return order.totalPrice || order.items.reduce((sum, item) => sum + (item.totalPrice || 0), 0)
+    }
+    // Legacy single-item orders
     return order.total || order.totalPrice || (order.shoe?.price * order.quantity) || 0
   }
 
   // Helper function to get order profit
   const getOrderProfit = (order: Order): number => {
+    // New multi-item orders
+    if (order.items && Array.isArray(order.items)) {
+      return order.totalProfit || order.items.reduce((sum, item) => sum + (item.profit || 0), 0)
+    }
+    // Legacy single-item orders
     const profit = order.shoe?.profit || order.apparel?.profit || 0
     return profit * order.quantity
+  }
+
+  // Helper function to get order display name(s)
+  const getOrderDisplayName = (order: Order): string => {
+    // New multi-item orders
+    if (order.items && Array.isArray(order.items)) {
+      if (order.items.length === 1) {
+        return order.items[0].item.name
+      }
+      return `${order.items.length} items`
+    }
+    // Legacy single-item orders
+    return order.shoe?.name || order.apparel?.name || "Unknown Item"
+  }
+
+  // Helper function to get order display image
+  const getOrderDisplayImage = (order: Order): string => {
+    // New multi-item orders
+    if (order.items && Array.isArray(order.items)) {
+      return order.items[0]?.item.image || "/placeholder.svg"
+    }
+    // Legacy single-item orders
+    return order.shoe?.image || order.apparel?.image || "/placeholder.svg"
   }
 
   const fetchOrders = async (): Promise<void> => {
@@ -516,21 +549,41 @@ export default function OrdersTable() {
                         </div>
                       </td>
                       <td className="py-4 px-4">
+                      <div className="flex items-center space-x-3">
+                      <img
+                        src={getOrderDisplayImage(order)}
+                          alt={getOrderDisplayName(order)}
+                            className="w-10 h-10 rounded-lg object-cover"
+                          />
                         <div>
-                          <p className="font-medium">{order.shoe?.name || order.apparel?.name || "N/A"}</p>
-                          <p className="text-sm text-gray-400">{order.shoe?.brand || order.apparel?.brand || "N/A"}</p>
+                        <p className="font-medium">{getOrderDisplayName(order)}</p>
+                      <p className="text-sm text-gray-400">
+                          {order.items && Array.isArray(order.items) 
+                            ? order.items[0]?.item.brand || "Multiple brands"
+                          : order.shoe?.brand || order.apparel?.brand || "N/A"}
+                        </p>
                         </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="text-sm">
-                          <p>
-                            Size: <span className="font-medium">{order.size || "N/A"}</span>
-                          </p>
-                          <p>
-                            Qty: <span className="font-medium">{order.quantity || 0}</span>
-                          </p>
                         </div>
-                      </td>
+                       </td>
+                       <td className="py-4 px-4">
+                         <div className="text-sm">
+                           {order.items && Array.isArray(order.items) ? (
+                             order.items.length === 1 ? (
+                               <>
+                                 <p>Size: <span className="font-medium">{order.items[0].size || "N/A"}</span></p>
+                                 <p>Qty: <span className="font-medium">{order.items[0].quantity || 0}</span></p>
+                               </>
+                             ) : (
+                               <p>Multiple items: <span className="font-medium">{order.items.length}</span></p>
+                             )
+                           ) : (
+                             <>
+                               <p>Size: <span className="font-medium">{order.size || "N/A"}</span></p>
+                               <p>Qty: <span className="font-medium">{order.quantity || 0}</span></p>
+                             </>
+                           )}
+                         </div>
+                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center space-x-1">
                           <span className="text-sm text-gray-400">LKR</span>
@@ -604,13 +657,26 @@ export default function OrdersTable() {
                 <div className="flex flex-wrap gap-2 text-xs text-gray-400 mb-2">
                   <span>Customer: {order.customerName || "N/A"}</span>
                   <span>Phone: {order.customerPhone || "N/A"}</span>
-                  <span>Product: {order.shoe?.name || order.apparel?.name || "N/A"}</span>
-                  <span>Size: {order.size}</span>
-                  <span>Qty: {order.quantity}</span>
-                </div>
-                <div className="flex flex-wrap gap-2 text-xs mb-2">
-                  <span className="text-yellow-400 font-semibold">LKR {(order.total || 0).toLocaleString()}</span>
-                  <span className="text-emerald-400 font-semibold">Profit: LKR {(order.shoe?.profit || 0).toLocaleString()}</span>
+                  <span>Product: {getOrderDisplayName(order)}</span>
+                  {order.items && Array.isArray(order.items) ? (
+                    order.items.length === 1 ? (
+                        <>
+                          <span>Size: {order.items[0].size}</span>
+                        <span>Qty: {order.items[0].quantity}</span>
+                      </>
+                     ) : (
+                       <span>Items: {order.items.length}</span>
+                     )
+                   ) : (
+                     <>
+                       <span>Size: {order.size}</span>
+                       <span>Qty: {order.quantity}</span>
+                     </>
+                   )}
+                 </div>
+                 <div className="flex flex-wrap gap-2 text-xs mb-2">
+                   <span className="text-yellow-400 font-semibold">LKR {getOrderTotal(order).toLocaleString()}</span>
+                   <span className="text-emerald-400 font-semibold">Profit: LKR {getOrderProfit(order).toLocaleString()}</span>
                 </div>
                 <div className="flex space-x-2 mt-2">
                   <button onClick={() => { setSelectedOrder(order); setShowOrderDetails(true); }} className="p-1 bg-gray-800 rounded text-yellow-400 text-xs">Details</button>
@@ -691,10 +757,35 @@ export default function OrdersTable() {
                   </div>
 
                   <div className="bg-black/50 rounded-lg p-4">
-                    <h3 className="font-semibold mb-3 text-yellow-400">Product Details</h3>
-                    <div className="space-y-2 text-sm">
-                      <p>
-                        <span className="text-gray-400">Product:</span> {selectedOrder.shoe?.name || selectedOrder.apparel?.name || "N/A"}
+                  <h3 className="font-semibold mb-3 text-yellow-400">Product Details</h3>
+                  <div className="space-y-2 text-sm">
+                  {selectedOrder.items && Array.isArray(selectedOrder.items) ? (
+                  selectedOrder.items.map((item, index) => (
+                           <div key={index} className="border-b border-gray-700 pb-2 mb-2 last:border-b-0 last:pb-0 last:mb-0">
+                             <p>
+                               <span className="text-gray-400">Product {index + 1}:</span> {item.item.name}
+                             </p>
+                             <p>
+                               <span className="text-gray-400">Brand:</span> {item.item.brand}
+                             </p>
+                             <p>
+                               <span className="text-gray-400">Size:</span> {item.size}
+                             </p>
+                             <p>
+                               <span className="text-gray-400">Quantity:</span> {item.quantity}
+                             </p>
+                             <p>
+                               <span className="text-gray-400">Price:</span> LKR {item.totalPrice.toLocaleString()}
+                             </p>
+                             <p>
+                               <span className="text-gray-400">Profit:</span> LKR {item.profit.toLocaleString()}
+                             </p>
+                           </div>
+                         ))
+                       ) : (
+                         <>
+                           <p>
+                             <span className="text-gray-400">Product:</span> {selectedOrder.shoe?.name || selectedOrder.apparel?.name || "N/A"}
                       </p>
                       <p>
                         <span className="text-gray-400">Brand:</span> {selectedOrder.shoe?.brand || selectedOrder.apparel?.brand || "N/A"}
@@ -706,26 +797,52 @@ export default function OrdersTable() {
                         <span className="text-gray-400">Quantity:</span> {selectedOrder.quantity || 0}
                       </p>
                       <p>
-                        <span className="text-gray-400">Unit Price:</span>{" "}
-                        <span className="text-white">LKR {(selectedOrder.shoe?.price || selectedOrder.apparel?.price || 0).toLocaleString()}</span>
-                      </p>
-                      <p>
-                        <span className="text-gray-400">Total:</span>{" "}
-                        <span className="text-yellow-400 font-bold text-lg">
+                          <span className="text-gray-400">Unit Price:</span>{" "}
+                          <span className="text-white">LKR {(selectedOrder.shoe?.price || selectedOrder.apparel?.price || 0).toLocaleString()}</span>
+                          </p>
+                          <p>
+                          <span className="text-gray-400">Total:</span>{" "}
+                          <span className="text-yellow-400 font-bold text-lg">
                           LKR {getOrderTotal(selectedOrder).toLocaleString()}
-                        </span>
-                      </p>
-                      <p>
-                        <span className="text-gray-400">Profit:</span>{" "}
-                        <span className="text-emerald-400 font-bold text-lg">
+                          </span>
+                          </p>
+                          <p>
+                          <span className="text-gray-400">Profit:</span>{" "}
+                          <span className="text-emerald-400 font-bold text-lg">
                           LKR {getOrderProfit(selectedOrder).toLocaleString()}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                          </span>
+                          </p>
+                         </>
+                       )}
+                     </div>
+                   </div>
+                 </div>
 
-                {/* Shipping Address */}
+                 {/* Order Summary for multi-item orders */}
+                 {selectedOrder.items && Array.isArray(selectedOrder.items) && selectedOrder.items.length > 1 && (
+                   <div className="bg-black/50 rounded-lg p-4">
+                     <h3 className="font-semibold mb-3 text-yellow-400">Order Summary</h3>
+                     <div className="space-y-2 text-sm">
+                       <p>
+                         <span className="text-gray-400">Total Items:</span> {selectedOrder.items.length}
+                       </p>
+                       <p>
+                         <span className="text-gray-400">Total Price:</span>{" "}
+                         <span className="text-yellow-400 font-bold text-lg">
+                           LKR {getOrderTotal(selectedOrder).toLocaleString()}
+                         </span>
+                       </p>
+                       <p>
+                         <span className="text-gray-400">Total Profit:</span>{" "}
+                         <span className="text-emerald-400 font-bold text-lg">
+                           LKR {getOrderProfit(selectedOrder).toLocaleString()}
+                         </span>
+                       </p>
+                     </div>
+                   </div>
+                 )}
+
+                 {/* Shipping Address */}
                 {selectedOrder.shippingAddress && (
                   <div className="bg-black/50 rounded-lg p-4">
                     <h3 className="font-semibold mb-3 text-yellow-400">Shipping Address</h3>

@@ -21,6 +21,7 @@ export async function POST(request) {
       customerEmail,
       shippingAddress,
       paymentMethod,
+      items, // New field for multiple items
     } = body
 
     // Get token from Authorization header
@@ -39,6 +40,114 @@ export async function POST(request) {
 
     const { db } = await connectToDatabase()
 
+    // Handle multiple items (new approach) or single item (legacy support)
+    if (items && Array.isArray(items) && items.length > 0) {
+      // New multiple items approach
+      const orderItems = []
+      let totalOrderPrice = 0
+      let totalOrderProfit = 0
+
+      for (const orderItem of items) {
+        let item = null
+        const itemType = orderItem.type || "shoe"
+        
+        if (itemType === "apparel") {
+          if (!orderItem.apparelId) {
+            return NextResponse.json({ message: "Apparel ID required for item" }, { status: 400 })
+          }
+          item = await db.collection("apparel").findOne({ _id: new ObjectId(orderItem.apparelId) })
+          if (!item) {
+            return NextResponse.json({ message: "Apparel not found" }, { status: 404 })
+          }
+        } else {
+          if (!orderItem.shoeId) {
+            return NextResponse.json({ message: "Shoe ID required for item" }, { status: 400 })
+          }
+          item = await db.collection("shoes").findOne({ _id: new ObjectId(orderItem.shoeId) })
+          if (!item) {
+            return NextResponse.json({ message: "Shoe not found" }, { status: 404 })
+          }
+        }
+
+        const itemTotal = Number(orderItem.totalPrice) || Number(item.price) * Number(orderItem.quantity)
+        const itemProfit = (Number(orderItem.profit) || item.profit || 0) * Number(orderItem.quantity)
+        
+        totalOrderPrice += itemTotal
+        totalOrderProfit += itemProfit
+
+        orderItems.push({
+          type: itemType,
+          item: {
+            _id: item._id,
+            name: item.name,
+            brand: item.brand,
+            image: item.image,
+            price: item.price,
+            retailPrice: item.retailPrice,
+            profit: item.profit,
+          },
+          size: orderItem.size,
+          quantity: Number(orderItem.quantity),
+          totalPrice: itemTotal,
+          profit: itemProfit,
+        })
+      }
+
+      // Generate order ID
+      const orderCount = await db.collection("orders").countDocuments()
+      const orderId = `OG${String(orderCount + 1).padStart(6, "0")}`
+
+      const customerPhone =
+        customerContact ||
+        (shippingAddress && (shippingAddress.phone || shippingAddress.mobile || shippingAddress.contact)) ||
+        ""
+
+      const finalCustomerName =
+        customerName ||
+        (shippingAddress && (shippingAddress.fullName || shippingAddress.name)) ||
+        ""
+      const finalCustomerEmail =
+        customerEmail ||
+        (shippingAddress && shippingAddress.email) ||
+        ""
+
+      // Set status based on payment method
+      let status = "pending"
+      if (paymentMethod === "full") {
+        status = "pending_full_payment"
+      } else if (paymentMethod === "installments") {
+        status = "pending_installment"
+      }
+
+      // Create combined order
+      const order = {
+        orderId,
+        userId: userId ? new ObjectId(userId) : null,
+        items: orderItems,
+        totalPrice: totalOrderPrice,
+        totalProfit: totalOrderProfit,
+        customerName: finalCustomerName,
+        customerPhone: customerPhone,
+        customerEmail: finalCustomerEmail,
+        shippingAddress,
+        paymentMethod,
+        status,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+
+      const result = await db.collection("orders").insertOne(order)
+
+      return NextResponse.json({
+        message: "Order created successfully",
+        orderId: order.orderId,
+        _id: result.insertedId,
+        total: totalOrderPrice,
+        profit: totalOrderProfit,
+      })
+    }
+
+    // Legacy single item approach (for backward compatibility)
     let item = null
     let itemType = type || "shoe"
     if (itemType === "apparel") {
