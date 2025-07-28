@@ -162,6 +162,8 @@ export default function ShopPage() {
               description: "Comfortable running shoe",
               featured: false,
               createdAt: new Date().toISOString(),
+              profit: 0,
+              retailPrice: 0
             },
             {
               _id: "2",
@@ -173,6 +175,8 @@ export default function ShopPage() {
               description: "Premium running shoe",
               featured: false,
               createdAt: new Date().toISOString(),
+              profit: 0,
+              retailPrice: 0
             },
           ]
           setShoes(fallbackShoes)

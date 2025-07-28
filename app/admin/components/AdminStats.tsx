@@ -11,7 +11,7 @@ export default function AdminStatsComponent() {
 
   // Helper function to get order total with fallback
   const getOrderTotal = (order: Order): number => {
-    return order.total || order.totalPrice || (order.shoe?.price * order.quantity) || 0
+    return order.total || order.totalPrice || (order.shoe?.price !== undefined ? order.shoe.price * order.quantity : 0) || 0
   }
 
   // Helper function to get order profit
