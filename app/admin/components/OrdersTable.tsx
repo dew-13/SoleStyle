@@ -39,6 +39,9 @@ export default function OrdersTable() {
 
   // Helper function to get order profit
   const getOrderProfit = (order: Order): number => {
+    if (order.items && Array.isArray(order.items) && order.items.length > 0) {
+      return order.items.reduce((total, item) => total + (item.profit || 0) * item.quantity, 0)
+    }
     return order.totalProfit || 0
   }
 
