@@ -505,29 +505,53 @@ export default function ProfilePage() {
                           </div>
                         </div>
                         <div className="border-t border-gray-700 pt-4">
-                          {order.items && order.items.map((item, index) => (
-                            <div key={index} className="flex items-center space-x-4 mb-4">
+                          {order.items && order.items.length > 0 ? (
+                            order.items.map((item, index) => (
+                              <div key={index} className="flex items-center space-x-4 mb-4">
+                                <Image
+                                  src={item.item?.image || "/placeholder.svg"}
+                                  alt={item.item?.name || "Product Image"}
+                                  width={80}
+                                  height={80}
+                                  className="rounded-lg"
+                                />
+                                <div className="flex-1">
+                                  <h4 className="font-semibold">{item.item?.name}</h4>
+                                  <p className="text-gray-400 text-sm">{item.item?.brand}</p>
+                                  <p className="text-gray-400 text-sm">
+                                    Size: {item.size} | Qty: {item.quantity}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-yellow-400 font-semibold">
+                                    LKR {(item.totalPrice || 0).toLocaleString()}
+                                  </p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="flex items-center space-x-4 mb-4">
                               <Image
-                                src={item.item.image || "/placeholder.svg"}
-                                alt={item.item.name}
+                                src={order.shoe?.image || order.apparel?.image || "/placeholder.svg"}
+                                alt={order.shoe?.name || order.apparel?.name || "Product Image"}
                                 width={80}
                                 height={80}
                                 className="rounded-lg"
                               />
                               <div className="flex-1">
-                                <h4 className="font-semibold">{item.item.name}</h4>
-                                <p className="text-gray-400 text-sm">{item.item.brand}</p>
+                                <h4 className="font-semibold">{order.shoe?.name || order.apparel?.name}</h4>
+                                <p className="text-gray-400 text-sm">{order.shoe?.brand || order.apparel?.brand}</p>
                                 <p className="text-gray-400 text-sm">
-                                  Size: {item.size} | Qty: {item.quantity}
+                                  Size: {order.size} | Qty: {order.quantity}
                                 </p>
                               </div>
                               <div className="text-right">
                                 <p className="text-yellow-400 font-semibold">
-                                  LKR {(item.totalPrice).toLocaleString()}
+                                  LKR {(order.total || 0).toLocaleString()}
                                 </p>
                               </div>
                             </div>
-                          ))}
+                          )}
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-4">
                           <div>
