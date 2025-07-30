@@ -159,26 +159,42 @@ export default function OrdersTable() {
   }
 
   const exportOrders = (): void => {
-    const csvContent = [
-      ["Order ID", "Customer Name", "Phone", "Shoe", "Brand", "Size", "Quantity", "Amount", "Profit", "Status", "Date"].join(","),
-      ...filteredOrders.map((order: Order) =>
-        [
+    const headers = ["Order ID", "Customer Name", "Phone", "Product", "Brand", "Size", "Quantity", "Amount", "Profit", "Status", "Date"];
+    const rows = filteredOrders.flatMap((order: Order) => {
+      if (order.items && order.items.length > 0) {
+        return order.items.map(item => [
           order.orderId || "",
           order.customerName || "",
           order.customerPhone || "",
-          `"${order.shoe?.name || ""}"`,
-          order.shoe?.brand || "",
+          `"${item.item?.name || ""}"`,
+          item.item?.brand || "",
+          item.size || "",
+          item.quantity || 0,
+          item.totalPrice,
+          item.profit,
+          order.status || "",
+          new Date(order.createdAt).toLocaleDateString(),
+        ].join(","));
+      } else {
+        return [[
+          order.orderId || "",
+          order.customerName || "",
+          order.customerPhone || "",
+          `"${order.shoe?.name || order.apparel?.name || ""}"`,
+          order.shoe?.brand || order.apparel?.brand || "",
           order.size || "",
           order.quantity || 0,
           getOrderTotal(order),
           getOrderProfit(order),
           order.status || "",
           new Date(order.createdAt).toLocaleDateString(),
-        ].join(",")
-      ),
-    ].join("\n")
+        ].join(",")];
+      }
+    });
 
-    const blob = new Blob([csvContent], { type: "text/csv" })
+    const csvContent = [headers.join(","), ...rows].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url

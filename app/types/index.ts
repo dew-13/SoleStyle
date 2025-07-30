@@ -124,6 +124,7 @@ export interface WishlistItem {
   userId: string
   shoeId: string
   shoe: Shoe
+  price?: number
   createdAt: string
 }
 
