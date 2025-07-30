@@ -40,7 +40,7 @@ export default function OrdersTable() {
       return order.totalPrice || order.items.reduce((sum, item) => sum + (item.totalPrice || 0), 0)
     }
     // Legacy single-item orders
-    return order.total || order.totalPrice || (order.shoe?.price * order.quantity) || 0
+    return order.total || order.totalPrice || ((order.shoe?.price || 0) * order.quantity) || 0
   }
 
   // Helper function to get order profit

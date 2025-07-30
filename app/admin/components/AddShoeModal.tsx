@@ -71,63 +71,52 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
     { name: "Sport Chek", url: "https://www.sportchek.ca/" },
   ]
 
-  // Mock shoe search API for Canadian stores
+  // Generate search links for Canadian stores
   const searchShoes = async (): Promise<void> => {
     if (!searchQuery.trim()) return
 
-    setLoading(true)
-    try {
-      // Simulate API call - replace with real Canadian store APIs
-      const mockResults: SearchResult[] = [
-        {
-          id: 1,
-          name: "Air Jordan 1 Retro High OG",
-          brand: "Nike",
-          image: "/placeholder.svg?height=200&width=200",
-          price: 23000,
-          description:
-            "The Air Jordan 1 Retro High OG remakes the classic sneaker, giving you a fresh take on what you know best.",
-          store: "Nike Canada",
-        },
-        {
-          id: 2,
-          name: "Yeezy Boost 350 V2",
-          brand: "Adidas",
-          image: "/placeholder.svg?height=200&width=200",
-          price: 28000,
-          description: "The Yeezy Boost 350 V2 features an upper composed of re-engineered Primeknit.",
-          store: "Adidas Canada",
-        },
-        {
-          id: 3,
-          name: "Puma Clyde All-Pro",
-          brand: "Puma",
-          image: "/placeholder.svg?height=200&width=200",
-          price: 14000,
-          description: "Built for the modern game, the Clyde All-Pro delivers performance and style.",
-          store: "Puma Canada",
-        },
-        {
-          id: 4,
-          name: "Reebok Question Mid",
-          brand: "Reebok",
-          image: "/placeholder.svg?height=200&width=200",
-          price: 16000,
-          description: "The iconic Question Mid returns with classic basketball heritage.",
-          store: "Reebok Canada",
-        },
-      ].filter(
-        (shoe) =>
-          shoe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          shoe.brand.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+    const query = encodeURIComponent(searchQuery)
+    const brand = searchQuery.toLowerCase()
 
-      setSearchResults(mockResults)
-    } catch (error) {
-      console.error("Error searching shoes:", error)
-    } finally {
-      setLoading(false)
+    const searchLinks: SearchResult[] = []
+
+    if (brand.includes("nike") || brand.includes("jordan")) {
+      searchLinks.push({
+        id: 1,
+        name: `Search "${searchQuery}" on Nike Canada`,
+        brand: "Nike",
+        image: "/nike.svg",
+        price: 0,
+        description: `https://www.nike.com/ca/w?q=${query}`,
+        store: "Nike Canada",
+      })
     }
+
+    if (brand.includes("adidas") || brand.includes("yeezy")) {
+      searchLinks.push({
+        id: 2,
+        name: `Search "${searchQuery}" on Adidas Canada`,
+        brand: "Adidas",
+        image: "/adidas.svg",
+        price: 0,
+        description: `https://www.adidas.ca/en/search?q=${query}`,
+        store: "Adidas Canada",
+      })
+    }
+
+    if (brand.includes("puma")) {
+      searchLinks.push({
+        id: 3,
+        name: `Search "${searchQuery}" on Puma Canada`,
+        brand: "Puma",
+        image: "/puma.svg",
+        price: 0,
+        description: `https://ca.puma.com/ca/en/search?q=${query}`,
+        store: "Puma Canada",
+      })
+    }
+
+    setSearchResults(searchLinks)
   }
 
   const selectShoe = (shoe: SearchResult): void => {
@@ -308,28 +297,22 @@ export default function AddShoeModal({ isOpen, onClose }: AddShoeModalProps) {
 
                   {/* Search Results */}
                   {searchResults.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {searchResults.map((shoe) => (
-                        <motion.div
-                          key={shoe.id}
-                          className="bg-black border border-yellow-400/20 rounded-lg p-4 hover:border-yellow-400/50 transition-all cursor-pointer"
-                          whileHover={{ y: -5 }}
-                          onClick={() => selectShoe(shoe)}
+                    <div className="space-y-3">
+                      {searchResults.map((link) => (
+                        <motion.a
+                          key={link.id}
+                          href={link.description} // URL is in description
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-4 bg-black border border-yellow-400/20 rounded-lg p-4 hover:border-yellow-400/50 transition-all"
+                          whileHover={{ y: -2 }}
                         >
-                          <Image
-                            src={shoe.image || "/placeholder.svg"}
-                            alt={shoe.name}
-                            width={200}
-                            height={200}
-                            className="w-full h-32 object-cover rounded-lg mb-3"
-                          />
-                          <h4 className="font-semibold mb-1">{shoe.name}</h4>
-                          <p className="text-gray-400 text-sm mb-2">{shoe.brand}</p>
-                          <div className="flex justify-between items-center">
-                            <p className="text-yellow-400 font-bold">LKR {shoe.price.toLocaleString()}</p>
-                            <p className="text-xs text-gray-500">{shoe.store}</p>
+                          <Image src={link.image} alt={link.brand} width={40} height={40} />
+                          <div>
+                            <h4 className="font-semibold text-yellow-400">{link.name}</h4>
+                            <p className="text-xs text-gray-500">{link.store}</p>
                           </div>
-                        </motion.div>
+                        </motion.a>
                       ))}
                     </div>
                   )}

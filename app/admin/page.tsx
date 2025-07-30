@@ -178,15 +178,6 @@ export default function AdminDashboard() {
                       <Plus className="w-4 h-4" />
                       <span>Add Apparel</span>
                     </motion.button>
-                    <motion.a
-                      href="/add-apparel.html"
-                      target="_blank"
-                      className="bg-gray-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-all flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <span>Quick Add</span>
-                    </motion.a>
                   </div>
                 </div>
                 <ApparelTable key={apparelTableKey} />
