@@ -123,7 +123,7 @@ export default function CartPage() {
                         <h3 className="text-lg font-semibold mb-1">{item.name}</h3>
                         <p className="text-gray-400 mb-2">{item.brand}</p>
                         <p className="text-sm text-gray-400 mb-2">Size: {item.size}</p>
-                        <p className="text-yellow-400 font-bold">LKR {item.price?.toLocaleString()}</p>
+                        <p className="text-yellow-400 font-bold">LKR {(item.price * item.quantity)?.toLocaleString()}</p>
                       </div>
 
                       <div className="flex items-center space-x-4">
