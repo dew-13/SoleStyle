@@ -232,6 +232,7 @@ export default function OrdersTable() {
           order.orderId?.toLowerCase().includes(searchLower) ||
           order.customerName?.toLowerCase().includes(searchLower) ||
           order.shoe?.name?.toLowerCase().includes(searchLower) ||
+          order.apparel?.name?.toLowerCase().includes(searchLower) ||
           order.customerPhone?.toLowerCase().includes(searchLower) ||
           order.customerEmail?.toLowerCase().includes(searchLower)
       )

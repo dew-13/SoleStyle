@@ -36,7 +36,7 @@ export async function GET(request) {
 
       // Calculate total revenue from actual orders
       const allOrders = await db.collection("orders").find({}).toArray()
-      const totalRevenue = allOrders.reduce((sum, order) => sum + (order.totalPrice || 0), 0)
+      const totalRevenue = allOrders.reduce((sum, order) => sum + (order.total || order.totalPrice || 0), 0)
 
       // Calculate monthly revenue (current month)
       const currentMonth = new Date()
@@ -50,7 +50,7 @@ export async function GET(request) {
         })
         .toArray()
 
-      const monthlyRevenue = monthlyOrders.reduce((sum, order) => sum + (order.totalPrice || 0), 0)
+      const monthlyRevenue = monthlyOrders.reduce((sum, order) => sum + (order.total || order.totalPrice || 0), 0)
 
       // Get recent orders with customer info
       const recentOrders = await Promise.all(
@@ -66,8 +66,8 @@ export async function GET(request) {
       // Calculate top selling shoes based on actual order data
       const ordersByShoe = {}
       allOrders.forEach((order) => {
-        const shoeId = order.shoe._id || order.shoe.id
-        if (shoeId) {
+        if (order.shoe && (order.shoe._id || order.shoe.id)) {
+          const shoeId = order.shoe._id || order.shoe.id
           if (!ordersByShoe[shoeId]) {
             ordersByShoe[shoeId] = {
               shoe: order.shoe,
@@ -76,7 +76,7 @@ export async function GET(request) {
             }
           }
           ordersByShoe[shoeId].orderCount += order.quantity || 1
-          ordersByShoe[shoeId].totalRevenue += order.totalPrice || 0
+          ordersByShoe[shoeId].totalRevenue += order.total || order.totalPrice || 0
         }
       })
 

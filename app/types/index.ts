@@ -99,7 +99,15 @@ export interface Order {
   quantity: number
   total: number
   totalPrice?: number
-  status: "pending" | "payment_received" | "installment_received" | "shipped" | "delivered" | "cancelled"
+  totalProfit?: number
+  items?: {
+    item: Shoe | Apparel
+    size: string
+    quantity: number
+    totalPrice: number
+    profit: number
+  }[]
+  status: "pending" | "payment_received" | "installment_received" | "shipped" | "delivered" | "cancelled" | "Pending Payments" | "Payment Received, Order Processing" | "Installment Received, Order Processing" | "Payments completed, Order Shipped" | "Order completed" | "Order Shipped with due payments"
   paymentMethod: "full" | "installments" | "cash"
   createdAt: string
   shippingAddress: {
