@@ -461,7 +461,7 @@ export default function ShopPage() {
               filteredShoes.map((shoe, index) => (
                 <Link href={`/product/${shoe._id}`} key={shoe._id} className="block group">
                   <motion.div
-                    className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative cursor-pointer"
+                    className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative cursor-pointer flex flex-col"
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -477,21 +477,19 @@ export default function ShopPage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                    <div className="p-4">
-                      <h3 className="text-lg h-14 font-semibold mb-1 text-white group-hover:text-yellow-400 transition-colors">
+                    <div className="p-4 flex flex-col flex-grow">
+                      <h3 className="text-lg h-14 font-semibold mb-1 text-white group-hover:text-yellow-400 transition-colors line-clamp-2">
                         {shoe.name}
                       </h3>
                       <p className="text-gray-400 text-sm mb-2">{shoe.brand}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-yellow-400">LKR {shoe.price.toLocaleString()}</span>
-                        <motion.button
-                          className="text-gray-600 px-3 py-1.5 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          View
-                        </motion.button>
-                      </div>
+                      <span className="font-bold text-yellow-400 block mb-2">LKR {shoe.price.toLocaleString()}</span>
+                      <motion.button
+                        className="mt-auto w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-2 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        View
+                      </motion.button>
                     </div>
                   </motion.div>
                 </Link>
@@ -501,7 +499,7 @@ export default function ShopPage() {
               filteredApparel.map((item, index) => (
                 <Link href={`/apparel/${item._id}`} key={item._id} className="block group">
                   <motion.div
-                    className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative cursor-pointer"
+                    className="bg-black border border-yellow-400/20 rounded-lg overflow-hidden hover:border-yellow-400/50 transition-all duration-300 group relative cursor-pointer flex flex-col"
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -517,28 +515,26 @@ export default function ShopPage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                    <div className="p-4">
-                      <h3 className="text-lg h-14 font-semibold mb-1 text-white group-hover:text-yellow-400 transition-colors">
+                    <div className="p-4 flex flex-col flex-grow">
+                      <h3 className="text-lg h-14 font-semibold mb-1 text-white group-hover:text-yellow-400 transition-colors line-clamp-2">
                         {item.name}
                       </h3>
                       <p className="text-gray-400 text-sm mb-2">{item.brand}</p>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-bold text-yellow-400">LKR {item.price.toLocaleString()}</span>
-                        <div className="flex flex-wrap gap-1">
-                          {(item.sizes || []).slice(0, 3).map((size) => (
-                            <span key={size} className="px-1.5 py-0.5 bg-gray-800 text-xs rounded">
-                              {size}
-                            </span>
-                          ))}
-                          {(item.sizes || []).length > 3 && (
-                            <span className="px-1.5 py-0.5 bg-gray-800 text-xs rounded">
-                              +{(item.sizes || []).length - 3}
-                            </span>
-                          )}
-                        </div>
+                      <span className="font-bold text-yellow-400 block mb-2">LKR {item.price.toLocaleString()}</span>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {(item.sizes || []).slice(0, 3).map((size) => (
+                          <span key={size} className="px-1.5 py-0.5 bg-gray-800 text-xs rounded">
+                            {size}
+                          </span>
+                        ))}
+                        {(item.sizes || []).length > 3 && (
+                          <span className="px-1.5 py-0.5 bg-gray-800 text-xs rounded">
+                            +{(item.sizes || []).length - 3}
+                          </span>
+                        )}
                       </div>
                       <motion.button
-                        className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-2 px-4 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
+                        className="mt-auto w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-2 px-4 rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
