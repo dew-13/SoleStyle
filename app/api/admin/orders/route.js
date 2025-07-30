@@ -29,11 +29,30 @@ export async function GET(request) {
     const enrichedOrders = await Promise.all(
       orders.map(async (order) => {
         const customer = await db.collection("users").findOne({ _id: order.userId })
+        
+        // Calculate total price and profit
+        let totalPrice = 0
+        let totalProfit = 0
+
+        if (order.items && Array.isArray(order.items)) {
+          totalPrice = order.items.reduce((sum, item) => sum + (item.totalPrice || 0), 0)
+          totalProfit = order.items.reduce((sum, item) => sum + (item.profit || 0), 0)
+        } else if (order.shoe) {
+          totalPrice = (order.shoe.price || 0) * (order.quantity || 1)
+          totalProfit = (order.shoe.profit || 0) * (order.quantity || 1)
+        } else if (order.apparel) {
+          totalPrice = (order.apparel.price || 0) * (order.quantity || 1)
+          totalProfit = (order.apparel.profit || 0) * (order.quantity || 1)
+        }
+
         return {
           ...order,
-          orderId: order._id.toString().slice(-8).toUpperCase(),
+          orderId: order.orderId || order._id.toString().slice(-8).toUpperCase(),
           customerName: customer ? `${customer.firstName} ${customer.lastName}` : "Unknown",
-          customerContact: customer ? customer.email : "Unknown",
+          customerPhone: customer ? customer.phone : "N/A",
+          customerEmail: customer ? customer.email : "N/A",
+          totalPrice,
+          totalProfit,
         }
       }),
     )

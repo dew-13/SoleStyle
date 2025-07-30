@@ -107,7 +107,7 @@ export interface Order {
     totalPrice: number
     profit: number
   }[]
-  status: "pending" | "payment_received" | "installment_received" | "shipped" | "delivered" | "cancelled" | "Pending Payments" | "Payment Received, Order Processing" | "Installment Received, Order Processing" | "Payments completed, Order Shipped" | "Order completed" | "Order Shipped with due payments"
+  status: "pending" | "payment_received" | "installment_received" | "shipped" | "delivered" | "cancelled"
   paymentMethod: "full" | "installments" | "cash"
   createdAt: string
   shippingAddress: {

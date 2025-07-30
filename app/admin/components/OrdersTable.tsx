@@ -35,23 +35,12 @@ export default function OrdersTable() {
 
   // Helper function to get order total with fallback
   const getOrderTotal = (order: Order): number => {
-    // New multi-item orders
-    if (order.items && Array.isArray(order.items)) {
-      return order.totalPrice || order.items.reduce((sum, item) => sum + (item.totalPrice || 0), 0)
-    }
-    // Legacy single-item orders
-    return order.total || order.totalPrice || ((order.shoe?.price || 0) * order.quantity) || 0
+    return order.totalPrice || 0
   }
 
   // Helper function to get order profit
   const getOrderProfit = (order: Order): number => {
-    // New multi-item orders
-    if (order.items && Array.isArray(order.items)) {
-      return order.totalProfit || order.items.reduce((sum, item) => sum + (item.profit || 0), 0)
-    }
-    // Legacy single-item orders
-    const profit = order.shoe?.profit || order.apparel?.profit || 0
-    return profit * order.quantity
+    return order.totalProfit || 0
   }
 
   // Helper function to get order display name(s)
@@ -86,126 +75,12 @@ export default function OrdersTable() {
 
       if (response.ok) {
         const data: Order[] = await response.json()
-        const ordersWithTotals = data.map((order) => ({
-          ...order,
-          total: getOrderTotal(order),
-        }))
-        setOrders(ordersWithTotals || [])
-        setFilteredOrders(ordersWithTotals || [])
+        setOrders(data || [])
+        setFilteredOrders(data || [])
       } else {
-        // Fallback data with proper totals and profit
-        const fallbackOrders: Order[] = [
-          {
-            _id: "1",
-            userId: "user1",
-            shoeId: "shoe1",
-            orderId: "OG001234",
-            customerName: "John Doe",
-            customerPhone: "+94-77-123-4567",
-            customerEmail: "john.doe@example.com",
-            shoe: {
-              _id: "shoe1",
-              name: "Air Jordan 1 Retro High",
-              brand: "Nike",
-              price: 28500,
-              profit: 8500,
-              retailPrice: 20000,
-              description: "Classic basketball shoe",
-              image: "/placeholder.svg?height=400&width=400",
-              sizes: ["8", "9", "10", "11"],
-              featured: true,
-              createdAt: new Date().toISOString(),
-            },
-            size: "10",
-            quantity: 1,
-            total: 28500,
-            totalPrice: 28500,
-            status: "pending",
-            paymentMethod: "full",
-            createdAt: new Date().toISOString(),
-            shippingAddress: {
-              street: "123 Main St",
-              city: "Colombo",
-              state: "Western",
-              zipCode: "00100",
-              country: "Sri Lanka",
-            },
-          },
-          {
-            _id: "2",
-            userId: "user2",
-            shoeId: "shoe2",
-            orderId: "OG001235",
-            customerName: "Jane Smith",
-            customerPhone: "+94-77-234-5678",
-            customerEmail: "jane.smith@example.com",
-            shoe: {
-              _id: "shoe2",
-              name: "Yeezy Boost 350 V2",
-              brand: "Adidas",
-              price: 36800,
-              profit: 12800,
-              retailPrice: 24000,
-              description: "Modern lifestyle sneaker",
-              image: "/placeholder.svg?height=400&width=400",
-              sizes: ["7", "8", "8.5", "9"],
-              featured: true,
-              createdAt: new Date().toISOString(),
-            },
-            size: "8.5",
-            quantity: 1,
-            total: 36800,
-            totalPrice: 36800,
-            status: "payment_received",
-            paymentMethod: "full",
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-            shippingAddress: {
-              street: "456 Elm St",
-              city: "Kandy",
-              state: "Central",
-              zipCode: "20000",
-              country: "Sri Lanka",
-            },
-          },
-          {
-            _id: "3",
-            userId: "user3",
-            shoeId: "shoe3",
-            orderId: "OG001236",
-            customerName: "Mike Johnson",
-            customerPhone: "+94-77-345-6789",
-            customerEmail: "mike.johnson@example.com",
-            shoe: {
-              _id: "shoe3",
-              name: "Chuck 70 High Top",
-              brand: "Converse",
-              price: 22500,
-              profit: 7500,
-              retailPrice: 15000,
-              description: "Classic canvas sneaker",
-              image: "/placeholder.svg?height=400&width=400",
-              sizes: ["8", "9", "10", "11"],
-              featured: false,
-              createdAt: new Date().toISOString(),
-            },
-            size: "9",
-            quantity: 2,
-            total: 45000,
-            totalPrice: 45000,
-            status: "shipped",
-            paymentMethod: "full",
-            createdAt: new Date(Date.now() - 172800000).toISOString(),
-            shippingAddress: {
-              street: "789 Oak St",
-              city: "Galle",
-              state: "Southern",
-              zipCode: "80000",
-              country: "Sri Lanka",
-            },
-          },
-        ]
-        setOrders(fallbackOrders)
-        setFilteredOrders(fallbackOrders)
+        console.error("Failed to fetch orders")
+        setOrders([])
+        setFilteredOrders([])
       }
     } catch (error) {
       console.error("Error fetching orders:", error)
@@ -653,7 +528,9 @@ export default function OrdersTable() {
               <div key={order._id} className="bg-black border border-yellow-400/20 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-mono text-xs font-medium text-yellow-400">{order.orderId || order._id}</span>
-                  <span className="px-2 py-1 rounded-full text-xs font-semibold bg-gray-800 text-gray-400">{order.status}</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                    {getStatusLabel(order.status)}
+                  </span>
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs text-gray-400 mb-2">
                   <span>Customer: {order.customerName || "N/A"}</span>
