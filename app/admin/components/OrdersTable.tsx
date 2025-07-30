@@ -45,9 +45,9 @@ export default function OrdersTable() {
   // Helper function to get order display name(s)
   const getOrderDisplayName = (order: Order): string => {
     // New multi-item orders
-    if (order.items && Array.isArray(order.items)) {
+    if (order.items && Array.isArray(order.items) && order.items.length > 0) {
       if (order.items.length === 1) {
-        return order.items[0].item.name
+        return order.items[0]?.item?.name || "Unknown Item"
       }
       return `${order.items.length} items`
     }
@@ -58,8 +58,8 @@ export default function OrdersTable() {
   // Helper function to get order display image
   const getOrderDisplayImage = (order: Order): string => {
     // New multi-item orders
-    if (order.items && Array.isArray(order.items)) {
-      return order.items[0]?.item.image || "/placeholder.svg"
+    if (order.items && Array.isArray(order.items) && order.items.length > 0) {
+      return order.items[0]?.item?.image || "/placeholder.svg"
     }
     // Legacy single-item orders
     return order.shoe?.image || order.apparel?.image || "/placeholder.svg"
@@ -433,8 +433,8 @@ export default function OrdersTable() {
                         <div>
                         <p className="font-medium">{getOrderDisplayName(order)}</p>
                       <p className="text-sm text-gray-400">
-                          {order.items && Array.isArray(order.items) 
-                            ? order.items[0]?.item.brand || "Multiple brands"
+                          {order.items && Array.isArray(order.items) && order.items.length > 0
+                            ? order.items[0]?.item?.brand || "Multiple brands"
                           : order.shoe?.brand || order.apparel?.brand || "N/A"}
                         </p>
                         </div>
@@ -640,10 +640,10 @@ export default function OrdersTable() {
                   selectedOrder.items.map((item, index) => (
                            <div key={index} className="border-b border-gray-700 pb-2 mb-2 last:border-b-0 last:pb-0 last:mb-0">
                              <p>
-                               <span className="text-gray-400">Product {index + 1}:</span> {item.item.name}
+                               <span className="text-gray-400">Product {index + 1}:</span> {item.item?.name || "N/A"}
                              </p>
                              <p>
-                               <span className="text-gray-400">Brand:</span> {item.item.brand}
+                               <span className="text-gray-400">Brand:</span> {item.item?.brand || "N/A"}
                              </p>
                              <p>
                                <span className="text-gray-400">Size:</span> {item.size}
