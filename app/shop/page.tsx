@@ -451,7 +451,7 @@ export default function ShopPage() {
 
           {/* Products Grid */}
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-16"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}

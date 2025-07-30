@@ -143,7 +143,7 @@ export default function FeaturedApparel() {
               <span className="circle" aria-hidden="true">
                 <span className="icon arrow"></span>
               </span>
-              <span className="button-text">Shop Now</span>
+              <span className="button-text">View All Designs</span>
             </button>
           </Link>
         </motion.div>
