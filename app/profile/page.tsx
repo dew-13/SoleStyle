@@ -41,6 +41,10 @@ export default function ProfilePage() {
   }, [searchParams])
 
   useEffect(() => {
+    console.log("Orders state updated:", orders)
+  }, [orders])
+
+  useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token")
@@ -98,79 +102,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Error fetching orders:", error)
-      // Fallback data for demonstration
-      setOrders([
-        {
-          _id: "1",
-          userId: "user1",
-          shoeId: "shoe1",
-          orderId: "OG001234",
-          customerName: "John Doe",
-          customerPhone: "+94771234567",
-          customerEmail: "john@example.com",
-          shoe: {
-            _id: "shoe1",
-            name: "Air Jordan 1 Retro High Premium",
-            brand: "Nike",
-            price: 51000,
-            description: "Classic basketball shoe",
-            image: "/placeholder.svg",
-            sizes: ["9", "10", "11"],
-            featured: true,
-            createdAt: new Date().toISOString(),
-            profit: 0,
-            retailPrice: 0
-          },
-          size: "10",
-          quantity: 1,
-          total: 51000,
-          status: "pending",
-          paymentMethod: "full",
-          createdAt: new Date().toISOString(),
-          shippingAddress: {
-            street: "123 Main St",
-            city: "Colombo",
-            state: "Western",
-            zipCode: "00100",
-            country: "Sri Lanka",
-          },
-        },
-        {
-          _id: "2",
-          userId: "user1",
-          shoeId: "shoe2",
-          orderId: "OG001235",
-          customerName: "John Doe",
-          customerPhone: "+14376611999",
-          customerEmail: "john@example.com",
-          shoe: {
-            _id: "shoe2",
-            name: "Yeezy Boost 350 V2 Static",
-            brand: "Adidas",
-            price: 66000,
-            description: "Modern lifestyle sneaker",
-            image: "/placeholder.svg",
-            sizes: ["9", "9.5", "10"],
-            featured: true,
-            createdAt: new Date().toISOString(),
-            profit: 0,
-            retailPrice: 0
-          },
-          size: "9.5",
-          quantity: 1,
-          total: 66000,
-          status: "payment_received",
-          paymentMethod: "installments",
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-          shippingAddress: {
-            street: "123 Main St",
-            city: "Colombo",
-            state: "Western",
-            zipCode: "00100",
-            country: "Sri Lanka",
-          },
-        },
-      ])
+      toast.error("Could not fetch order history.")
     }
   }
 
@@ -186,47 +118,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Error fetching wishlist:", error)
-      // Fallback data for demonstration
-      setWishlist([
-        {
-          _id: "1",
-          userId: "user1",
-          shoeId: "shoe1",
-          shoe: {
-            _id: "shoe1",
-            name: "Air Max 270 Premium Edition",
-            brand: "Nike",
-            price: 45000,
-            description: "Comfortable running shoe",
-            image: "/placeholder.svg?height=200&width=300",
-            sizes: ["8", "9", "10"],
-            featured: false,
-            createdAt: new Date().toISOString(),
-            profit: 0,
-            retailPrice: 0
-          },
-          createdAt: new Date().toISOString(),
-        },
-        {
-          _id: "2",
-          userId: "user1",
-          shoeId: "shoe2",
-          shoe: {
-            _id: "shoe2",
-            name: "Ultra Boost 22 Performance",
-            brand: "Adidas",
-            price: 54000,
-            description: "Premium running shoe",
-            image: "/placeholder.svg?height=200&width=300",
-            sizes: ["8", "9", "10"],
-            featured: false,
-            createdAt: new Date().toISOString(),
-            profit: 0,
-            retailPrice: 0
-          },
-          createdAt: new Date().toISOString(),
-        },
-      ])
+      toast.error("Could not fetch wishlist.")
     }
   }
 
@@ -495,7 +387,7 @@ export default function ProfilePage() {
                           </div>
                           <div className="text-right">
                             <p className="text-yellow-400 font-bold text-xl">
-                              LKR {(order.totalPrice || 0).toLocaleString()}
+                              LKR {(order.totalPrice || order.total || 0).toLocaleString()}
                             </p>
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
