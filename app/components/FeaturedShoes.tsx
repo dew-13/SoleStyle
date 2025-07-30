@@ -68,7 +68,7 @@ export default function FeaturedShoes() {
           <p className="text-gray-400 text-lg">Discover our handpicked selection authentic shoes</p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {featuredShoes.map((shoe, index) => (
             <div className="card" key={shoe._id}>
               <div className="card2">
@@ -79,7 +79,7 @@ export default function FeaturedShoes() {
                 >
                   {/* Product Image */}
                   <Link href={`/product/${shoe._id}`}>
-                    <div className="aspect-square relative overflow-hidden rounded-2xl">
+                    <div className="aspect-square relative overflow-hidden rounded-2xl group">
                       <div className="card-blur">
                         <Image
                           src={shoe.image || "/placeholder.svg"}
@@ -89,21 +89,21 @@ export default function FeaturedShoes() {
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 rounded-2xl" />
                       </div>
-                      <button className="card-button bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-2 px-0 min-w-0 w-auto rounded-lg font-semibold text-sm hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 text-center whitespace-nowrap">
+                      <button className="card-button bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-1.5 px-4 rounded-lg font-semibold text-xs hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 text-center whitespace-nowrap">
                         More Info
                       </button>
                     </div>
                   </Link>
                   {/* Product Info */}
-                  <div className="p-4">
-                    <div className="mb-2">
-                      <h3 className="font-semibold text-sm sm:text-base mb-1 line-clamp-2 group-hover:text-yellow-400 transition-colors">
+                  <div className="p-3">
+                    <div className="mb-1.5">
+                      <h3 className="font-semibold text-xs sm:text-sm mb-0.5 line-clamp-2 group-hover:text-yellow-400 transition-colors">
                         {shoe.name}
                       </h3>
-                      <p className="text-gray-400 text-xs sm:text-sm">{shoe.brand}</p>
+                      <p className="text-gray-400 text-xs">{shoe.brand}</p>
                     </div>
                     <div className="flex items-center justify-between relative">
-                      <span className="text-yellow-400 font-bold text-sm sm:text-base">
+                      <span className="text-yellow-400 font-bold text-xs sm:text-sm">
                         LKR {shoe.price?.toLocaleString()}
                       </span>
                     </div>
