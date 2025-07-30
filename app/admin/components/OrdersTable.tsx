@@ -24,18 +24,17 @@ export default function OrdersTable() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   const orderStatuses: OrderStatus[] = [
-    { value: "Pending Payments", label: "No Payments Received" },
-    { value: "Payment Received, Order Processing", label: "Full Payment Received" },
-    { value: "Installment Received, Order Processing", label: "Installment Received, Pending Installments" },
-    { value: "Payments completed, Order Shipped", label: "Payments Done,Shipped" },
-    { value: "Order completed", label: "Payments Done, Delivered" },
-    { value: "Order Shipped with due payments", label: "Balance Due,Shipped" },
-    { value: "cancelled", label: "Order Cancelled" },
+    { value: "pending", label: "Pending" },
+    { value: "payment_received", label: "Payment Received" },
+    { value: "installment_received", label: "Installment Received" },
+    { value: "shipped", label: "Shipped" },
+    { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
   ]
 
   // Helper function to get order total with fallback
   const getOrderTotal = (order: Order): number => {
-    return order.totalPrice || 0
+    return order.totalPrice || order.total || 0
   }
 
   // Helper function to get order profit
@@ -444,7 +443,7 @@ export default function OrdersTable() {
                        <td className="py-4 px-4">
                          <div className="text-sm">
                            {order.items && Array.isArray(order.items) ? (
-                             order.items.length === 1 ? (
+                             order.items.length === 1 && order.items[0] ? (
                                <>
                                  <p>Size: <span className="font-medium">{order.items[0].size || "N/A"}</span></p>
                                  <p>Qty: <span className="font-medium">{order.items[0].quantity || 0}</span></p>
@@ -537,7 +536,7 @@ export default function OrdersTable() {
                   <span>Phone: {order.customerPhone || "N/A"}</span>
                   <span>Product: {getOrderDisplayName(order)}</span>
                   {order.items && Array.isArray(order.items) ? (
-                    order.items.length === 1 ? (
+                    order.items.length === 1 && order.items[0] ? (
                         <>
                           <span>Size: {order.items[0].size}</span>
                         <span>Qty: {order.items[0].quantity}</span>
