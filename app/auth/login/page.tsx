@@ -8,9 +8,11 @@ import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { LoginFormData } from "app/types"
+import { useCart } from "app/context/CartContext"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { cartItems } = useCart()
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
@@ -18,6 +20,38 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string>("")
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
+  const [message, setMessage] = useState("")
+
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+    setMessage("")
+
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: formData.email }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessage(data.message)
+      } else {
+        setError(data.message || "Failed to send reset link")
+      }
+    } catch (error) {
+      console.error("Forgot password error:", error)
+      setError("An error occurred. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -46,10 +80,11 @@ export default function LoginPage() {
         // Store token in localStorage
         localStorage.setItem("token", data.token)
 
-        // Check if there are order details to redirect to order confirmation
+        // Check if the user was redirected from the checkout page
         const orderDetails = localStorage.getItem("orderDetails")
         if (orderDetails) {
-          router.push("/order-confirmation")
+          localStorage.removeItem("orderDetails") // Clean up the flag
+          router.push("/checkout")
         } else {
           router.push("/")
         }
@@ -83,6 +118,7 @@ export default function LoginPage() {
         </motion.div>
 
         {/* Login Form */}
+        {!isForgotPassword && (
         <motion.div
           className="bg-black border border-yellow-400/20 rounded-lg p-8"
           initial={{ opacity: 0, y: 50 }}
@@ -129,9 +165,21 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2">
-                Password
-              </label>
+              <div className="flex justify-between items-center">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-sm text-yellow-400 hover:text-yellow-300"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -148,7 +196,11 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -169,12 +221,84 @@ export default function LoginPage() {
           <div className="text-center mt-6">
             <p className="text-gray-400">
               Don't have an account?{" "}
-              <Link href="/auth/signup" className="text-yellow-400 hover:text-yellow-300 transition-colors">
+              <Link
+                href="/auth/signup"
+                className="text-yellow-400 hover:text-yellow-300 transition-colors"
+              >
                 Sign up here
               </Link>
             </p>
           </div>
         </motion.div>
+        )}
+
+      {isForgotPassword && (
+        <motion.div
+          className="bg-black border border-yellow-400/20 rounded-lg p-8"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+              Reset Password
+            </h1>
+            <p className="text-gray-400">
+              Enter your email to reset your password
+            </p>
+          </div>
+
+          {message && (
+            <motion.div
+              className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 mb-6"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              <p className="text-green-400 text-sm">{message}</p>
+            </motion.div>
+          )}
+
+          <form onSubmit={handleForgotPassword} className="space-y-6">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium mb-2"
+              >
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-black border border-yellow-400/20 rounded-lg focus:border-yellow-400 focus:outline-none transition-colors"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <motion.button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
+            >
+              {loading ? "Sending..." : "Send Reset Link"}
+            </motion.button>
+          </form>
+
+          <div className="text-center mt-6">
+            <button
+              onClick={() => setIsForgotPassword(false)}
+              className="text-yellow-400 hover:text-yellow-300 transition-colors"
+            >
+              Back to Login
+            </button>
+          </div>
+        </motion.div>
+      )}
       </div>
     </div>
   )

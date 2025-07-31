@@ -28,13 +28,17 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<string>("full")
   const [loading, setLoading] = useState<boolean>(false)
   const [orderPlaced, setOrderPlaced] = useState<boolean>(false)
-  const { clearCart } = useCart()
+  const { cartItems, clearCart } = useCart()
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token")
         if (!token) {
+          localStorage.setItem(
+            "orderDetails",
+            JSON.stringify({ fromCheckout: true })
+          )
           router.push("/auth/login")
           return
         }
@@ -45,10 +49,11 @@ export default function CheckoutPage() {
         if (response.ok) {
           const userData = await response.json()
           setUser(userData)
-          // Pre-fill shipping address if user has saved address
           if (userData.address) {
             setShippingAddress({
-              fullName: `${userData.firstName || ""} ${userData.lastName || ""}`.trim(),
+              fullName: `${userData.firstName || ""} ${
+                userData.lastName || ""
+              }`.trim(),
               address: userData.address.street || "",
               city: userData.address.city || "",
               state: userData.address.state || "",
@@ -65,21 +70,36 @@ export default function CheckoutPage() {
       }
     }
 
-    // Get checkout items from localStorage
-    const storedCheckoutItems = localStorage.getItem("checkoutItems")
-    if (storedCheckoutItems) {
-      try {
-        setCheckoutItems(JSON.parse(storedCheckoutItems))
-      } catch (error) {
-        console.error("Error parsing checkout items:", error)
-        router.push("/cart")
+    const loadCheckoutItems = () => {
+      // Prioritize items from CartContext
+      if (cartItems.length > 0) {
+        setCheckoutItems(cartItems)
+        // Persist to localStorage in case of page refresh
+        localStorage.setItem("checkoutItems", JSON.stringify(cartItems))
+      } else {
+        // Fallback to localStorage if context is empty
+        const storedCheckoutItems = localStorage.getItem("checkoutItems")
+        if (storedCheckoutItems) {
+          try {
+            const parsedItems = JSON.parse(storedCheckoutItems)
+            if (parsedItems.length > 0) {
+              setCheckoutItems(parsedItems)
+            } else {
+              router.push("/cart")
+            }
+          } catch (error) {
+            console.error("Error parsing checkout items:", error)
+            router.push("/cart")
+          }
+        } else {
+          router.push("/cart")
+        }
       }
-    } else {
-      router.push("/cart")
     }
 
     checkAuth()
-  }, [router])
+    loadCheckoutItems()
+  }, [router, cartItems])
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShippingAddress({
@@ -133,7 +153,7 @@ export default function CheckoutPage() {
 
       // Create a single order with multiple items
       const orderItems = checkoutItems.map((item) => {
-        const orderItem = {
+        const orderItem: any = {
           size: item.size,
           quantity: item.quantity,
           retailPrice: item.retailPrice,

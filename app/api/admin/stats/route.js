@@ -34,9 +34,17 @@ export async function GET(request) {
         db.collection("apparel").countDocuments(),
       ])
 
-      // Calculate total revenue from actual orders
+      // Calculate total revenue and profit from actual orders
       const allOrders = await db.collection("orders").find({}).toArray()
       const totalRevenue = allOrders.reduce((sum, order) => sum + (order.total || order.totalPrice || 0), 0)
+      const totalProfit = allOrders.reduce((sum, order) => {
+        if (order.items && Array.isArray(order.items)) {
+          const itemsProfit = order.items.reduce((itemSum, item) => itemSum + (item.profit || 0) * item.quantity, 0)
+          return sum + itemsProfit
+        }
+        // Fallback for legacy orders
+        return sum + (order.totalProfit || 0)
+      }, 0)
 
       // Calculate monthly revenue (current month)
       const currentMonth = new Date()
@@ -98,6 +106,7 @@ export async function GET(request) {
         totalOrders,
         totalUsers,
         totalRevenue,
+        totalProfit,
         monthlyRevenue,
         featuredShoes: featuredShoesCount,
         totalApparel,

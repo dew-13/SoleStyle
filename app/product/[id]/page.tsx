@@ -89,12 +89,16 @@ export default function ProductPage() {
 
     const cartItem: CartItem = {
       id: shoe._id,
+      _id: shoe._id,
       name: shoe.name,
       brand: shoe.brand,
       price: shoe.price,
+      retailPrice: shoe.retailPrice,
+      profit: shoe.profit,
       image: shoe.image,
       size: selectedSize,
       quantity: quantity,
+      type: "shoe",
     }
 
     addToCart(cartItem)

@@ -43,7 +43,17 @@ export default function CartPage() {
   }
 
   const proceedToCheckout = () => {
+    if (cartItems.length === 0) {
+      toast.error("Your cart is empty")
+      return
+    }
+
+    // Store cart items in localStorage to persist them through login
+    localStorage.setItem("checkoutItems", JSON.stringify(cartItems))
+
     if (!user) {
+      // Set a flag to indicate redirection from checkout
+      localStorage.setItem("orderDetails", JSON.stringify({ fromCheckout: true }))
       toast.error("Please login to proceed with checkout")
       setTimeout(() => {
         window.location.href = "/auth/login"
@@ -51,13 +61,6 @@ export default function CartPage() {
       return
     }
 
-    if (cartItems.length === 0) {
-      toast.error("Your cart is empty")
-      return
-    }
-
-    // Store cart details and redirect to checkout
-    localStorage.setItem("checkoutItems", JSON.stringify(cartItems))
     toast.success("Proceeding to checkout...")
     setTimeout(() => {
       window.location.href = "/checkout"

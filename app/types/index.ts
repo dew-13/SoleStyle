@@ -74,6 +74,7 @@ export interface Apparel {
 
 export interface CartItem {
   id: string
+  _id: string
   name: string
   brand: string
   price: number
@@ -82,6 +83,7 @@ export interface CartItem {
   image: string
   size: string
   quantity: number
+  type: "shoe" | "apparel"
 }
 
 export interface Order {

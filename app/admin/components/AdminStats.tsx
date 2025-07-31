@@ -16,8 +16,12 @@ export default function AdminStatsComponent() {
 
   // Helper function to get order profit
   const getOrderProfit = (order: Order): number => {
-    const profit = order.shoe?.profit || 0
-    return profit * order.quantity
+    if (order.items && Array.isArray(order.items) && order.items.length > 0) {
+      return order.items.reduce((total, item) => total + (item.profit || 0) * item.quantity, 0)
+    }
+    // Fallback for legacy single-item orders
+    const profit = order.shoe?.profit || order.apparel?.profit || 0
+    return profit * (order.quantity || 1)
   }
 
   useEffect(() => {
@@ -290,10 +294,8 @@ export default function AdminStatsComponent() {
 
   // Calculate total profit from recent orders
   const calculateTotalProfit = (): number => {
-    if (!stats?.recentOrders) return 0
-    return stats.recentOrders.reduce((total: number, order: Order) => {
-      return total + getOrderProfit(order)
-    }, 0)
+    if (!stats?.totalProfit) return 0
+    return stats.totalProfit
   }
 
   if (loading) {
@@ -340,19 +342,19 @@ export default function AdminStatsComponent() {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
         <motion.div
           className="bg-black border border-yellow-400/20 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Total Shoes</p>
-              <p className="text-2xl font-bold text-yellow-400">{stats.totalShoes}</p>
+              <p className="text-sm text-gray-400">Total Apparel</p>
+              <p className="text-2xl font-bold text-pink-400">{stats.totalApparel}</p>
             </div>
-            <Package className="w-8 h-8 text-yellow-400" />
+            <Shirt className="w-8 h-8 text-pink-400" />
           </div>
         </motion.div>
 
@@ -401,20 +403,6 @@ export default function AdminStatsComponent() {
           </div>
         </motion.div>
 
-        <motion.div
-          className="bg-black border border-yellow-400/20 rounded-lg p-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-400">Total Profit</p>
-              <p className="text-2xl font-bold text-emerald-400">LKR {calculateTotalProfit().toLocaleString()}</p>
-            </div>
-            <BarChart3 className="w-8 h-8 text-emerald-400" />
-          </div>
-        </motion.div>
 
         <motion.div
           className="bg-black border border-yellow-400/20 rounded-lg p-6"
@@ -424,7 +412,7 @@ export default function AdminStatsComponent() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Total Apparel Items</p>
+              <p className="text-sm text-gray-400">Total Apparel</p>
               <p className="text-2xl font-bold text-pink-400">{stats.totalApparel}</p>
             </div>
             <Shirt className="w-8 h-8 text-pink-400" />

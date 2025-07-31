@@ -74,10 +74,13 @@ export default function ApparelPage() {
     }
 
     const cartItem: CartItem = {
+      id: apparel._id,
       _id: apparel._id,
       name: apparel.name,
       brand: apparel.brand,
       price: apparel.price,
+      retailPrice: apparel.retailPrice || 0,
+      profit: apparel.profit || 0,
       image: apparel.image,
       size: selectedSize,
       quantity,
@@ -236,4 +239,4 @@ export default function ApparelPage() {
       <Footer />
     </div>
   )
-} 
+}
