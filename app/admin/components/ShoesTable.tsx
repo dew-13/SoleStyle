@@ -134,6 +134,9 @@ export default function ShoesTable() {
 
     try {
       const token = localStorage.getItem("token")
+      const retail = Number(editingShoe.retailPrice) || 0
+      const profit = Number(editingShoe.profit) || 0
+      const price = retail + profit
       const response = await fetch(`/api/admin/shoes/${editingShoe._id}`, {
         method: "PATCH",
         headers: {
@@ -143,9 +146,9 @@ export default function ShoesTable() {
         body: JSON.stringify({
           name: editingShoe.name,
           brand: editingShoe.brand,
-          retailPrice: editingShoe.retailPrice,
-          profit: editingShoe.profit,
-          price: editingShoe.price,
+          retailPrice: retail,
+          profit: profit,
+          price: price,
           description: editingShoe.description,
           image: editingShoe.image,
           images: editingShoe.images,

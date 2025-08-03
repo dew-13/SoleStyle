@@ -33,9 +33,16 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ message: "No token provided" }, { status: 401 })
     }
 
-    // Verify token (do NOT check isAdmin here)
+    // Verify token and check if user is an admin
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     if (!decoded || !decoded.userId) {
+      return NextResponse.json({ message: "Access denied" }, { status: 403 })
+    }
+
+    const { db: adminDb } = await connectToDatabase()
+    const user = await adminDb.collection("users").findOne({ _id: new ObjectId(decoded.userId) })
+
+    if (!user || !user.isAdmin) {
       return NextResponse.json({ message: "Access denied" }, { status: 403 })
     }
 
@@ -73,9 +80,16 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ message: "No token provided" }, { status: 401 })
     }
 
-    // Verify token (do NOT check isAdmin here)
+    // Verify token and check if user is an admin
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     if (!decoded || !decoded.userId) {
+      return NextResponse.json({ message: "Access denied" }, { status: 403 })
+    }
+
+    const { db: adminDb } = await connectToDatabase()
+    const user = await adminDb.collection("users").findOne({ _id: new ObjectId(decoded.userId) })
+
+    if (!user || !user.isAdmin) {
       return NextResponse.json({ message: "Access denied" }, { status: 403 })
     }
 

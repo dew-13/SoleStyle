@@ -48,18 +48,10 @@ export async function PATCH(request, { params }) {
     const updateData = await request.json()
     delete updateData._id
 
-    // Update apparel exactly like shoes: spread all fields, set price as number, set updatedAt
-    const updateFields = {
-      ...updateData,
-      price: Number.parseFloat(updateData.price),
-      updatedAt: new Date(),
-    }
-
-    const result = await db.collection("apparel").findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      { $set: updateFields },
-      { returnDocument: "after" }
-    )
+    // Update apparel
+    const result = await db
+      .collection("apparel")
+      .findOneAndUpdate({ _id: new ObjectId(id) }, { $set: updateData }, { returnDocument: "after" })
 
     if (!result.value) {
       return NextResponse.json({ message: "Apparel not found" }, { status: 404 })
@@ -98,4 +90,4 @@ export async function DELETE(request, { params }) {
     console.error("Error deleting apparel:", error)
     return NextResponse.json({ message: "Internal server error" }, { status: 500 })
   }
-} 
+}

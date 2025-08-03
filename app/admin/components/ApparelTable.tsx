@@ -621,4 +621,4 @@ export default function ApparelTable() {
       </AnimatePresence>
     </>
   )
-} 
+}

@@ -64,6 +64,7 @@ export interface Apparel {
   sizes: string[]
   description: string
   featured: boolean
+  hidden?: boolean
   createdAt: string
   rating?: number
   reviews?: number
