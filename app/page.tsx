@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import Header from "./components/Header"
 import FeaturedShoes from "./components/FeaturedShoes"
 import FeaturedApparel from "./components/FeaturedApparel"
-import PopularBrands from "./components/PopularBrands"
+import CustomerConfidence from "./components/CustomerConfidence"
 import Footer from "./components/Footer"
 import { User } from "./types"
 
@@ -129,8 +129,8 @@ export default function HomePage() {
       {/* Featured Apparel Section */}
       <FeaturedApparel />
 
-      {/* Popular Brands Section */}
-      <PopularBrands />
+      {/* Customer Confidence Section */}
+      <CustomerConfidence />
 
       <Footer />
     </div>

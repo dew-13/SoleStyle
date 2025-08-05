@@ -2,6 +2,35 @@ import { NextResponse } from "next/server"
 import jwt from "jsonwebtoken"
 import { connectToDatabase } from "../../../lib/mongodb"
 import { ObjectId } from "mongodb"
+import { transporter, mailOptions } from "../../../lib/nodemailer"
+
+const sendNewOrderNotification = async (order) => {
+  const { orderId, totalPrice, customerName, items } = order;
+
+  const itemsList = items.map(item => 
+    `<li>${item.item.name} (x${item.quantity}) - ${item.totalPrice}</li>`
+  ).join('');
+
+  try {
+    await transporter.sendMail({
+      ...mailOptions,
+      subject: `New Order Received: ${orderId}`,
+      html: `
+        <h1>New Order Received!</h1>
+        <p><strong>Order ID:</strong> ${orderId}</p>
+        <p><strong>Customer:</strong> ${customerName}</p>
+        <p><strong>Total:</strong> ${totalPrice}</p>
+        <p><strong>Items:</strong></p>
+        <ul>
+          ${itemsList}
+        </ul>
+      `,
+    });
+    console.log("New order notification sent successfully.");
+  } catch (error) {
+    console.error("Error sending new order notification:", error);
+  }
+};
 
 export async function POST(request) {
   try {
@@ -138,6 +167,9 @@ export async function POST(request) {
 
       const result = await db.collection("orders").insertOne(order)
 
+      // Send notification
+      await sendNewOrderNotification(order);
+
       return NextResponse.json({
         message: "Order created successfully",
         orderId: order.orderId,
@@ -229,6 +261,17 @@ export async function POST(request) {
     }
 
     const result = await db.collection("orders").insertOne(order)
+
+    // Send notification for legacy orders
+    const notificationOrder = {
+      ...order,
+      items: [{
+        item: { name: order[itemType].name },
+        quantity: order.quantity,
+        totalPrice: order.totalPrice,
+      }],
+    };
+    await sendNewOrderNotification(notificationOrder);
 
     return NextResponse.json({
       message: "Order created successfully",
