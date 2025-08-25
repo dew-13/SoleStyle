@@ -3,8 +3,11 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { CartProvider } from "./context/CartContext"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ subsets: ["latin"] })
+
+
 
 export const metadata: Metadata = {
   title: "OG Vault - Unlock the Legacy",
@@ -76,9 +79,12 @@ export default function RootLayout({
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
-      <body className={`${inter.className} antialiased`}> <CartProvider>
-        <div className="min-h-screen bg-black text-white">{children}</div>
-       </CartProvider></body>
+      <body className={`${inter.className} antialiased`}>
+        <CartProvider>
+          <div className="min-h-screen bg-black text-white">{children}</div>
+        </CartProvider>
+        <SpeedInsights />
+      </body>
     </html>
   )
 }
